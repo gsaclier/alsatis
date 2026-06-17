@@ -159,6 +159,16 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--navy)}
 .save-status.ok{background:rgba(52,211,153,.15);color:#34d399}
 .save-status.dirty{background:rgba(251,191,36,.22);color:#fbbf24}
 .save-status.none{background:rgba(255,255,255,.12);color:#cbd5e1}
+/* Drive */
+.drive-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
+.drive-btn.connect{background:#fff;color:#444;border:1px solid rgba(255,255,255,.3)}
+.drive-btn.connect:hover{background:#f1f3f4}
+.drive-btn.save{background:#1a73e8;color:#fff}
+.drive-btn.save:hover{background:#1557b0}
+.drive-btn.load{background:rgba(255,255,255,.15);color:#e0eaff;border:1px solid rgba(255,255,255,.25)}
+.drive-btn.load:hover{background:rgba(255,255,255,.22)}
+.drive-btn svg{width:13px;height:13px;flex-shrink:0}
+.drive-sep{width:1px;height:20px;background:rgba(255,255,255,.2);margin:0 2px}
 /* Footer */
 .footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.68rem;color:var(--subtle)}
 .footer strong{color:var(--muted)}
@@ -383,13 +393,29 @@ const DATA = {
       <span class="chip chip-blue" id="hPeriode">—</span>
       <span class="chip" id="hDate">—</span>
       <span class="save-status none" id="saveStatus" title="État de sauvegarde">Aucune sauvegarde</span>
-      <button class="sbtn sbtn-green" onclick="saveCloud()" style="font-size:.72rem">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Sauvegarder
+      <!-- Drive non connecté -->
+      <button class="drive-btn connect" id="btnDriveConnect" onclick="driveAuth()" title="Connecter Google Drive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 2L12 12"/><path d="M15 2h7v7"/></svg>
+        Connecter Drive
       </button>
-      <label class="sbtn sbtn-slate" style="cursor:pointer;font-size:.72rem">
+      <!-- Drive connecté (masqué par défaut) -->
+      <button class="drive-btn save" id="btnDriveSave" onclick="driveSave()" style="display:none" title="Sauvegarder sur Google Drive">
+        <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+        Sauvegarder Drive
+      </button>
+      <button class="drive-btn load" id="btnDriveLoad" onclick="driveLoad()" style="display:none" title="Charger depuis Google Drive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Charger Drive
+      </button>
+      <div class="drive-sep" id="driveSep" style="display:none"></div>
+      <!-- Sauvegarde locale toujours disponible -->
+      <button class="sbtn sbtn-green" onclick="saveCloud()" style="font-size:.72rem" title="Télécharger une copie JSON locale">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        ↓ Local
+      </button>
+      <label class="sbtn sbtn-slate" style="cursor:pointer;font-size:.72rem" title="Importer un fichier JSON local">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Tout importer
+        ↑ Local
         <input type="file" accept=".json" onchange="importAll(event)" style="display:none">
       </label>
       <button class="hbtn" onclick="window.print()">⎙ Imprimer</button>
@@ -1573,7 +1599,192 @@ function updateVC(){
   E('vcDetail').textContent=parts.join(' · ');
 }
 
-/* ══ INIT ══ */
+
+/* ══════════════════════════════════
+   GOOGLE DRIVE SYNC
+══════════════════════════════════ */
+const GD = {
+  CLIENT_ID: '433068590462-1jrk2s46e7kpgc79hi0leaefqkbvqaf9.apps.googleusercontent.com',
+  SCOPE: 'https://www.googleapis.com/auth/drive.file',
+  FILE_NAME: 'alsatis_cockpit_dashboard.json',
+  token: null,
+  fileId: null,
+  _gapiReady: false,
+  _tokenClient: null
+};
+
+/* Charger les libs Google */
+(function loadGoogleLibs(){
+  const s1=document.createElement('script');
+  s1.src='https://accounts.google.com/gsi/client';
+  s1.async=true;s1.defer=true;
+  s1.onload=()=>{GD._gsiReady=true;gdCheckReady();};
+  document.head.appendChild(s1);
+
+  const s2=document.createElement('script');
+  s2.src='https://apis.google.com/js/api.js';
+  s2.async=true;s2.defer=true;
+  s2.onload=()=>{
+    gapi.load('client',async()=>{
+      await gapi.client.init({});
+      GD._gapiReady=true;gdCheckReady();
+    });
+  };
+  document.head.appendChild(s2);
+})();
+
+function gdCheckReady(){
+  if(!GD._gsiReady||!GD._gapiReady) return;
+  /* Restaurer token si session encore valide */
+  try{
+    const saved=JSON.parse(sessionStorage.getItem('als_gd_token')||'null');
+    if(saved && saved.expires_at > Date.now()+30000){
+      GD.token=saved;
+      gapi.client.setToken({access_token:saved.access_token});
+      GD.fileId=sessionStorage.getItem('als_gd_fid')||null;
+      gdSetConnected(true);
+      gdAutoLoad();
+    }
+  }catch(e){}
+
+  GD._tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id: GD.CLIENT_ID,
+    scope: GD.SCOPE,
+    callback: async(resp)=>{
+      if(resp.error){toast('⚠️ Connexion Drive annulée');return;}
+      const tok={
+        access_token:resp.access_token,
+        expires_at: Date.now()+(resp.expires_in-60)*1000
+      };
+      GD.token=tok;
+      gapi.client.setToken({access_token:tok.access_token});
+      sessionStorage.setItem('als_gd_token',JSON.stringify(tok));
+      gdSetConnected(true);
+      toast('✅ Drive connecté');
+      await gdAutoLoad();
+    }
+  });
+}
+
+function driveAuth(){
+  if(!GD._tokenClient){toast('⚠️ Libs Google en cours de chargement, réessaie dans 2s');return;}
+  GD._tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+function gdSetConnected(ok){
+  document.getElementById('btnDriveConnect').style.display = ok?'none':'';
+  document.getElementById('btnDriveSave').style.display    = ok?'':'none';
+  document.getElementById('btnDriveLoad').style.display    = ok?'':'none';
+  document.getElementById('driveSep').style.display        = ok?'':'none';
+}
+
+/* Trouver ou créer le fichier Drive */
+async function gdGetFileId(){
+  if(GD.fileId) return GD.fileId;
+  try{
+    const res=await gapi.client.request({
+      path:'https://www.googleapis.com/drive/v3/files',
+      params:{q:`name='${GD.FILE_NAME}' and trashed=false`,spaces:'drive',fields:'files(id,name,modifiedTime)'}
+    });
+    const files=res.result.files||[];
+    if(files.length>0){
+      GD.fileId=files[0].id;
+      sessionStorage.setItem('als_gd_fid',GD.fileId);
+      return GD.fileId;
+    }
+  }catch(e){console.warn('gdGetFileId search error',e);}
+  return null;
+}
+
+/* Sauvegarde vers Drive */
+async function driveSave(){
+  if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}
+  const btn=document.getElementById('btnDriveSave');
+  const orig=btn.textContent;btn.textContent='Sauvegarde…';btn.disabled=true;
+  try{
+    const payload=JSON.stringify({version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe},null,2);
+    const fid=await gdGetFileId();
+    if(fid){
+      /* Mise à jour du fichier existant */
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{
+        method:'PATCH',
+        headers:{'Authorization':'Bearer '+GD.token.access_token,'Content-Type':'application/json'},
+        body:payload
+      });
+    } else {
+      /* Création du fichier */
+      const meta=new Blob([JSON.stringify({name:GD.FILE_NAME,mimeType:'application/json'})],{type:'application/json'});
+      const data=new Blob([payload],{type:'application/json'});
+      const form=new FormData();
+      form.append('metadata',meta);form.append('file',data);
+      const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{
+        method:'POST',headers:{'Authorization':'Bearer '+GD.token.access_token},body:form
+      });
+      const j=await r.json();
+      GD.fileId=j.id;
+      sessionStorage.setItem('als_gd_fid',GD.fileId);
+    }
+    _dirty=false;
+    const now=new Date().toISOString();
+    try{localStorage.setItem('als_lastsave',now);sessionStorage.setItem('als_gd_lastsave',now);}catch(e){}
+    updateSaveStatus();
+    toast('☁️ Sauvegardé sur Google Drive');
+  }catch(err){
+    console.error(err);
+    toast('⚠️ Erreur Drive — '+err.message);
+  }
+  btn.textContent=orig;btn.disabled=false;
+}
+
+/* Chargement depuis Drive */
+async function driveLoad(){
+  if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}
+  const btn=document.getElementById('btnDriveLoad');
+  btn.textContent='Chargement…';btn.disabled=true;
+  try{
+    const fid=await gdGetFileId();
+    if(!fid){toast('⚠️ Aucune sauvegarde Drive trouvée');btn.textContent='Charger Drive';btn.disabled=false;return;}
+    const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{
+      headers:{'Authorization':'Bearer '+GD.token.access_token}
+    });
+    const d=await r.json();
+    if(!d.version||!d.equipe){toast('⚠️ Format invalide');btn.textContent='Charger Drive';btn.disabled=false;return;}
+    if(!confirm('Charger la sauvegarde Drive du '+new Date(d.date).toLocaleString('fr-FR')+' ?\nLes données non sauvegardées seront perdues.')) {btn.textContent='Charger Drive';btn.disabled=false;return;}
+    equipe=d.equipe;resultats=d.resultats;churnData=d.churnData;churnFutur=d.churnFutur;churnComments=d.churnComments||{};pipe=d.pipe||[];
+    saveState('als_equipe',equipe);saveState('als_resultats',resultats);
+    saveState('als_churn',churnData);saveState('als_churnfutur',churnFutur);
+    saveState('als_churn_comments',churnComments);saveState('als_pipe',pipe);
+    initSaisie();initPipeFilters();renderAll();destroyCharts();buildCharts();renderParams();
+    toast('☁️ Données Drive chargées');
+    _dirty=false;try{localStorage.setItem('als_lastsave',new Date().toISOString());}catch(e){}updateSaveStatus();
+  }catch(err){
+    console.error(err);toast('⚠️ Erreur Drive — '+err.message);
+  }
+  btn.textContent='Charger Drive';btn.disabled=false;
+}
+
+/* Chargement automatique au démarrage si Drive connecté */
+async function gdAutoLoad(){
+  try{
+    const fid=await gdGetFileId();
+    if(!fid) return;
+    /* Vérifier date du fichier Drive vs dernière sauvegarde locale */
+    const res=await gapi.client.request({
+      path:`https://www.googleapis.com/drive/v3/files/${fid}`,
+      params:{fields:'modifiedTime'}
+    });
+    const driveDate=new Date(res.result.modifiedTime);
+    const localSave=sessionStorage.getItem('als_gd_lastsave');
+    if(localSave && new Date(localSave)>=driveDate) return; /* local plus récent */
+    const lastLocal=localStorage.getItem('als_lastsave');
+    if(lastLocal && new Date(lastLocal)>=driveDate) return;
+    /* Drive plus récent → proposer */
+    if(confirm('Une sauvegarde Drive plus récente est disponible ('+driveDate.toLocaleString('fr-FR')+').\nCharger ?')){
+      await driveLoad();
+    }
+  }catch(e){console.warn('gdAutoLoad',e);}
+}
+
 initSaisie();
 initPipeFilters();
 renderAll();
