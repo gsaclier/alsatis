@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Avant-Ventes — Alsatis Services</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2244;--blue:#2563eb;--green:#16a34a;--orange:#ea580c;--red:#dc2626;--purple:#7c3aed;
+  --yellow:#ca8a04;--teal:#0891b2;
+  --bg:#f8fafc;--bg2:#f1f5f9;--bg3:#e2e8f0;
+  --text:#0f172a;--muted:#475569;--subtle:#94a3b8;--bdr:#e2e8f0;--white:#fff;
+  --r:10px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --sh2:0 8px 32px rgba(0,0,0,.10);
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif
+}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.hdr{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:200;border-bottom:3px solid var(--teal)}
+.hdr-in{max-width:1340px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;flex-wrap:wrap}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:34px;height:34px;border-radius:8px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0}
+.hdr-name{font-size:1.05rem;font-weight:700;color:#fff}
+.hdr-sub{font-size:.72rem;color:#67e8f9;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:3px 11px;border-radius:20px;font-size:.72rem;color:#e0eaff;white-space:nowrap}
+.chip-teal{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#e0eaff;padding:5px 13px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px}
+.hbtn:hover{background:rgba(255,255,255,.1)}
+.hbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nav{background:var(--white);border-bottom:1px solid var(--bdr);padding:0 24px;position:sticky;top:59px;z-index:190}
+.nav-in{max-width:1340px;margin:0 auto;display:flex;overflow-x:auto}
+.nav-tab{padding:12px 18px;font-size:.8rem;font-weight:600;color:var(--subtle);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font);transition:color .15s,border-color .15s}
+.nav-tab:hover{color:var(--muted)}
+.nav-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.page{max-width:1340px;margin:0 auto;padding:20px 24px 48px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.sec{margin-top:22px}
+.sec-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.kpi{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:15px 14px 12px;border-top:3px solid transparent;transition:transform .12s,box-shadow .12s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.kpi.kteal{border-top-color:var(--teal)}.kpi.kblue{border-top-color:var(--blue)}.kpi.kgreen{border-top-color:var(--green)}
+.kpi.korange{border-top-color:var(--orange)}.kpi.kred{border-top-color:var(--red)}.kpi.kpurple{border-top-color:var(--purple)}.kpi.kyellow{border-top-color:var(--yellow)}
+.kpi-lbl{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--subtle);margin-bottom:6px}
+.kpi-val{font-size:1.6rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.kpi-val.teal{color:var(--teal)}.kpi-val.blue{color:var(--blue)}.kpi-val.green{color:var(--green)}
+.kpi-val.orange{color:var(--orange)}.kpi-val.red{color:var(--red)}.kpi-val.purple{color:var(--purple)}.kpi-val.yellow{color:var(--yellow)}
+.kpi-sub{font-size:.67rem;color:var(--subtle);margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2 .full,.g3 .full{grid-column:1/-1}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.card-title{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:14px}
+.chart-wrap canvas{max-height:230px}
+.chart-wrap.donut canvas{max-height:210px}
+.bu-jauges-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.charge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.charge-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;border-top:3px solid var(--teal)}
+.charge-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.charge-name{font-size:.88rem;font-weight:700;color:var(--navy)}
+.charge-count{font-size:1.4rem;font-weight:800}
+.charge-bar-track{height:5px;background:var(--bg3);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.charge-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.charge-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.72rem}
+.charge-stat{padding:3px 6px;background:var(--bg2);border-radius:4px;display:flex;justify-content:space-between;align-items:center}
+.charge-stat span{color:var(--subtle)}
+.s-nouveau{background:rgba(8,145,178,.1);color:var(--teal)}
+.s-encours{background:rgba(37,99,235,.1);color:var(--blue)}
+.s-attente{background:rgba(202,138,4,.1);color:var(--yellow)}
+.s-atclient{background:rgba(234,88,12,.1);color:var(--orange)}
+.s-atfourn{background:rgba(124,58,237,.1);color:var(--purple)}
+.p-normal{background:var(--bg2);color:var(--muted)}
+.p-urgent{background:rgba(234,88,12,.1);color:var(--orange)}
+.p-haut{background:rgba(202,138,4,.1);color:var(--yellow)}
+.p-immediat{background:rgba(220,38,38,.1);color:var(--red)}
+.tbl-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-hdr{padding:13px 18px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.tbl-title{font-size:.78rem;font-weight:700;color:var(--muted)}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--bdr);background:var(--bg2);font-size:.75rem}
+.filters select,.filters input[type=text]{border:1.5px solid var(--bdr);border-radius:6px;padding:5px 9px;font-size:.75rem;font-family:var(--font);color:var(--text);background:var(--white)}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--teal)}
+.filters label{font-weight:600;color:var(--muted);display:flex;align-items:center;gap:4px}
+.tbl-scroll{overflow-x:auto;max-height:500px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{background:var(--bg2);padding:9px 13px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--subtle);white-space:nowrap;position:sticky;top:0;z-index:2}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:hover{background:var(--bg2)}
+tbody td{padding:10px 13px;white-space:nowrap}
+.bdg{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700}
+.retard-row td:first-child{border-left:3px solid var(--red)}
+.progress-bar{width:52px;height:5px;background:var(--bg3);border-radius:3px;display:inline-block;vertical-align:middle;margin-right:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--teal)}
+.sbtn{padding:5px 12px;border-radius:6px;font-size:.73rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);display:inline-flex;align-items:center;gap:5px}
+.sbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sbtn-slate{background:#475569;color:#fff}.sbtn-slate:hover{background:#334155}
+.alerte-band{background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--red);font-weight:600}
+.alerte-band svg{flex-shrink:0;width:18px;height:18px;stroke:var(--red);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.68rem;color:var(--subtle)}
+.footer strong{color:var(--muted)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:9px 16px;border-radius:8px;font-size:.78rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:900}
+.toast.on{opacity:1}
+.drive-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}.drive-btn.connect{background:#fff;color:#444;border:1px solid rgba(255,255,255,.3)}.drive-btn.connect:hover{background:#f1f3f4}.drive-btn.save{background:#1a73e8;color:#fff}.drive-btn.save:hover{background:#1557b0}.drive-btn.load{background:rgba(255,255,255,.15);color:#e0eaff;border:1px solid rgba(255,255,255,.25)}.drive-btn.load:hover{background:rgba(255,255,255,.22)}.drive-btn svg{width:13px;height:13px;flex-shrink:0}.drive-sep{width:1px;height:20px;background:rgba(255,255,255,.2);margin:0 2px}
+@media print{body{background:#fff}.hdr{position:static}.hbtn,.sbtn,.filters{display:none}.kpi,.card,.tbl-card,.charge-card{box-shadow:none;border:1px solid #e2e8f0}}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}.bu-jauges-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}.kpi-val{font-size:1.3rem}}
+</style>
+</head>
+<body>
+<script>
+const AV_DATA = [{"id": "6599", "projet": "INFOMIL - R-PAP-039064", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Client] Infomil - ANGRESEX- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Justine DURRIEU", "echeance": "12/06/2026", "pct": "0", "cree": "10/06/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/06/2026"}, {"id": "6597", "projet": "PROSPECTS", "statut": "Nouveau", "priorite": "Urgent", "sujet": "MD ATLAS- Hébergement Datacenter", "auteur": "Sami ANISSI", "assigne": "Tech-C1-C2", "echeance": "", "pct": "0", "cree": "10/06/2026", "commercial": "Sami ANISSI", "bu": "Cloud", "debut": "10/06/2026"}, {"id": "6595", "projet": "TARAMM", "statut": "Nouveau", "priorite": "Normal", "sujet": "[Av - Client] Changement hyperviseur de production", "auteur": "Loic CANCEL", "assigne": "Loic CANCEL", "echeance": "", "pct": "0", "cree": "09/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "09/06/2026"}, {"id": "6594", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Infomil - PAIMPOLENT- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "11/06/2026", "pct": "100", "cree": "09/06/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "09/06/2026"}, {"id": "6593", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente fournisseur", "priorite": "Normal", "sujet": "[AV - Client] Infomil - VILLEMUR- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Justine DURRIEU", "echeance": "11/06/2026", "pct": "50", "cree": "09/06/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "09/06/2026"}, {"id": "6592", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Normal", "sujet": "ROUZES - Projet Hébergement Datacenter", "auteur": "Sami ANISSI", "assigne": "Sami ANISSI", "echeance": "", "pct": "0", "cree": "09/06/2026", "commercial": "Sami ANISSI", "bu": "Cloud", "debut": "09/06/2026"}, {"id": "6591", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Urgent", "sujet": "Nouveau prospect / Demande Eligibilité / BTP Morin", "auteur": "Rémi GAGNOT", "assigne": "Tech-C3-C4", "echeance": "11/06/2026", "pct": "0", "cree": "09/06/2026", "commercial": "Rémi GAGNOT", "bu": "Connectivité", "debut": "09/06/2026"}, {"id": "6588", "projet": "ALSATIS-RESEAUX", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] ALSATIS RESEAUX - Demande de devis pour SIM AIRMOB", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "10/06/2026", "pct": "100", "cree": "08/06/2026", "commercial": "Guillaume SACLIER", "bu": "Communication", "debut": "08/06/2026"}, {"id": "6587", "projet": "TARAMM", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Client] TARAMM - RESTAURATION MENSUEL", "auteur": "Guillaume FLORENTIN", "assigne": "Tech-C1-C2", "echeance": "", "pct": "0", "cree": "08/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "08/06/2026"}, {"id": "6580", "projet": "COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-0248", "statut": "Nouveau", "priorite": "Urgent", "sujet": "[AV - Client] CC BIEVRE EST - FTTO 20M", "auteur": "Guillaume FLORENTIN", "assigne": "Tech-C3-C4", "echeance": "", "pct": "0", "cree": "05/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "05/06/2026"}, {"id": "6579", "projet": "LA-PETITE-SOURIS-DU-CHATEAU", "statut": "En cours", "priorite": "Normal", "sujet": "Renouvellement Licence Parefeu", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "05/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "05/06/2026"}, {"id": "6571", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - cotation Site LAROCHEFOU 2", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "05/06/2026", "pct": "100", "cree": "04/06/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "04/06/2026"}, {"id": "6567", "projet": "ALSATIS-RESEAUX", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] ALSATIS RESEAUX - MATERIEL SALLE DE REUNION", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "04/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Computer", "debut": "04/06/2026"}, {"id": "6563", "projet": "APREVYA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] APREVYA - TRANSFERT DE DONNEES RDS VIA ONE DRIVE", "auteur": "Guillaume FLORENTIN", "assigne": "Tech-C1-C2", "echeance": "", "pct": "0", "cree": "03/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "03/06/2026"}, {"id": "6557", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - BEDIS - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "04/06/2026", "pct": "100", "cree": "02/06/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "02/06/2026"}, {"id": "6532", "projet": "OTPA", "statut": "En cours", "priorite": "Haut", "sujet": "Demande changement tarifs O365", "auteur": "Justine DURRIEU", "assigne": "Tech-C1-C2", "echeance": "", "pct": "0", "cree": "01/06/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "01/06/2026"}, {"id": "6519", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - cotation Site LAROCHEFOU", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "01/06/2026", "pct": "100", "cree": "29/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "29/05/2026"}, {"id": "6517", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - Cotation Site STETIENNE", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "01/06/2026", "pct": "100", "cree": "29/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "29/05/2026"}, {"id": "6516", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - cotations site SODIBEAUNE", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "01/06/2026", "pct": "100", "cree": "29/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "29/05/2026"}, {"id": "6511", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - Demande cotation site BOURGESD", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "29/05/2026", "pct": "100", "cree": "28/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "28/05/2026"}, {"id": "6507", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - Infomil - Demande de cotation - Site Audis", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "29/05/2026", "pct": "100", "cree": "27/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "27/05/2026"}, {"id": "6506", "projet": "EXPERTISES-ET-PATRIMOINE", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] EXPERTISES ET PATRIMOINE - PRESTATION TECHNIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "27/05/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "27/05/2026"}, {"id": "6503", "projet": "RECAERO", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] RECAERO - SWITCH", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "27/05/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "27/05/2026"}, {"id": "6501", "projet": "NOOS - R-PAP-041169", "statut": "Nouveau", "priorite": "Immédiat", "sujet": "[AV - Client] #R-PAP-041169 - NOOS  / mise en place GTR 24/7", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "27/05/2026", "pct": "0", "cree": "27/05/2026", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "27/05/2026"}, {"id": "6498", "projet": "CHP RENOVATION - R-PAP-042446", "statut": "En cours", "priorite": "Haut", "sujet": "AV - CHP - Magasin de peinture -Salvetat - éligibilité", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "29/05/2026", "pct": "100", "cree": "26/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "26/05/2026"}, {"id": "6493", "projet": "MAIRIE-MAZERES", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] MAIRIE DE MAZERES - PRESTATION TECHNIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "26/05/2026", "commercial": "Guillaume FLORENTIN", "bu": "Computer", "debut": "26/05/2026"}, {"id": "6482", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - DELTADIS - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "26/05/2026", "pct": "100", "cree": "22/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "22/05/2026"}, {"id": "6456", "projet": "ALSATIS-RESEAUX", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] ALSATIS RESEAUX - contrat d'infogérance pour du SelfCare", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "21/05/2026", "pct": "0", "cree": "19/05/2026", "commercial": "Nino GALDAVA", "bu": "Communication", "debut": "19/05/2026"}, {"id": "6451", "projet": "GEOFONCIER", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] GEOFONCIER - Microsoft 365 & d'un compte VPN", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "", "pct": "100", "cree": "18/05/2026", "commercial": "Nino GALDAVA", "bu": "Cloud", "debut": "19/05/2026"}, {"id": "6324", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - Site de VOUDIS-Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "15/05/2026", "pct": "100", "cree": "13/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "13/05/2026"}, {"id": "6322", "projet": "THEATRE-SORANO - R-PAP-038105", "statut": "Nouveau", "priorite": "Normal", "sujet": "AV - Remplacement Parefeu Sophos & Remise au propre du réseau", "auteur": "Justine DURRIEU", "assigne": "Tech-C3-C4", "echeance": "12/05/2026", "pct": "0", "cree": "12/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "12/05/2026"}, {"id": "6320", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Normal", "sujet": "Infogérance Parc PC - Groupe T3M", "auteur": "Sami ANISSI", "assigne": "Loic CANCEL", "echeance": "", "pct": "60", "cree": "12/05/2026", "commercial": "Sami ANISSI", "bu": "Computer", "debut": "02/06/2026"}, {"id": "6318", "projet": "SCIC-DU-PLANTAUREL", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] SCI DU PLANTAUREL - SAUVEGARDE DE POSTE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "80", "cree": "12/05/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "12/05/2026"}, {"id": "6317", "projet": "THEATRE-SORANO - R-PAP-038105", "statut": "En cours", "priorite": "Normal", "sujet": "AV - Remplacement Switch Cisco", "auteur": "Justine DURRIEU", "assigne": "Nino GALDAVA", "echeance": "12/05/2026", "pct": "100", "cree": "12/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "12/05/2026"}, {"id": "6316", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - Site de ELBEUF-Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "14/05/2026", "pct": "100", "cree": "12/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "12/05/2026"}, {"id": "6315", "projet": "CTIO - R-PAP-040380", "statut": "En cours", "priorite": "Haut", "sujet": "AV - CTIO -  fibre + téléphonie", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "22/05/2026", "pct": "80", "cree": "11/05/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "11/05/2026"}, {"id": "6284", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - DORIGAL - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "08/05/2026", "pct": "100", "cree": "06/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "06/05/2026"}, {"id": "6280", "projet": "GROUPE-HBF", "statut": "En cours", "priorite": "Urgent", "sujet": "Refonte Infra WAN du Groupe", "auteur": "Sami ANISSI", "assigne": "Tech-C3-C4", "echeance": "15/05/2026", "pct": "0", "cree": "05/05/2026", "commercial": "Sami ANISSI", "bu": "Connectivité", "debut": "05/05/2026"}, {"id": "6272", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - VAUDRYEC1 - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "06/05/2026", "pct": "100", "cree": "04/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "04/05/2026"}, {"id": "6271", "projet": "OFFICIUM-167 - R-PAP-041781", "statut": "En attente fournisseur", "priorite": "Normal", "sujet": "[AV - Client] OFFICIUM 167 - Renouvellement client / Nouvelle proposit", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "06/05/2026", "pct": "100", "cree": "04/05/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "04/05/2026"}, {"id": "6244", "projet": "CMA-INDUSTRY", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] CMA INDUSTRY - PRESTATION TECHNIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "30/04/2026", "commercial": "Guillaume FLORENTIN", "bu": "Computer", "debut": "30/04/2026"}, {"id": "6227", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - PITHIVIERS-Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "01/05/2026", "pct": "100", "cree": "29/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "29/04/2026"}, {"id": "6222", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - SOLADI - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "30/04/2026", "pct": "100", "cree": "28/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "28/04/2026"}, {"id": "6221", "projet": "MAIRIE-DE-L'UNION", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MAIRIE DE L'UNION - BIBLIOTHEQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "28/04/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "28/04/2026"}, {"id": "6190", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - CHAMPBENOI - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "30/04/2026", "pct": "100", "cree": "28/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "28/04/2026"}, {"id": "6183", "projet": "DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] DSI - Demande de devis Apsid'EA ou CGI", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "29/04/2026", "pct": "100", "cree": "27/04/2026", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "27/04/2026"}, {"id": "6149", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  RECLO - RECLO", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "24/04/2026", "pct": "100", "cree": "23/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "23/04/2026"}, {"id": "6138", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "V - INFOMIL - COTATION PIERRY - PIERRY", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "24/04/2026", "pct": "100", "cree": "23/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "23/04/2026"}, {"id": "6135", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "AV - INFOMIL - COTATION CONFDIST - STMARIEAD2", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "24/04/2026", "pct": "100", "cree": "22/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "22/04/2026"}, {"id": "6122", "projet": "GELTI-CARS-FAURE - R-PAP-037518", "statut": "Nouveau", "priorite": "Normal", "sujet": "Gelti - DOUBLE AUTHENTIFICATION VPN", "auteur": "Nino GALDAVA", "assigne": "Maxime BETEMPS", "echeance": "21/04/2026", "pct": "0", "cree": "17/04/2026", "commercial": "Guillaume SACLIER", "bu": "Cyber", "debut": "17/04/2026"}, {"id": "6119", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE GIENDIS", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "21/04/2026", "pct": "100", "cree": "17/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "17/04/2026"}, {"id": "6118", "projet": "MICRO-DATA - R-PAP-042303", "statut": "En attente client", "priorite": "Immédiat", "sujet": "MICRO DATA / Éligibilité fibre département 57", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "17/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "17/04/2026"}, {"id": "6114", "projet": "AJH - R-PAP-040546", "statut": "En cours", "priorite": "Urgent", "sujet": "AJH - Motoculture Rieumes demande offre FTTH", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "17/04/2026", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "17/04/2026"}, {"id": "6090", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE SOVENDIS", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "15/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "15/04/2026"}, {"id": "6089", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE OBERNAID", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "15/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "15/04/2026"}, {"id": "6088", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE DUTTLENHED", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "15/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "15/04/2026"}, {"id": "6087", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE OBERNAI", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "17/04/2026", "pct": "100", "cree": "15/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "15/04/2026"}, {"id": "6081", "projet": "IPH-FRANCE - R-PAP-044850", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] IPH FRANCE / demande de reconfiguration du SI + installa", "auteur": "Rémi GAGNOT", "assigne": "Rémi GAGNOT", "echeance": "21/04/2026", "pct": "100", "cree": "14/04/2026", "commercial": "Rémi GAGNOT", "bu": "Connectivité", "debut": "14/04/2026"}, {"id": "6077", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE HYERDIS", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "16/04/2026", "pct": "100", "cree": "14/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "14/04/2026"}, {"id": "6069", "projet": "TARAMM", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV-Client] Proposition lien secours", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "13/04/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "13/04/2026"}, {"id": "6045", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE RISLDIS", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "10/04/2026", "pct": "100", "cree": "08/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "08/04/2026"}, {"id": "6035", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE TRELIDIS", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "09/04/2026", "pct": "100", "cree": "07/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "07/04/2026"}, {"id": "6033", "projet": "TOULOUSE-ESPACES-AFFAIRES-R-PAP-037546", "statut": "En attente client", "priorite": "Haut", "sujet": "AV - Telephonie - Toulouse Espaces Affaires", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "28/04/2026", "pct": "100", "cree": "07/04/2026", "commercial": "Mathéo CLAUDEL", "bu": "Communication", "debut": "07/04/2026"}, {"id": "6032", "projet": "TOULOUSE-ESPACES-AFFAIRES-R-PAP-037546", "statut": "En cours", "priorite": "Haut", "sujet": "AV - Connectivité / Firewall / Backup - Toulouse Espaces Affaires", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "28/04/2026", "pct": "100", "cree": "07/04/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "07/04/2026"}, {"id": "6026", "projet": "SMECTOM", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] SMECTOM - IA", "auteur": "Guillaume FLORENTIN", "assigne": "Aurélien PONCINI", "echeance": "", "pct": "0", "cree": "07/04/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "07/04/2026"}, {"id": "6023", "projet": "AKZONOBEL", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] RENOUVELLEMENT LICENCES PAREFEU", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "27/05/2026", "pct": "100", "cree": "07/04/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "07/04/2026"}, {"id": "5983", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION  SITE NIORT NORD", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "09/04/2026", "pct": "100", "cree": "02/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "02/04/2026"}, {"id": "5974", "projet": "GARAGE-LAGUERRE-ET-FILS", "statut": "En cours", "priorite": "Haut", "sujet": "AV - Garage Laguerre et Fils - téléphonie", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "22/04/2026", "pct": "100", "cree": "01/04/2026", "commercial": "Mathéo CLAUDEL", "bu": "Communication", "debut": "01/04/2026"}, {"id": "5939", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION CLAMART", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "08/04/2026", "pct": "100", "cree": "01/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "01/04/2026"}, {"id": "5933", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION COLOMBES", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "08/04/2026", "pct": "100", "cree": "01/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "01/04/2026"}, {"id": "5931", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - COTATION GEISPOLSHEIM", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "08/04/2026", "pct": "100", "cree": "01/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "01/04/2026"}, {"id": "5930", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - INFOMIL - ISTRES", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "08/04/2026", "pct": "100", "cree": "01/04/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "01/04/2026"}, {"id": "5887", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "AV - INFOMIL - VOUZIERS", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "06/04/2026", "pct": "100", "cree": "30/03/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "30/03/2026"}, {"id": "5883", "projet": "MAIRIE-DE-DAUMAZAN", "statut": "En attente client", "priorite": "Urgent", "sujet": "[AV - Client] MAIRIE DE DAUMAZAN - MATERIEL INFORMATIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "27/03/2026", "commercial": "Guillaume FLORENTIN", "bu": "Computer", "debut": "27/03/2026"}, {"id": "5798", "projet": "MAIRIE-AX-LES-THERMES", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MAIRIE AX LES THERMES - PRESTATION TECHNIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "18/03/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "18/03/2026"}, {"id": "5788", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - GUERANDIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "18/03/2026", "pct": "100", "cree": "16/03/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "16/03/2026"}, {"id": "5772", "projet": "JPA-CONSULTANTS - R-PAP-038964", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] JPA CONSULTANTS - Création d'accès au VPN", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "16/03/2026", "pct": "100", "cree": "12/03/2026", "commercial": "Nino GALDAVA", "bu": "Cyber", "debut": "12/03/2026"}, {"id": "5763", "projet": "SESTA", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] SESTA PPAP - WIFI", "auteur": "Guillaume FLORENTIN", "assigne": "Tech-C3-C4", "echeance": "", "pct": "50", "cree": "11/03/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "11/03/2026"}, {"id": "5762", "projet": "TARAMM", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV-Client] - Refonte de l?infrastructure réseau", "auteur": "Owen CUTLER", "assigne": "Justine DURRIEU", "echeance": "", "pct": "30", "cree": "11/03/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "11/03/2026"}, {"id": "5720", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - VILLEPARID -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "12/03/2026", "pct": "100", "cree": "10/03/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/03/2026"}, {"id": "5719", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SODISHAGUE -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "12/03/2026", "pct": "100", "cree": "10/03/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/03/2026"}, {"id": "5711", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] #R-PAP-043054 - SAS AUBRON MECHINEAU  / tarifs antenne e", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "09/03/2026", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "09/03/2026"}, {"id": "5679", "projet": "SARL-GRAND-HOTEL-D'ORLEANS - R-PAP-038761", "statut": "En attente client", "priorite": "Normal", "sujet": "GRAND-HOTEL-D'ORLEANS - Demande tarifs", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "06/04/2026", "pct": "50", "cree": "05/03/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "05/03/2026"}, {"id": "5673", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - AO La Cité de l'Espace", "auteur": "Guillaume SACLIER", "assigne": "Commerce", "echeance": "09/03/2026", "pct": "0", "cree": "05/03/2026", "commercial": "Guillaume SACLIER", "bu": "Cyber", "debut": "09/03/2026"}, {"id": "5671", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Urgent", "sujet": "AV - AO La Cité de l'Espace", "auteur": "Guillaume SACLIER", "assigne": "Commerce", "echeance": "09/03/2026", "pct": "0", "cree": "05/03/2026", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "05/03/2026"}, {"id": "5631", "projet": "PROSPECTS", "statut": "En attente fournisseur", "priorite": "Normal", "sujet": "[AV-Prospects] - Centre Aquatique Aquasport - Demande Fibre", "auteur": "Justine DURRIEU", "assigne": "Rémi GAGNOT", "echeance": "", "pct": "0", "cree": "03/03/2026", "commercial": "Rémi GAGNOT", "bu": "Connectivité", "debut": "03/03/2026"}, {"id": "5604", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - CLERDIS- CLERDIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "03/03/2026", "pct": "100", "cree": "27/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "27/02/2026"}, {"id": "5600", "projet": "AIR-SUPPORT", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] AIR SUPPORT - IA", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume SACLIER", "echeance": "", "pct": "0", "cree": "27/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "27/02/2026"}, {"id": "5596", "projet": "APREVYA", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Client] APREVYA - PARE FEU", "auteur": "Guillaume FLORENTIN", "assigne": "Tech-C3-C4", "echeance": "", "pct": "0", "cree": "27/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "27/02/2026"}, {"id": "5592", "projet": "OTPA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] OTPA - FIBRE Ax les Thermes", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "0", "cree": "26/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "26/02/2026"}, {"id": "5584", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - ISSEDIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "27/02/2026", "pct": "100", "cree": "25/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "25/02/2026"}, {"id": "5575", "projet": "SCIC-DU-PLANTAUREL", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] SCIC-DU-PLANTAUREL - EDR VADESECURE FORMATION MFA", "auteur": "Guillaume FLORENTIN", "assigne": "Aurélien PONCINI", "echeance": "", "pct": "100", "cree": "25/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": ""}, {"id": "5573", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - GUEBWILLER -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "27/02/2026", "pct": "100", "cree": "24/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "24/02/2026"}, {"id": "5572", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SODIREM -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "27/02/2026", "pct": "100", "cree": "24/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "24/02/2026"}, {"id": "5570", "projet": "KRATOS-COMMUNICATIONS - R-PAP-038963", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] KRATOS COMMUNICATIONS - DEMENAGEMENT LIEN + DEMANDE LIEN", "auteur": "Ethan SANJUAN", "assigne": "Mathéo CLAUDEL", "echeance": "", "pct": "100", "cree": "24/02/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "24/02/2026"}, {"id": "5564", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - HONFLEUR -Demande d'upgrade", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "26/02/2026", "pct": "100", "cree": "24/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "24/02/2026"}, {"id": "5552", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV-Prospect] - SECURITY-KEEPERS - Cotation baie + Fibres", "auteur": "Guillaume SACLIER", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "0", "cree": "20/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "20/02/2026"}, {"id": "5551", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SIPLAN -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "24/02/2026", "pct": "100", "cree": "20/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/02/2026"}, {"id": "5550", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - BLOTZDIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "24/02/2026", "pct": "100", "cree": "20/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/02/2026"}, {"id": "5542", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SODITECH -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "24/02/2026", "pct": "100", "cree": "20/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/02/2026"}, {"id": "5533", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SODALI -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "20/02/2026", "pct": "100", "cree": "19/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "19/02/2026"}, {"id": "5532", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SMC -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "20/02/2026", "pct": "100", "cree": "19/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "19/02/2026"}, {"id": "5527", "projet": "DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936", "statut": "Nouveau", "priorite": "Normal", "sujet": "Migration 0365", "auteur": "Guillaume SACLIER", "assigne": "Guillaume SACLIER", "echeance": "05/03/2026", "pct": "0", "cree": "19/02/2026", "commercial": "Guillaume SACLIER", "bu": "Cloud", "debut": "19/02/2026"}, {"id": "5520", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - LOURDES -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "20/02/2026", "pct": "100", "cree": "18/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "18/02/2026"}, {"id": "5519", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - SEZADIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "20/02/2026", "pct": "100", "cree": "18/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "18/02/2026"}, {"id": "5397", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] AX ANIMATION - FIBRE FTTH", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "11/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "11/02/2026"}, {"id": "5396", "projet": "MAIRIE-AX-LES-THERMES", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MAIRIE AX LES THERMES - TELEPHONIE FIBRE WIFI PAREFEU", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "11/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "11/02/2026"}, {"id": "5386", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] #R-PAP-043417 - LE SERVICE DE GESTION  / possibilité de ", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "10/02/2026", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "10/02/2026"}, {"id": "5384", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] Infomil - BOLDIS - POLOTO  -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "13/02/2026", "pct": "100", "cree": "10/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/02/2026"}, {"id": "5383", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] Infomil - ALCOBADIS - STLOUIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "13/02/2026", "pct": "100", "cree": "10/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/02/2026"}, {"id": "5382", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] Infomil - NEVER-NEVERSD -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "13/02/2026", "pct": "100", "cree": "10/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/02/2026"}, {"id": "5381", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] Infomil - LARDIS-LARMOR -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "13/02/2026", "pct": "100", "cree": "10/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/02/2026"}, {"id": "5379", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Urgent", "sujet": "[AV - Client] Infomil - GONESDIS-GONESDIS -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "13/02/2026", "pct": "100", "cree": "10/02/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "10/02/2026"}, {"id": "5351", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "INFOMIL - Cotation Pack 8 IP - CLOYES", "auteur": "Mathéo CLAUDEL", "assigne": "Guillaume SACLIER", "echeance": "18/02/2026", "pct": "100", "cree": "04/02/2026", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "04/02/2026"}, {"id": "5343", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "Infomil - ALCOBADLOC - Saint-Louis  - Demande de cotation", "auteur": "Mathéo CLAUDEL", "assigne": "Nino GALDAVA", "echeance": "18/02/2026", "pct": "100", "cree": "04/02/2026", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "04/02/2026"}, {"id": "5339", "projet": "FIDAHEC", "statut": "En attente client", "priorite": "Urgent", "sujet": "[AV - Client] FIDAHEC - MATERIEL TELEPHONIQUE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "03/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Communication", "debut": "03/02/2026"}, {"id": "5337", "projet": "ADSEA", "statut": "En attente client", "priorite": "Urgent", "sujet": "[AV - Client] ADSEA - REMPLACEMENT DES BORNES WIFI", "auteur": "Guillaume FLORENTIN", "assigne": "Justine DURRIEU", "echeance": "", "pct": "20", "cree": "03/02/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "03/02/2026"}, {"id": "5325", "projet": "CHP RENOVATION - R-PAP-042446", "statut": "En cours", "priorite": "Urgent", "sujet": "CHP Rénovation Toulouse / Carcassonne / Réengagement et optimisations", "auteur": "Mathéo CLAUDEL", "assigne": "Mathéo CLAUDEL", "echeance": "16/02/2026", "pct": "50", "cree": "02/02/2026", "commercial": "Mathéo CLAUDEL", "bu": "Connectivité", "debut": "02/02/2026"}, {"id": "5315", "projet": "HELISA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV-Client] HELISA - Remplacement CAT FW", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "29/01/2026", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "29/01/2026"}, {"id": "5303", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - LABALMEDES - GTL24247 -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "29/01/2026", "pct": "100", "cree": "27/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "27/01/2026"}, {"id": "5302", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - BRETEUIL -Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "29/01/2026", "pct": "100", "cree": "27/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "27/01/2026"}, {"id": "5258", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - BRIEREI - MISSIPROX1 - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "28/01/2026", "pct": "100", "cree": "26/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "26/01/2026"}, {"id": "5257", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - DOUAI- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "28/01/2026", "pct": "100", "cree": "26/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "26/01/2026"}, {"id": "5251", "projet": "GELTI-CARS-FAURE - R-PAP-037518", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Gelti Cars Faure - Renouvelle NDD", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "28/01/2026", "pct": "0", "cree": "26/01/2026", "commercial": "Nino GALDAVA", "bu": "Cloud", "debut": "26/01/2026"}, {"id": "5244", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] Infomil - PONTIVY - BAUD - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "27/01/2026", "pct": "100", "cree": "23/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "23/01/2026"}, {"id": "5212", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Infomil - Centre Commercial de Quélisoy - Demande de cot", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "23/01/2026", "pct": "100", "cree": "20/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/01/2026"}, {"id": "5211", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Infomil - SCAPEST - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "23/01/2026", "pct": "100", "cree": "20/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/01/2026"}, {"id": "5186", "projet": "OTPA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] OTPA - Eligibilité Fibre PI Luzenac", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "15/01/2026", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "25/04/2025"}, {"id": "5159", "projet": "RG-OUEST - R-PAP-027046", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] évolution des boites mails Exchange", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "13/01/2026", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "13/01/2026"}, {"id": "5158", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - WASSELOEX - Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "16/01/2026", "pct": "100", "cree": "13/01/2026", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "13/01/2026"}, {"id": "5091", "projet": "WISEED", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV-Client] WISEED - Renouvellement Fortigate", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "30/12/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "30/12/2025"}, {"id": "5046", "projet": "FIDAHEC", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] FIDAHEC /  Choix solution sauvegardes", "auteur": "Guillaume SACLIER", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "22/12/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "22/12/2025"}, {"id": "5026", "projet": "INFOMIL - R-PAP-039064", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] Infomil - Hyper HENDIS- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "22/12/2025", "pct": "100", "cree": "18/12/2025", "commercial": "Guillaume SACLIER", "bu": "Connectivité", "debut": "18/12/2025"}, {"id": "5006", "projet": "GROUPE-CARTEL - R-PAP-040612", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] GROUPE-CARTEL - R-PAP-040612 / fourniture de casques pou", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "16/12/2025", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "16/12/2025"}, {"id": "5004", "projet": "AIPD09", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] NOM DE DOMAINE ET HEBERGEMENT", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "0", "cree": "16/12/2025", "commercial": "Guillaume FLORENTIN", "bu": "Computer", "debut": "16/12/2025"}, {"id": "4958", "projet": "MECAPACK - R-PAP-038309", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Mécapack 038309 / MECAPACK mise en service pare feu T115", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "10/12/2025", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "10/12/2025"}, {"id": "4945", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] OCEATECH -MEDIAMAG DISTRIBUTION - Assistance pour migrat", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "12/12/2025", "pct": "0", "cree": "08/12/2025", "commercial": "Guillaume SACLIER", "bu": "Computer", "debut": "08/12/2025"}, {"id": "4931", "projet": "CSEAIRBUSDS", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] CSE AIRBUS - MIGRATION OS SERVEUR", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "80", "cree": "05/12/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "02/06/2026"}, {"id": "4880", "projet": "MARION-TECHNOLOGIES", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MARION TECHNOLOGIE - SERVEUR ET MISE A JOUR DES POSTES", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "27/11/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "27/11/2025"}, {"id": "4825", "projet": "INFOMIL - R-PAP-039064", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] Infomil - MARLYDIS- Demande de cotation", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "28/11/2025", "pct": "100", "cree": "24/11/2025", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "20/11/2025"}, {"id": "4801", "projet": "SOLVIONIC", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] SOLVIONIC - SERVEUR", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "20/11/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "20/11/2025"}, {"id": "4799", "projet": "MAIRIE-DE-L'UNION", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MAIRIE DE L UNION - LIEN ET TELECOMMUNICATION", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "20/11/2025", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "20/11/2025"}, {"id": "4776", "projet": "PROSPECTS", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Client] PERCY MILLER - SOFI ATLAN", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "18/12/2025", "pct": "0", "cree": "18/11/2025", "commercial": "Guillaume SACLIER", "bu": "Cloud", "debut": "18/11/2025"}, {"id": "4775", "projet": "PROSPECTS", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Client] PERCY MILLER - BOVIS", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "18/12/2025", "pct": "0", "cree": "18/11/2025", "commercial": "Guillaume SACLIER", "bu": "Cloud", "debut": "18/11/2025"}, {"id": "4774", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] PERCY MILLER - GROUPE LUXIOR", "auteur": "Nino GALDAVA", "assigne": "Guillaume SACLIER", "echeance": "18/12/2025", "pct": "80", "cree": "18/11/2025", "commercial": "Guillaume SACLIER", "bu": "Cloud", "debut": "18/11/2025"}, {"id": "4687", "projet": "SMECTOM", "statut": "En attente client", "priorite": "Immédiat", "sujet": "[AV - Client] SMECTOM - VLAN", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "07/11/2025", "commercial": "Guillaume FLORENTIN", "bu": "Interne", "debut": "07/11/2025"}, {"id": "4646", "projet": "COMMUNAUTE-DE-COMMUNES-COUSERANS-PYRENEES", "statut": "En cours", "priorite": "Normal", "sujet": "[AV-Client] Demande création VPN IPSEC entre Paletes & Siège Hotel Die", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "05/11/2025", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "05/11/2025"}, {"id": "4631", "projet": "JEDO-TECHNOLOGIES - R-PAP-030098", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] - Demande de cotation - Site La Rochelle", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "06/11/2025", "pct": "100", "cree": "04/11/2025", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "04/11/2025"}, {"id": "4624", "projet": "PROSPECTS", "statut": "En cours", "priorite": "Haut", "sujet": "[AV - Client] PARC SPIROU  / demande tarif renouvellement", "auteur": "Mathéo CLAUDEL", "assigne": "Boris LE SAUSSE", "echeance": "18/11/2025", "pct": "100", "cree": "04/11/2025", "commercial": "Boris LE SAUSSE", "bu": "Connectivité", "debut": "04/11/2025"}, {"id": "4600", "projet": "JEAN-XXIII", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - CLIENT] Remplacement matériel volé et détérioré", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "03/11/2025", "commercial": "Boris LE SAUSSE", "bu": "Computer", "debut": "03/11/2025"}, {"id": "4582", "projet": "APREVYA", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Client] Apreyva - Passage en IPSEC & liaison LDAPS avec Azure AD", "auteur": "Justine DURRIEU", "assigne": "Justine DURRIEU", "echeance": "31/12/2025", "pct": "0", "cree": "31/10/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "31/10/2025"}, {"id": "4536", "projet": "EARL-DE-ST-ANDRE - R-PAP-029884", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] EARL DE ST ANDRE / Demande d'éligibilité", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "31/10/2025", "pct": "100", "cree": "27/10/2025", "commercial": "Nino GALDAVA", "bu": "Connectivité", "debut": "27/10/2025"}, {"id": "4480", "projet": "TRES-BIEN", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] TRES-BIEN - Hébergement Serveurs", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "03/11/2025", "pct": "0", "cree": "23/10/2025", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "22/10/2025"}, {"id": "4456", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] FlyDynamics / INTITULE AVANT-VENTE Nouvelle Trame", "auteur": "Nino GALDAVA", "assigne": "Mathéo CLAUDEL", "echeance": "31/10/2025", "pct": "90", "cree": "21/10/2025", "commercial": "Mathéo CLAUDEL", "bu": "Cloud", "debut": "21/10/2025"}, {"id": "4334", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Urgent", "sujet": "PIKAÏROS - Projet de stockage et cyber - FW", "auteur": "Ibério DOVAL", "assigne": "Nino GALDAVA", "echeance": "03/10/2025", "pct": "100", "cree": "01/10/2025", "commercial": "Nino GALDAVA", "bu": "Cyber", "debut": "01/10/2025"}, {"id": "4260", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Urgent", "sujet": "[AV - Client] FUTAINE - PRESTATION ET MATERIEL DE SAUVGARDE", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "26/09/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cloud", "debut": "26/09/2025"}, {"id": "4123", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "PIKAÏROS - Projet de stockage et cyber", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "", "pct": "100", "cree": "16/09/2025", "commercial": "Nino GALDAVA", "bu": "Cyber", "debut": "16/09/2025"}, {"id": "4100", "projet": "MICRO-DATA - R-PAP-042303", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] MICRO DATA / Éligibilité fibre département 57 Nouvelle T", "auteur": "Jérémy LAVERAN", "assigne": "Nino GALDAVA", "echeance": "19/09/2025", "pct": "100", "cree": "12/09/2025", "commercial": "Nino GALDAVA", "bu": "Interne", "debut": "12/09/2025"}, {"id": "4031", "projet": "SMECTOM", "statut": "En cours", "priorite": "Normal", "sujet": "[AV-Client] SMECTOM - Propositions pour résoudre la problématique de D", "auteur": "Justine DURRIEU", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "0", "cree": "04/09/2025", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "04/09/2025"}, {"id": "3782", "projet": "GROUPE-HBF", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] HBF-GROUPE / Révision solution de nomadisme Nouvelle Tra", "auteur": "Ibério DOVAL", "assigne": "Guillaume SACLIER", "echeance": "", "pct": "0", "cree": "20/08/2025", "commercial": "Guillaume SACLIER", "bu": "Cyber", "debut": "20/08/2025"}, {"id": "3681", "projet": "GROUPE-HBF", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] HBF-GROUPE / Révision liens Nouvelle Trame", "auteur": "Jérémy LAVERAN", "assigne": "Guillaume SACLIER", "echeance": "19/08/2025", "pct": "0", "cree": "12/08/2025", "commercial": "Guillaume SACLIER", "bu": "Interne", "debut": "12/08/2025"}, {"id": "3284", "projet": "ALSATIS-RESEAUX", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Client] ALSATIS RESEAUX / possibilité de mise en place d'un serv", "auteur": "Boris LE SAUSSE", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "22/07/2025", "commercial": "Boris LE SAUSSE", "bu": "Computer", "debut": "07/08/2025"}, {"id": "3154", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] ZEFIL / Demande de prix Nouvelle Trame", "auteur": "Nino GALDAVA", "assigne": "Nino GALDAVA", "echeance": "", "pct": "100", "cree": "15/07/2025", "commercial": "Nino GALDAVA", "bu": "Interne", "debut": "15/07/2025"}, {"id": "3132", "projet": "ADSEA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] ADSEA - RETRAIT RDS", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "11/07/2025", "commercial": "Guillaume FLORENTIN", "bu": "Interne", "debut": "11/07/2025"}, {"id": "3002", "projet": "PROSPECTS", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] DOMELIA / Migration Broadcloud", "auteur": "Justine DURRIEU", "assigne": "Boris LE SAUSSE", "echeance": "", "pct": "100", "cree": "27/06/2025", "commercial": "Boris LE SAUSSE", "bu": "Interne", "debut": "27/06/2025"}, {"id": "2938", "projet": "ADSEA", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] ADSEA - PRESTATION WIFI", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "19/06/2025", "commercial": "Guillaume FLORENTIN", "bu": "Interne", "debut": "19/06/2025"}, {"id": "2739", "projet": "DOMPEYRE-LESTRADE-IMMOBILIER - R-PAP-034098", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] DOMPEYRE-LESTRADE-IMMOBILIER / Mise en place d'un SVI No", "auteur": "Jérémy LAVERAN", "assigne": "Nino GALDAVA", "echeance": "", "pct": "100", "cree": "05/06/2025", "commercial": "Nino GALDAVA", "bu": "Communication", "debut": "05/06/2025"}, {"id": "2725", "projet": "PROSPECTS", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Prospect] NPLOG / Demande d'éligibilité Nouvelle Trame", "auteur": "Jérémy LAVERAN", "assigne": "Rémi GAGNOT", "echeance": "", "pct": "100", "cree": "04/06/2025", "commercial": "Rémi GAGNOT", "bu": "Connectivité", "debut": "04/06/2025"}, {"id": "2695", "projet": "CAUQUIL", "statut": "En cours", "priorite": "Normal", "sujet": "[AV - Client] CAUQUIL / Demande d'upgrade lien fibre", "auteur": "Jérémy LAVERAN", "assigne": "Mathéo CLAUDEL", "echeance": "", "pct": "100", "cree": "30/05/2025", "commercial": "Mathéo CLAUDEL", "bu": "Interne", "debut": "30/05/2025"}, {"id": "2670", "projet": "SMDEA09", "statut": "En attente", "priorite": "Immédiat", "sujet": "[AV - Client] SMDEA09 - PRESTATION TECHNIQUE", "auteur": "Ibério DOVAL", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "27/05/2025", "commercial": "Guillaume FLORENTIN", "bu": "Cyber", "debut": "27/05/2025"}, {"id": "2376", "projet": "COMMUNAUTE-DE-COMMUNES-COUSERANS-PYRENEES", "statut": "En attente client", "priorite": "Normal", "sujet": "[AV - Client] CCCP - PRESTATION TECHNIQUE OU LIEN DE SECOURS", "auteur": "Guillaume FLORENTIN", "assigne": "Guillaume FLORENTIN", "echeance": "", "pct": "100", "cree": "29/04/2025", "commercial": "Guillaume FLORENTIN", "bu": "Connectivité", "debut": "29/04/2025"}, {"id": "2320", "projet": "ANNEXX-Siege - R-PAP-026024", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Client] ANNEXX / Demande de prix d'achats", "auteur": "Jérémy LAVERAN", "assigne": "Mathéo CLAUDEL", "echeance": "", "pct": "100", "cree": "23/04/2025", "commercial": "Mathéo CLAUDEL", "bu": "Communication", "debut": "23/04/2025"}, {"id": "2060", "projet": "PROSPECTS", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Client] NOM CLIENT / INTITULE AVANT-VENTE Nouvelle Trame", "auteur": "Charles BANQUET", "assigne": "", "echeance": "", "pct": "0", "cree": "07/04/2025", "commercial": "", "bu": "Interne", "debut": ""}, {"id": "2059", "projet": "PROSPECTS", "statut": "Nouveau", "priorite": "Normal", "sujet": "[AV - Prospect] NOM PROSPECT / INTITULE AVANT-VENTE Nouvelle Trame", "auteur": "Charles BANQUET", "assigne": "", "echeance": "", "pct": "0", "cree": "07/04/2025", "commercial": "", "bu": "Interne", "debut": ""}, {"id": "2049", "projet": "PROSPECTS", "statut": "En attente", "priorite": "Normal", "sujet": "[AV - Prospect] SOTRALU / PRA hébergé + éligibilité fibre + présentati", "auteur": "Jérémy LAVERAN", "assigne": "Mathéo CLAUDEL", "echeance": "", "pct": "50", "cree": "04/04/2025", "commercial": "Mathéo CLAUDEL", "bu": "Interne", "debut": "07/04/2025"}];
+const AV_MONTHS = {"labels": ["Jul 25", "Aoû 25", "Sep 25", "Oct 25", "Nov 25", "Déc 25", "Jan 26", "Fév 26", "Mar 26", "Avr 26", "Mai 26", "Jun 26"], "vals": [3, 2, 4, 5, 12, 8, 12, 32, 14, 32, 24, 16]};
+const COMMERCIAUX_LIST = [
+  'Nino GALDAVA','Mathéo CLAUDEL','Guillaume SACLIER','Guillaume FLORENTIN',
+  'Boris LE SAUSSE','Rémi GAGNOT','Sami ANISSI'
+];
+</script>
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-brand">
+      <div class="hdr-logo">AV</div>
+      <div>
+        <div class="hdr-name">Dashboard Avant-Ventes — Alsatis Services</div>
+        <div class="hdr-sub">Suivi mensuel · <span id="hSource">Export du 10/06/2026</span></div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="chip chip-teal" id="hCount">— AV</span>
+      <span class="chip" id="hDate">—</span>
+      <button class="drive-btn connect" id="btnDriveConnect" onclick="driveAuth()" title="Connecter Google Drive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 2L12 12"/><path d="M15 2h7v7"/></svg>
+        Connecter Drive
+      </button>
+      <button class="drive-btn save" id="btnDriveSave" onclick="driveSave()" style="display:none">
+        <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+        Sauvegarder Drive
+      </button>
+      <button class="drive-btn load" id="btnDriveLoad" onclick="driveLoad()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Charger Drive
+      </button>
+      <div class="drive-sep" id="driveSep" style="display:none"></div>
+      <label class="hbtn" style="cursor:pointer">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importer CSV
+        <input type="file" accept=".csv" onchange="importCSV(event)" style="display:none">
+      </label>
+      <button class="hbtn" onclick="window.print()">⎙ Imprimer</button>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-in">
+    <button class="nav-tab active" onclick="showTab('vue',this)">Vue globale</button>
+    <button class="nav-tab" onclick="showTab('detail',this)">Détail AV</button>
+    <button class="nav-tab" onclick="showTab('charge',this)">Charge équipe</button>
+    <button class="nav-tab" onclick="showTab('retards',this)">Retards</button>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- VUE GLOBALE -->
+<div id="tab-vue" class="tab-panel active">
+
+  <div class="sec" id="alerteBand" style="display:none">
+    <div class="alerte-band">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alerteText">—</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Indicateurs clés</div>
+    <div class="kpi-grid">
+      <div class="kpi kteal"><div class="kpi-lbl">Total AV en cours</div><div class="kpi-val teal" id="k-total">—</div><div class="kpi-sub">Toutes priorités</div></div>
+      <div class="kpi kblue"><div class="kpi-lbl">Nouvelles</div><div class="kpi-val blue" id="k-new">—</div><div class="kpi-sub">Statut Nouveau</div></div>
+      <div class="kpi korange"><div class="kpi-lbl">En cours</div><div class="kpi-val orange" id="k-enc">—</div><div class="kpi-sub">En traitement actif</div></div>
+      <div class="kpi kyellow"><div class="kpi-lbl">En attente</div><div class="kpi-val yellow" id="k-att">—</div><div class="kpi-sub">Client / Fourn. / Autre</div></div>
+      <div class="kpi kred"><div class="kpi-lbl">En retard</div><div class="kpi-val red" id="k-ret">—</div><div class="kpi-sub">Échéance dépassée</div></div>
+      <div class="kpi kpurple"><div class="kpi-lbl">Urgentes / Immédiates</div><div class="kpi-val purple" id="k-urg">—</div><div class="kpi-sub">Priorité haute</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">Avancement moyen</div><div class="kpi-val green" id="k-pct">—</div><div class="kpi-sub">% réalisé moyen</div></div>
+      <div class="kpi kteal"><div class="kpi-lbl">Délai moyen</div><div class="kpi-val teal" id="k-del">—</div><div class="kpi-sub">Création → échéance</div></div>
+      <div class="kpi korange"><div class="kpi-lbl">Transit commercial</div><div class="kpi-val orange" id="k-rc">—</div><div class="kpi-sub">Info manquante / terminée</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Répartition statut · priorité · BU</div>
+    <div class="g3">
+      <div class="card"><div class="card-title">Par statut</div><div class="chart-wrap donut"><canvas id="cSt"></canvas></div></div>
+      <div class="card"><div class="card-title">Par priorité</div><div class="chart-wrap donut"><canvas id="cPr"></canvas></div></div>
+      <div class="card"><div class="card-title">Par Business Unit</div><div class="chart-wrap donut"><canvas id="cBu"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Charge commerciaux &amp; techniciens</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Par commercial — total &amp; urgentes</div><div class="chart-wrap"><canvas id="cComm"></canvas></div></div>
+      <div class="card"><div class="card-title">Par technicien — total &amp; retards</div><div class="chart-wrap"><canvas id="cTech"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Volume &amp; BU</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">AV créées par mois — 12 mois glissants</div><div class="chart-wrap"><canvas id="cMois"></canvas></div></div>
+      <div class="card"><div class="card-title">État par Business Unit</div><div class="bu-jauges-grid" id="buJauges"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL -->
+<div id="tab-detail" class="tab-panel">
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Toutes les avant-ventes · <span id="tblCount">—</span></span>
+        <button class="sbtn sbtn-slate" onclick="exportTableau()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exporter CSV
+        </button>
+      </div>
+      <div class="filters">
+        <label>Statut :</label>
+        <select id="fStatut" onchange="renderTable()">
+          <option value="">Tous</option>
+          <option>Nouveau</option><option>En cours</option><option>En attente</option>
+          <option>En attente client</option><option>En attente fournisseur</option>
+        </select>
+        <label>Priorité :</label>
+        <select id="fPriorite" onchange="renderTable()">
+          <option value="">Toutes</option>
+          <option>Normal</option><option>Haut</option><option>Urgent</option><option>Immédiat</option>
+        </select>
+        <label>Commercial :</label>
+        <select id="fComm" onchange="renderTable()"><option value="">Tous</option></select>
+        <label>BU :</label>
+        <select id="fBU" onchange="renderTable()">
+          <option value="">Toutes</option>
+          <option>Cloud</option><option>Communication</option><option>Computer</option>
+          <option>Connectivité</option><option>Cyber</option><option>Interne</option>
+        </select>
+        <label>Recherche :</label>
+        <input type="text" id="fSearch" placeholder="Client, sujet..." oninput="renderTable()" style="min-width:150px">
+        <label><input type="checkbox" id="fRetard" onchange="renderTable()"> Retards seulement</label>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Client</th><th>Sujet</th><th>BU</th><th>Statut</th><th>Priorité</th><th>Commercial</th><th>Assigné</th><th>Échéance</th><th>Avancement</th></tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARGE -->
+<div id="tab-charge" class="tab-panel">
+  <div class="sec">
+    <div class="sec-title">Charge par technicien</div>
+    <div class="charge-grid" id="chargeTech"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">AV en transit commercial — info manquante ou en attente de validation</div>
+    <div class="charge-grid" id="chargeRC"></div>
+  </div>
+</div>
+
+<!-- RETARDS -->
+<div id="tab-retards" class="tab-panel">
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr"><span class="tbl-title">AV en retard · <span id="retardCount">—</span></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Client</th><th>Sujet</th><th>Assigné</th><th>Commercial</th><th>Échéance</th><th>Retard</th><th>Statut</th><th>Priorité</th></tr></thead>
+          <tbody id="tblRetard"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Créé par <strong>Guillaume Saclier</strong> · Alsatis Services · Dashboard Avant-Ventes</span>
+  <span id="fDate">—</span>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const E = id => document.getElementById(id);
+const today = new Date(2026,5,10);
+const todayStr = () => new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const CO = {responsive:true,maintainAspectRatio:true};
+
+/* ── Helpers commerciaux/techs ── */
+function isTech(nom){
+  if(!nom) return false;
+  return !COMMERCIAUX_LIST.some(c => nom.includes(c.split(' ').pop()) || c.includes(nom.split(' ').pop()));
+}
+function isRetourComm(row){ return row.assigne && !isTech(row.assigne); }
+
+/* ── Tabs ── */
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  E('tab-'+id).classList.add('active'); btn.classList.add('active');
+}
+
+/* ── Toast ── */
+function toast(msg){const t=E('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+/* ── State ── */
+let DATA = AV_DATA;
+
+/* ── Date parse ── */
+function parseDate(s){
+  if(!s) return null;
+  const p=s.split('/');
+  if(p.length<3) return null;
+  return new Date(+p[2],+p[1]-1,+p[0]);
+}
+function diffJours(d){ return d?Math.floor((today-d)/(1000*60*60*24)):null; }
+function statutClass(s){
+  if(s==='Nouveau') return 's-nouveau';
+  if(s==='En cours') return 's-encours';
+  if(s==='En attente client') return 's-atclient';
+  if(s==='En attente fournisseur') return 's-atfourn';
+  return 's-attente';
+}
+function prioriteClass(p){
+  if(p==='Immédiat') return 'p-immediat';
+  if(p==='Urgent') return 'p-urgent';
+  if(p==='Haut') return 'p-haut';
+  return 'p-normal';
+}
+
+/* ── KPI ── */
+function renderKPI(){
+  const d=DATA;
+  const total=d.length;
+  const nNew=d.filter(r=>r.statut==='Nouveau').length;
+  const nEnc=d.filter(r=>r.statut==='En cours').length;
+  const nAtt=d.filter(r=>r.statut.startsWith('En attente')).length;
+  const nUrg=d.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+  const retards=d.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;});
+  const nRet=retards.length;
+  const nRC=d.filter(r=>isRetourComm(r)).length;
+  const pcts=d.map(r=>parseInt(r.pct)||0);
+  const avgPct=pcts.length?Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length):0;
+  const delais=d.filter(r=>r.echeance&&r.cree).map(r=>{
+    const d1=parseDate(r.cree),d2=parseDate(r.echeance);
+    if(d1&&d2){const v=(d2-d1)/(1000*60*60*24);return v>=0?v:null;}
+    return null;
+  }).filter(x=>x!==null);
+  const avgDel=delais.length?Math.round(delais.reduce((a,b)=>a+b,0)/delais.length):0;
+
+  E('k-total').textContent=total;
+  E('k-new').textContent=nNew;
+  E('k-enc').textContent=nEnc;
+  E('k-att').textContent=nAtt;
+  E('k-ret').textContent=nRet;
+  E('k-urg').textContent=nUrg;
+  E('k-pct').textContent=avgPct+' %';
+  E('k-del').textContent=avgDel+' j';
+  E('k-rc').textContent=nRC;
+  E('hCount').textContent=total+' AV';
+
+  // Alerte
+  const alertBand=E('alerteBand');
+  const parts=[];
+  if(nRet>0) parts.push(nRet+' AV en retard ('+Math.round(nRet/total*100)+' %)');
+  if(nRC>0)  parts.push(nRC+' en attente d\'info / retour commercial');
+  if(parts.length>0){alertBand.style.display='block';E('alerteText').textContent=parts.join(' · ');}
+  else alertBand.style.display='none';
+}
+
+/* ── Compte par clé ── */
+function count(arr,key){const c={};arr.forEach(r=>{const v=r[key]||'—';c[v]=(c[v]||0)+1;});return c;}
+
+/* ── Couleurs ── */
+const STATUT_C={'Nouveau':'#0891b2','En cours':'#2563eb','En attente client':'#ea580c','En attente fournisseur':'#7c3aed','En attente':'#ca8a04'};
+const PRIO_C={'Normal':'#94a3b8','Haut':'#ca8a04','Urgent':'#ea580c','Immédiat':'#dc2626'};
+const BU_C={'Cloud':'#2563eb','Communication':'#16a34a','Computer':'#ea580c','Connectivité':'#0891b2','Cyber':'#dc2626','Interne':'#94a3b8'};
+const COMM_C=['#0891b2','#2563eb','#16a34a','#ea580c','#7c3aed','#ca8a04','#dc2626','#475569'];
+
+/* ── Charts ── */
+let charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
+
+function mkDonut(id,labels,vals,colors,total){
+  return new Chart(E(id),{type:'doughnut',data:{
+    labels,
+    datasets:[{data:vals,backgroundColor:colors,borderColor:'#fff',borderWidth:3,hoverOffset:5}]
+  },options:{...CO,cutout:'62%',plugins:{
+    legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:6}},
+    tooltip:{callbacks:{label:c=>' '+c.label+' : '+c.parsed+(total?' ('+((c.parsed/total)*100).toFixed(0)+'%)':'')}}
+  }}});
+}
+
+function buildCharts(){
+  destroyCharts();
+  const d=DATA;
+
+  /* Donut statut */
+  const st=count(d,'statut');
+  charts.cSt=mkDonut('cSt',Object.keys(st),Object.values(st),Object.keys(st).map(k=>STATUT_C[k]||'#94a3b8'),d.length);
+
+  /* Donut priorité */
+  const pr=count(d,'priorite');
+  charts.cPr=mkDonut('cPr',Object.keys(pr),Object.values(pr),Object.keys(pr).map(k=>PRIO_C[k]||'#94a3b8'),d.length);
+
+  /* Donut BU */
+  const bu=count(d,'bu');
+  charts.cBu=mkDonut('cBu',Object.keys(bu),Object.values(bu),Object.keys(bu).map(k=>BU_C[k]||'#94a3b8'),d.length);
+
+  /* Barres horizontales commerciaux */
+  const comms=Object.entries(count(d,'commercial')).filter(([k])=>k&&k!=='—').sort((a,b)=>b[1]-a[1]);
+  charts.cComm=new Chart(E('cComm'),{type:'bar',data:{
+    labels:comms.map(([k])=>k.split(' ').slice(-1)[0]),
+    datasets:[
+      {label:'Total',data:comms.map(([,v])=>v),backgroundColor:comms.map((_,i)=>COMM_C[i%COMM_C.length]+'33'),borderColor:comms.map((_,i)=>COMM_C[i%COMM_C.length]),borderWidth:2,borderRadius:5},
+      {label:'Urgentes',data:comms.map(([k])=>d.filter(r=>r.commercial===k&&(r.priorite==='Urgent'||r.priorite==='Immédiat')).length),backgroundColor:'rgba(220,38,38,.15)',borderColor:'#dc2626',borderWidth:2,borderRadius:5}
+    ]
+  },options:{...CO,indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:10}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.x}}},scales:{x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  /* Barres horizontales techs — vrais techs seulement */
+  const techRows=d.filter(r=>isTech(r.assigne));
+  const techs=Object.entries(count(techRows,'assigne')).filter(([k])=>k&&k!=='—').sort((a,b)=>b[1]-a[1]);
+  charts.cTech=new Chart(E('cTech'),{type:'bar',data:{
+    labels:techs.map(([k])=>k.split(' ').slice(-1)[0]),
+    datasets:[
+      {label:'Total',data:techs.map(([,v])=>v),backgroundColor:'rgba(8,145,178,.15)',borderColor:'#0891b2',borderWidth:2,borderRadius:5},
+      {label:'En retard',data:techs.map(([k])=>d.filter(r=>r.assigne===k&&parseDate(r.echeance)<today&&parseDate(r.echeance)).length),backgroundColor:'rgba(220,38,38,.15)',borderColor:'#dc2626',borderWidth:2,borderRadius:5}
+    ]
+  },options:{...CO,indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:10}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.x}}},scales:{x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  /* Ligne AV ouvertes par mois */
+  charts.cMois=new Chart(E('cMois'),{type:'bar',data:{
+    labels:AV_MONTHS.labels,
+    datasets:[
+      {type:'bar',label:'AV créées',data:AV_MONTHS.vals,backgroundColor:'rgba(8,145,178,.18)',borderColor:'#0891b2',borderWidth:2,borderRadius:4,order:2},
+      {type:'line',label:'Tendance',data:AV_MONTHS.vals,borderColor:'#0f2244',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#0f2244',pointBorderColor:'#fff',pointBorderWidth:2,tension:.35,order:1}
+    ]
+  },options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12,padding:14}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.y}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f1f5f9'},ticks:{stepSize:5,font:{size:10}}}}}});
+
+  /* Jauges BU — avancement moyen */
+  renderBUJauges();
+}
+
+/* ── Jauges BU ── */
+function renderBUJauges(){
+  const g=E('buJauges');g.innerHTML='';
+  const d=DATA;
+  const bus=[...new Set(d.map(r=>r.bu).filter(Boolean))].sort();
+  bus.forEach(bu=>{
+    const avs=d.filter(r=>r.bu===bu);
+    const nEnc=avs.filter(r=>r.statut==='En cours').length;
+    const nNew=avs.filter(r=>r.statut==='Nouveau').length;
+    const nAtt=avs.filter(r=>r.statut.startsWith('En attente')).length;
+    const nRet=avs.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+    const nUrg=avs.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+    const col=BU_C[bu]||'#94a3b8';
+    const pctEnc=avs.length?Math.round(nEnc/avs.length*100):0;
+    g.innerHTML+=`<div style="background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-weight:700;font-size:.85rem;color:var(--navy)">${bu}</span>
+        <span style="font-size:1.2rem;font-weight:800;color:${col}">${avs.length}</span>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden">
+        <div style="height:100%;border-radius:3px;background:${col};width:${avs.length/d.length*100}%"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:.72rem">
+        <div style="text-align:center;padding:3px;background:var(--bg2);border-radius:4px"><div style="color:var(--subtle)">Nouveau</div><strong>${nNew}</strong></div>
+        <div style="text-align:center;padding:3px;background:rgba(37,99,235,.08);border-radius:4px"><div style="color:var(--subtle)">En cours</div><strong style="color:var(--blue)">${nEnc}</strong></div>
+        <div style="text-align:center;padding:3px;background:rgba(202,138,4,.08);border-radius:4px"><div style="color:var(--subtle)">Attente</div><strong style="color:var(--yellow)">${nAtt}</strong></div>
+      </div>
+      ${nRet>0||nUrg>0?`<div style="margin-top:6px;display:flex;gap:6px;font-size:.7rem">
+        ${nRet>0?`<span style="background:rgba(220,38,38,.08);color:var(--red);padding:2px 7px;border-radius:10px;font-weight:700">⚠️ ${nRet} retard${nRet>1?'s':''}</span>`:''}
+        ${nUrg>0?`<span style="background:rgba(234,88,12,.08);color:var(--orange);padding:2px 7px;border-radius:10px;font-weight:700">🔥 ${nUrg} urgente${nUrg>1?'s':''}</span>`:''}
+      </div>`:''}
+    </div>`;
+  });
+}
+
+/* ── Tableau ── */
+function initFilters(){
+  const sel=E('fComm');sel.innerHTML='<option value="">Tous</option>';
+  const comms=[...new Set(DATA.map(r=>r.commercial).filter(Boolean))].sort();
+  comms.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;sel.appendChild(o);});
+}
+
+function renderTable(){
+  const fs=E('fStatut').value,fp=E('fPriorite').value,fc=E('fComm').value,fb=E('fBU').value;
+  const fq=E('fSearch').value.toLowerCase();
+  const fRet=E('fRetard')?.checked;
+  const filtered=DATA.filter(r=>{
+    if(fs&&r.statut!==fs) return false;
+    if(fp&&r.priorite!==fp) return false;
+    if(fc&&r.commercial!==fc) return false;
+    if(fb&&r.bu!==fb) return false;
+    if(fq&&!r.projet.toLowerCase().includes(fq)&&!r.sujet.toLowerCase().includes(fq)) return false;
+    if(fRet){const dt=parseDate(r.echeance);if(!dt||dt>=today) return false;}
+    return true;
+  });
+  E('tblCount').textContent=filtered.length+' résultat'+(filtered.length>1?'s':'');
+  const tb=E('tblBody');tb.innerHTML='';
+  filtered.forEach(r=>{
+    const ech=parseDate(r.echeance);
+    const retard=ech&&ech<today;
+    const jours=retard?diffJours(ech):null;
+    const pct=parseInt(r.pct)||0;
+    const rc=isRetourComm(r);
+    tb.innerHTML+=`<tr class="${retard?'retard-row':''}">
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="max-width:160px;white-space:normal;font-size:.75rem;font-weight:600">${r.projet}</td>
+      <td style="max-width:200px;white-space:normal;font-size:.75rem;color:var(--muted)">${r.sujet}</td>
+      <td><span class="bdg" style="background:${BU_C[r.bu]||'#94a3b8'}22;color:${BU_C[r.bu]||'#94a3b8'}">${r.bu||'—'}</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td><span class="bdg ${prioriteClass(r.priorite)}">${r.priorite}</span></td>
+      <td style="font-size:.75rem">${r.commercial||'—'}</td>
+      <td style="font-size:.75rem">${r.assigne||'—'}${rc?' <span class="bdg" style="background:rgba(234,88,12,.1);color:var(--orange);font-size:.65rem">transit</span>':''}</td>
+      <td style="font-size:.75rem;color:${retard?'var(--red)':'var(--muted)'}${retard?';font-weight:700':''}">${r.echeance||'—'}${retard?` <span style="font-size:.65rem">(+${jours}j)</span>`:''}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span style="font-size:.7rem;color:var(--muted)">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+}
+
+/* ── Retards ── */
+function renderRetards(){
+  const retards=DATA.filter(r=>{const d=parseDate(r.echeance);return d&&d<today;}).sort((a,b)=>parseDate(a.echeance)-parseDate(b.echeance));
+  E('retardCount').textContent=retards.length+' AV';
+  const tb=E('tblRetard');tb.innerHTML='';
+  retards.forEach(r=>{
+    const d=parseDate(r.echeance);
+    const jours=diffJours(d);
+    const sev=jours>30?'var(--red)':jours>7?'var(--orange)':'var(--yellow)';
+    tb.innerHTML+=`<tr>
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="font-size:.75rem;font-weight:600;max-width:150px;white-space:normal">${r.projet}</td>
+      <td style="font-size:.75rem;max-width:190px;white-space:normal;color:var(--muted)">${r.sujet}</td>
+      <td style="font-size:.75rem">${r.assigne||'—'}</td>
+      <td style="font-size:.75rem">${r.commercial||'—'}</td>
+      <td style="font-size:.75rem;color:var(--red);font-weight:600">${r.echeance}</td>
+      <td><span class="bdg" style="background:${sev}22;color:${sev}">+${jours}j</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td><span class="bdg ${prioriteClass(r.priorite)}">${r.priorite}</span></td>
+    </tr>`;
+  });
+}
+
+/* ── Charge ── */
+function renderCharge(){
+  const d=DATA;
+
+  /* Techs */
+  const techRows=d.filter(r=>isTech(r.assigne));
+  const techNames=[...new Set(techRows.map(r=>r.assigne).filter(Boolean))].sort((a,b)=>techRows.filter(r=>r.assigne===b).length-techRows.filter(r=>r.assigne===a).length);
+  const maxTech=Math.max(...techNames.map(t=>d.filter(r=>r.assigne===t).length),1);
+  const gt=E('chargeTech');gt.innerHTML='';
+  techNames.forEach(tech=>{
+    const avs=d.filter(r=>r.assigne===tech);
+    const nEnc=avs.filter(r=>r.statut==='En cours').length;
+    const nNew=avs.filter(r=>r.statut==='Nouveau').length;
+    const nAtt=avs.filter(r=>r.statut.startsWith('En attente')).length;
+    const nRet=avs.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+    const nUrg=avs.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+    const pctCharge=Math.round(avs.length/maxTech*100);
+    const col=avs.length>15?'var(--red)':avs.length>8?'var(--orange)':'var(--green)';
+    gt.innerHTML+=`<div class="charge-card">
+      <div class="charge-top">
+        <div><div class="charge-name">${tech}</div></div>
+        <div class="charge-count" style="color:${col}">${avs.length}</div>
+      </div>
+      <div class="charge-bar-track"><div class="charge-bar-fill" style="width:${pctCharge}%;background:${col}"></div></div>
+      <div class="charge-stats">
+        <div class="charge-stat"><span>Nouveau</span><strong>${nNew}</strong></div>
+        <div class="charge-stat" style="background:rgba(37,99,235,.08)"><span>En cours</span><strong style="color:var(--blue)">${nEnc}</strong></div>
+        <div class="charge-stat" style="background:rgba(202,138,4,.08)"><span>Attente</span><strong style="color:var(--yellow)">${nAtt}</strong></div>
+        ${nRet>0?`<div class="charge-stat" style="background:rgba(220,38,38,.08)"><span style="color:var(--red)">Retard</span><strong style="color:var(--red)">${nRet}</strong></div>`:''}
+        ${nUrg>0?`<div class="charge-stat" style="background:rgba(234,88,12,.08)"><span style="color:var(--orange)">Urgentes</span><strong style="color:var(--orange)">${nUrg}</strong></div>`:''}
+      </div>
+      <div style="margin-top:8px">
+        <div style="font-size:.68rem;color:var(--subtle);margin-bottom:4px">BU en charge</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${[...new Set(avs.map(r=>r.bu).filter(Boolean))].map(bu=>`<span style="font-size:.68rem;padding:2px 6px;background:${BU_C[bu]||'#94a3b8'}18;color:${BU_C[bu]||'#94a3b8'};border-radius:8px">${bu}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  /* Retours commerciaux */
+  const rcRows=d.filter(r=>isRetourComm(r));
+  const gc=E('chargeRC');gc.innerHTML='';
+  if(rcRows.length===0){gc.innerHTML='<div style="color:var(--subtle);font-size:.82rem;padding:12px">Aucune AV en transit commercial actuellement.</div>';return;}
+  const commNames=[...new Set(rcRows.map(r=>r.assigne).filter(Boolean))].sort((a,b)=>rcRows.filter(r=>r.assigne===b).length-rcRows.filter(r=>r.assigne===a).length);
+  commNames.forEach(comm=>{
+    const avs=rcRows.filter(r=>r.assigne===comm);
+    const nRet=avs.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+    gc.innerHTML+=`<div class="charge-card" style="border-top-color:var(--orange)">
+      <div class="charge-top">
+        <div><div class="charge-name">${comm}</div><div style="font-size:.68rem;color:var(--orange);margin-top:2px">Transit / info manquante</div></div>
+        <div class="charge-count" style="color:var(--orange)">${avs.length}</div>
+      </div>
+      <div class="charge-stats">
+        ${avs.map(r=>`<div style="grid-column:1/-1;font-size:.72rem;padding:4px 6px;background:var(--bg2);border-radius:4px;display:flex;justify-content:space-between">
+          <span style="color:var(--muted)">#${r.id} ${r.projet.substring(0,25)}${r.projet.length>25?'…':''}</span>
+          <span class="bdg ${statutClass(r.statut)}" style="font-size:.65rem">${r.statut}</span>
+        </div>`).join('')}
+      </div>
+      ${nRet>0?`<div style="margin-top:6px;font-size:.72rem;color:var(--red);font-weight:600">⚠️ ${nRet} en retard</div>`:''}
+    </div>`;
+  });
+}
+
+/* ── Import CSV ── */
+function importCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const text=ev.target.result;
+      const lines=text.split('\n');
+      const sep=lines[0].includes(';')?';':',';
+      function parseCSVLine(line){
+        const res=[];let cur='';let inQ=false;
+        for(let i=0;i<line.length;i++){
+          const c=line[i];
+          if(c==='"'){inQ=!inQ;}
+          else if(c===sep&&!inQ){res.push(cur);cur='';}
+          else cur+=c;
+        }
+        res.push(cur);return res;
+      }
+      const headers=parseCSVLine(lines[0]);
+      const idx={
+        id:headers.findIndex(h=>h.trim()==='#'),
+        projet:headers.findIndex(h=>h.trim()==='Projet'),
+        statut:headers.findIndex(h=>h.trim()==='Statut'),
+        priorite:headers.findIndex(h=>h.trim()==='Priorité'),
+        sujet:headers.findIndex(h=>h.trim()==='Sujet'),
+        auteur:headers.findIndex(h=>h.trim()==='Auteur'),
+        assigne:headers.findIndex(h=>h.trim()==='Assigné à'),
+        echeance:headers.findIndex(h=>h.trim()==='Echéance'),
+        pct:headers.findIndex(h=>h.trim()==='% réalisé'),
+        cree:headers.findIndex(h=>h.trim()==='Créé'),
+        commercial:headers.findIndex(h=>h.trim()==='Commercial(e)'),
+        bu:headers.findIndex(h=>h.trim()==='Business Unit'),
+        debut:headers.findIndex(h=>h.trim()==='Début'),
+      };
+      const rows=[];
+      for(let i=1;i<lines.length;i++){
+        if(!lines[i].trim())continue;
+        const cols=parseCSVLine(lines[i]);
+        const r={};
+        Object.entries(idx).forEach(([k,v])=>{r[k]=v>=0&&v<cols.length?cols[v].replace(/^"|"$/g,'').trim():'';});
+        if(r.id)rows.push(r);
+      }
+      DATA=rows;
+      E('hSource').textContent=file.name;
+      renderAll();
+      toast('✅ '+rows.length+' AV chargées depuis '+file.name);
+    }catch(err){toast('⚠️ Erreur : '+err.message);}
+  };
+  reader.readAsText(file,'ISO-8859-1');
+  e.target.value='';
+}
+
+/* ── Export ── */
+function exportTableau(){
+  const fs=E('fStatut').value,fp=E('fPriorite').value,fc=E('fComm').value,fb=E('fBU').value;
+  const fq=E('fSearch').value.toLowerCase();
+  const filtered=DATA.filter(r=>{
+    if(fs&&r.statut!==fs)return false;if(fp&&r.priorite!==fp)return false;
+    if(fc&&r.commercial!==fc)return false;if(fb&&r.bu!==fb)return false;
+    if(fq&&!r.projet.toLowerCase().includes(fq)&&!r.sujet.toLowerCase().includes(fq))return false;
+    return true;
+  });
+  const hdr='#;Projet;Sujet;BU;Statut;Priorité;Commercial;Assigné;Échéance;% réalisé\n';
+  const rows=filtered.map(r=>[r.id,r.projet,r.sujet,r.bu,r.statut,r.priorite,r.commercial,r.assigne,r.echeance,r.pct].join(';')).join('\n');
+  const blob=new Blob([hdr+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='av_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('✅ Export téléchargé');
+}
+
+/* ══════════════════════════════════
+   GOOGLE DRIVE SYNC — AV
+══════════════════════════════════ */
+const GD={CLIENT_ID:'433068590462-1jrk2s46e7kpgc79hi0leaefqkbvqaf9.apps.googleusercontent.com',SCOPE:'https://www.googleapis.com/auth/drive.file',FILE_NAME:'alsatis_av_dashboard.json',token:null,fileId:null,_gapiReady:false,_gsiReady:false,_tokenClient:null};
+(function(){const s1=document.createElement('script');s1.src='https://accounts.google.com/gsi/client';s1.async=true;s1.defer=true;s1.onload=()=>{GD._gsiReady=true;gdCheckReady();};document.head.appendChild(s1);const s2=document.createElement('script');s2.src='https://apis.google.com/js/api.js';s2.async=true;s2.defer=true;s2.onload=()=>{gapi.load('client',async()=>{await gapi.client.init({});GD._gapiReady=true;gdCheckReady();});};document.head.appendChild(s2);})();
+function gdCheckReady(){if(!GD._gsiReady||!GD._gapiReady)return;try{const saved=JSON.parse(sessionStorage.getItem('als_gd_av_token')||'null');if(saved&&saved.expires_at>Date.now()+30000){GD.token=saved;gapi.client.setToken({access_token:saved.access_token});GD.fileId=sessionStorage.getItem('als_gd_av_fid')||null;gdSetConnected(true);gdAutoLoad();}}catch(e){}GD._tokenClient=google.accounts.oauth2.initTokenClient({client_id:GD.CLIENT_ID,scope:GD.SCOPE,callback:async(resp)=>{if(resp.error){toast('⚠️ Connexion Drive annulée');return;}const tok={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};GD.token=tok;gapi.client.setToken({access_token:tok.access_token});sessionStorage.setItem('als_gd_av_token',JSON.stringify(tok));gdSetConnected(true);toast('✅ Drive connecté');await gdAutoLoad();}});}
+function driveAuth(){if(!GD._tokenClient){toast('⚠️ Libs Google en cours de chargement, réessaie dans 2s');return;}GD._tokenClient.requestAccessToken({prompt:'consent'});}
+function gdSetConnected(ok){document.getElementById('btnDriveConnect').style.display=ok?'none':'';document.getElementById('btnDriveSave').style.display=ok?'':'none';document.getElementById('btnDriveLoad').style.display=ok?'':'none';document.getElementById('driveSep').style.display=ok?'':'none';}
+async function gdGetFileId(){if(GD.fileId)return GD.fileId;try{const res=await gapi.client.request({path:'https://www.googleapis.com/drive/v3/files',params:{q:`name='${GD.FILE_NAME}' and trashed=false`,spaces:'drive',fields:'files(id,name,modifiedTime)'}});const files=res.result.files||[];if(files.length>0){GD.fileId=files[0].id;sessionStorage.setItem('als_gd_av_fid',GD.fileId);return GD.fileId;}}catch(e){console.warn(e);}return null;}
+async function driveSave(){if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}const btn=document.getElementById('btnDriveSave');btn.textContent='Sauvegarde…';btn.disabled=true;try{const payload=JSON.stringify({version:1,date:new Date().toISOString(),source:document.getElementById('hSource').textContent,data:DATA},null,2);const fid=await gdGetFileId();if(fid){await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Authorization':'Bearer '+GD.token.access_token,'Content-Type':'application/json'},body:payload});}else{const meta=new Blob([JSON.stringify({name:GD.FILE_NAME,mimeType:'application/json'})],{type:'application/json'});const data=new Blob([payload],{type:'application/json'});const form=new FormData();form.append('metadata',meta);form.append('file',data);const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Authorization':'Bearer '+GD.token.access_token},body:form});const j=await r.json();GD.fileId=j.id;sessionStorage.setItem('als_gd_av_fid',GD.fileId);}sessionStorage.setItem('als_gd_av_lastsave',new Date().toISOString());toast('☁️ Sauvegardé sur Google Drive');}catch(err){toast('⚠️ Erreur Drive — '+err.message);}btn.textContent='Sauvegarder Drive';btn.disabled=false;}
+async function driveLoad(){if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}const btn=document.getElementById('btnDriveLoad');btn.textContent='Chargement…';btn.disabled=true;try{const fid=await gdGetFileId();if(!fid){toast('⚠️ Aucune sauvegarde Drive trouvée');btn.textContent='Charger Drive';btn.disabled=false;return;}const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{headers:{'Authorization':'Bearer '+GD.token.access_token}});const d=await r.json();if(!d.version||!d.data){toast('⚠️ Format invalide');btn.textContent='Charger Drive';btn.disabled=false;return;}if(!confirm('Charger la sauvegarde Drive du '+new Date(d.date).toLocaleString('fr-FR')+' ('+d.data.length+' lignes) ?')){btn.textContent='Charger Drive';btn.disabled=false;return;}DATA=d.data;if(d.source)document.getElementById('hSource').textContent=d.source+' (Drive)';renderAll();toast('☁️ '+DATA.length+' avant-ventes chargées depuis Drive');}catch(err){toast('⚠️ Erreur Drive — '+err.message);}btn.textContent='Charger Drive';btn.disabled=false;}
+async function gdAutoLoad(){try{const fid=await gdGetFileId();if(!fid)return;const res=await gapi.client.request({path:`https://www.googleapis.com/drive/v3/files/${fid}`,params:{fields:'modifiedTime'}});const driveDate=new Date(res.result.modifiedTime);const localSave=sessionStorage.getItem('als_gd_av_lastsave');if(localSave&&new Date(localSave)>=driveDate)return;if(DATA&&DATA.length>0){if(!confirm('Une sauvegarde Drive est disponible ('+driveDate.toLocaleString('fr-FR')+').\nCharger ?'))return;}await driveLoad();}catch(e){console.warn('gdAutoLoad',e);}}
+
+/* ── Render all ── */
+function renderAll(){
+  E('hDate').textContent=todayStr();
+  E('fDate').textContent='Édité le '+todayStr();
+  renderKPI();buildCharts();initFilters();renderTable();renderRetards();renderCharge();
+}
+
+/* ── Init ── */
+renderAll();
+
+</script>
+</body>
+</html>

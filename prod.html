@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Productions — Alsatis Services</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2244;--blue:#2563eb;--green:#16a34a;--orange:#ea580c;--red:#dc2626;--purple:#7c3aed;
+  --yellow:#ca8a04;--teal:#0891b2;
+  --bg:#f8fafc;--bg2:#f1f5f9;--bg3:#e2e8f0;
+  --text:#0f172a;--muted:#475569;--subtle:#94a3b8;--bdr:#e2e8f0;--white:#fff;
+  --r:10px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --sh2:0 8px 32px rgba(0,0,0,.10);
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif
+}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.hdr{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:200;border-bottom:3px solid var(--green)}
+.hdr-in{max-width:1340px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;flex-wrap:wrap}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:34px;height:34px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex-shrink:0}
+.hdr-name{font-size:1.05rem;font-weight:700;color:#fff}
+.hdr-sub{font-size:.72rem;color:#86efac;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:3px 11px;border-radius:20px;font-size:.72rem;color:#e0eaff;white-space:nowrap}
+.chip-green{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#e0eaff;padding:5px 13px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px}
+.hbtn:hover{background:rgba(255,255,255,.1)}
+.hbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nav{background:var(--white);border-bottom:1px solid var(--bdr);padding:0 24px;position:sticky;top:59px;z-index:190}
+.nav-in{max-width:1340px;margin:0 auto;display:flex;overflow-x:auto}
+.nav-tab{padding:12px 18px;font-size:.8rem;font-weight:600;color:var(--subtle);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font);transition:color .15s,border-color .15s}
+.nav-tab:hover{color:var(--muted)}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.page{max-width:1340px;margin:0 auto;padding:20px 24px 48px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec{margin-top:22px}
+.sec-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.kpi{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:15px 14px 12px;border-top:3px solid transparent;transition:transform .12s,box-shadow .12s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.kpi.kteal{border-top-color:var(--teal)}.kpi.kblue{border-top-color:var(--blue)}.kpi.kgreen{border-top-color:var(--green)}
+.kpi.korange{border-top-color:var(--orange)}.kpi.kred{border-top-color:var(--red)}.kpi.kpurple{border-top-color:var(--purple)}.kpi.kyellow{border-top-color:var(--yellow)}
+.kpi-lbl{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--subtle);margin-bottom:6px}
+.kpi-val{font-size:1.4rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.kpi-val.teal{color:var(--teal)}.kpi-val.blue{color:var(--blue)}.kpi-val.green{color:var(--green)}
+.kpi-val.orange{color:var(--orange)}.kpi-val.red{color:var(--red)}.kpi-val.purple{color:var(--purple)}.kpi-val.yellow{color:var(--yellow)}
+.kpi-sub{font-size:.67rem;color:var(--subtle);margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.card-title{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:14px}
+.chart-wrap canvas{max-height:230px}
+.chart-wrap.donut canvas{max-height:210px}
+.eng-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
+.bu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.charge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.charge-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;border-top:3px solid var(--green)}
+.charge-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.charge-name{font-size:.88rem;font-weight:700;color:var(--navy)}
+.charge-count{font-size:1.4rem;font-weight:800}
+.charge-bar-track{height:5px;background:var(--bg3);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.charge-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.charge-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.72rem}
+.charge-stat{padding:3px 6px;background:var(--bg2);border-radius:4px;display:flex;justify-content:space-between;align-items:center}
+.charge-stat span{color:var(--subtle)}
+.s-nouveau{background:rgba(8,145,178,.1);color:var(--teal)}
+.s-encours{background:rgba(37,99,235,.1);color:var(--blue)}
+.s-facturer{background:rgba(22,163,74,.12);color:var(--green);font-weight:700}
+.s-attente{background:rgba(202,138,4,.1);color:var(--yellow)}
+.s-atclient{background:rgba(234,88,12,.1);color:var(--orange)}
+.s-atfourn{background:rgba(124,58,237,.1);color:var(--purple)}
+.s-incomplet{background:rgba(220,38,38,.1);color:var(--red)}
+.p-normal{background:var(--bg2);color:var(--muted)}
+.p-urgent{background:rgba(234,88,12,.1);color:var(--orange)}
+.p-haut{background:rgba(202,138,4,.1);color:var(--yellow)}
+.p-immediat{background:rgba(220,38,38,.1);color:var(--red)}
+.tbl-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-hdr{padding:13px 18px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.tbl-title{font-size:.78rem;font-weight:700;color:var(--muted)}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--bdr);background:var(--bg2);font-size:.75rem}
+.filters select,.filters input[type=text]{border:1.5px solid var(--bdr);border-radius:6px;padding:5px 9px;font-size:.75rem;font-family:var(--font);color:var(--text);background:var(--white)}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--green)}
+.filters label{font-weight:600;color:var(--muted);display:flex;align-items:center;gap:4px}
+.tbl-scroll{overflow-x:auto;max-height:520px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{background:var(--bg2);padding:9px 13px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--subtle);white-space:nowrap;position:sticky;top:0;z-index:2}
+thead th.num{text-align:right}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:hover{background:var(--bg2)}
+tbody td{padding:9px 13px;white-space:nowrap}
+tbody td.num{text-align:right}
+tfoot td{padding:9px 13px;font-size:.75rem;font-weight:700;color:var(--navy);background:var(--bg2);border-top:2px solid var(--bdr);white-space:nowrap}
+tfoot td.num{text-align:right}
+tfoot td.total-cell{color:var(--green);font-size:.82rem}
+.bdg{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700}
+.retard-row td:first-child{border-left:3px solid var(--red)}
+.renew-loss td:first-child{border-left:3px solid var(--orange)}
+.progress-bar{width:50px;height:5px;background:var(--bg3);border-radius:3px;display:inline-block;vertical-align:middle;margin-right:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--green)}
+.sbtn{padding:5px 12px;border-radius:6px;font-size:.73rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);display:inline-flex;align-items:center;gap:5px}
+.sbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sbtn-slate{background:#475569;color:#fff}.sbtn-slate:hover{background:#334155}
+.sbtn-green{background:var(--green);color:#fff}.sbtn-green:hover{background:#15803d}
+.alerte-band{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.25);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--green);font-weight:600}
+.alerte-band svg{flex-shrink:0;width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+/* Récurrent par cycle */
+.rec-cycle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:4px}
+.rec-cycle-card{border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.rec-cycle-card .rcc-label{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.rec-cycle-card .rcc-val{font-size:1.25rem;font-weight:800;line-height:1}
+.rec-cycle-card .rcc-sub{font-size:.67rem;margin-top:4px;opacity:.8}
+.rec-cycle-card .rcc-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 3px 0 0}
+/* Renew table delta */
+.delta-pos{color:var(--green);font-weight:700}
+.delta-neg{color:var(--orange);font-weight:700}
+.delta-zero{color:var(--subtle)}
+.footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.68rem;color:var(--subtle)}
+.footer strong{color:var(--muted)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:9px 16px;border-radius:8px;font-size:.78rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:900}
+.toast.on{opacity:1}
+.drive-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}.drive-btn.connect{background:#fff;color:#444;border:1px solid rgba(255,255,255,.3)}.drive-btn.connect:hover{background:#f1f3f4}.drive-btn.save{background:#1a73e8;color:#fff}.drive-btn.save:hover{background:#1557b0}.drive-btn.load{background:rgba(255,255,255,.15);color:#e0eaff;border:1px solid rgba(255,255,255,.25)}.drive-btn.load:hover{background:rgba(255,255,255,.22)}.drive-btn svg{width:13px;height:13px;flex-shrink:0}.drive-sep{width:1px;height:20px;background:rgba(255,255,255,.2);margin:0 2px}
+@media print{body{background:#fff}.hdr{position:static}.hbtn,.sbtn,.filters{display:none}}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}.kpi-val{font-size:1.2rem}}
+</style>
+</head>
+<body>
+
+<script>
+const PROD_DATA = [{"id":"6603","projet":"EXPERTISES-ET-PATRIMOINE","statut":"Nouveau","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Tech-C1-C2","echeance":"","pct":"0","cree":"11/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":220.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/06/2026"},{"id":"6602","projet":"MARION-TECHNOLOGIES","statut":"Nouveau","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Tech-C3-C4","echeance":"","pct":"0","cree":"11/06/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/06/2026"},{"id":"6601","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"LICENCE O365 BASIC","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"10/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":5.88,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"10/06/2026"},{"id":"6598","projet":"EXPERTISE-ET-SYNERGIES","statut":"En cours","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Tech-C1-C2","echeance":"","pct":"0","cree":"10/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"10/06/2026"},{"id":"6577","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"LICENCE O365 BASIC","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"05/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":11.76,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"05/06/2026"},{"id":"6576","projet":"BRETECHE-OUEST - R-PAP-043463","statut":"Nouveau","priorite":"Urgent","sujet":"portabilité nouveau numéro avec création nouvelle SDA","auteur":"Boris LE SAUSSE","assigne":"Tech-C3-C4","echeance":"30/06/2026","pct":"0","cree":"05/06/2026","commercial":"Boris LE SAUSSE","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":1.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"05/06/2026"},{"id":"6575","projet":"TARAMM","statut":"Demande incomplète","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Guillaume FLORENTIN","echeance":"","pct":"0","cree":"05/06/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"05/06/2026"},{"id":"6566","projet":"BIOCOOP","statut":"Nouveau","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Théo MARIN","echeance":"","pct":"0","cree":"04/06/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":130.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"04/06/2026"},{"id":"6565","projet":"NEOSOL-CONSTRUCTION","statut":"En cours","priorite":"Normal","sujet":"NEOSOL - FTTH","auteur":"Nino GALDAVA","assigne":"Théo MARIN","echeance":"03/07/2026","pct":"0","cree":"03/06/2026","commercial":"Mathéo CLAUDEL","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":85.0,"montantPrest":0.0,"montantRec":69.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"03/06/2026"},{"id":"6564","projet":"CETIE - R-PAP-043250","statut":"A facturer","priorite":"Normal","sujet":"fourniture carte SIM Orange 5 Go Data","auteur":"Boris LE SAUSSE","assigne":"Back-Office","echeance":"08/06/2026","pct":"100","cree":"03/06/2026","commercial":"Boris LE SAUSSE","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":9.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"6561","projet":"CAMPING-LE-CHATELET","statut":"A facturer","priorite":"Immédiat","sujet":"Upgrade haute saison 200 Mbps","auteur":"Boris LE SAUSSE","assigne":"Back-Office","echeance":"10/06/2026","pct":"100","cree":"03/06/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":590.0,"montantRecInitial":390.0,"montantNegoce":0.0,"debut":"03/06/2026"},{"id":"6559","projet":"ANDORRA-TELECOM","statut":"A facturer","priorite":"Normal","sujet":"Intervention à Mancioux","auteur":"Nino GALDAVA","assigne":"Back-Office","echeance":"04/06/2026","pct":"100","cree":"02/06/2026","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":620.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6558","projet":"RG-OUEST - R-PAP-027046","statut":"A facturer","priorite":"Normal","sujet":"création de 2 licences Microsoft 365 Business Standard (Suite Bureauti","auteur":"Boris LE SAUSSE","assigne":"Back-Office","echeance":"","pct":"0","cree":"02/06/2026","commercial":"Boris LE SAUSSE","bu":"Cloud","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":28.08,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6556","projet":"AIR-SUPPORT","statut":"En attente fournisseur","priorite":"Normal","sujet":"TRADUCTION PRA EN ANGLAIS ","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"02/06/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":209.9,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6555","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"02/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6554","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"LICENCE ADOBE ACROBAT","auteur":"Guillaume FLORENTIN","assigne":"Guillaume FLORENTIN","echeance":"","pct":"0","cree":"02/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":1359.5,"debut":"02/06/2026"},{"id":"6536","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"OPTION DE TELEPHONIE VOIP","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"02/06/2026","commercial":"Guillaume FLORENTIN","bu":"Communication","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":18.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6523","projet":"RG-OUEST - R-PAP-027046","statut":"En cours","priorite":"Normal","sujet":"passage de 2 comptes mail en version Exchange Online Plan 2 ","auteur":"Boris LE SAUSSE","assigne":"Aurélien PONCINI","echeance":"","pct":"100","cree":"01/06/2026","commercial":"Boris LE SAUSSE","bu":"Cloud","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":18.0,"montantRecInitial":10.0,"montantNegoce":0.0,"debut":"01/06/2026"},{"id":"6520","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"LICENCE O365 BASIC","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"01/06/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":11.76,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"01/06/2026"},{"id":"6518","projet":"SOLVIONIC","statut":"A facturer","priorite":"Normal","sujet":"PREPARATION DE POSTE","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"29/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":149.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"29/05/2026"},{"id":"6515","projet":"HELISA","statut":"A facturer","priorite":"Normal","sujet":"LICENCE O365 ","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"29/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":2187.6,"debut":"01/06/2026"},{"id":"6513","projet":"MAIRIE-MAZERES","statut":"A facturer","priorite":"Normal","sujet":"CERTIFICAT SSL VPN","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"28/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":99.0,"debut":"28/05/2026"},{"id":"6512","projet":"TARAMM","statut":"En cours","priorite":"Normal","sujet":"VEEAM","auteur":"Guillaume FLORENTIN","assigne":"Loic CANCEL","echeance":"","pct":"0","cree":"28/05/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":379.9,"debut":""},{"id":"6504","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"UCOPIA","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"27/05/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"1,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":30.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"27/05/2026"},{"id":"6502","projet":"DECA-NANTES - R-PAP-030754","statut":"A facturer","priorite":"Normal","sujet":"renouvellement 2 noms de domaine deca-france.com (25 juin) deca-propre","auteur":"Boris LE SAUSSE","assigne":"Back-Office","echeance":"","pct":"100","cree":"27/05/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":8.4,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"6500","projet":"BRIO-GEL SAINT-GEORGES-DE-MONTAIGU - R-PAP-041512","statut":"En cours","priorite":"Normal","sujet":"fibre Covage 100 Mbps","auteur":"Boris LE SAUSSE","assigne":"Théo MARIN","echeance":"","pct":"0","cree":"27/05/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":380.0,"montantRecInitial":460.0,"montantNegoce":0.0,"debut":""},{"id":"6499","projet":"BRIO-GEL-LA-TARDIERE-LA-CHATAIGNERAIE","statut":"En cours","priorite":"Normal","sujet":"fibre Covage 100 Mbps","auteur":"Boris LE SAUSSE","assigne":"Théo MARIN","echeance":"","pct":"0","cree":"27/05/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":380.0,"montantRecInitial":430.0,"montantNegoce":0.0,"debut":""},{"id":"6496","projet":"CCHA","statut":"Nouveau","priorite":"Normal","sujet":"MESSAGERIE COLLABORATIVE ","auteur":"Guillaume FLORENTIN","assigne":"Guillaume FLORENTIN","echeance":"","pct":"0","cree":"26/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":4.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"26/05/2026"},{"id":"6485","projet":"TARAMM","statut":"A facturer","priorite":"Normal","sujet":"MATERIEL INFORMATIQUE ","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"22/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":149.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":1083.02,"debut":"22/05/2026"},{"id":"6483","projet":"AIR-SUPPORT","statut":"A facturer","priorite":"Normal","sujet":"MATERIEL INFORMATIQUE ","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"22/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":149.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":2957.6,"debut":""},{"id":"6480","projet":"CMA-INDUSTRY","statut":"Nouveau","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Tech-C1-C2","echeance":"","pct":"0","cree":"21/05/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":330.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"17/06/2026"},{"id":"6473","projet":"SCOMO - R-PAP-019642","statut":"En attente fournisseur","priorite":"Urgent","sujet":"PROD - SCOMO - RENEW FTTO","auteur":"Mathéo CLAUDEL","assigne":"Maxime BETEMPS","echeance":"28/05/2026","pct":"0","cree":"21/05/2026","commercial":"Mathéo CLAUDEL","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":50.0,"montantPrest":0.0,"montantRec":380.0,"montantRecInitial":460.0,"montantNegoce":0.0,"debut":"21/05/2026"},{"id":"6469","projet":"CHAMBRES-DES-METIERS-DU-TARN","statut":"A facturer","priorite":"Normal","sujet":"MATERIEL RESEAUX - BORNE WIFI","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"21/05/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":60.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":250.0,"debut":"22/05/2026"},{"id":"6458","projet":"INFOMIL - R-PAP-039064","statut":"En attente fournisseur","priorite":"Normal","sujet":"DREUX - GTL25154 - FTTO 100M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"19/05/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":350.0,"montantRec":375.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"6453","projet":"AIR-SUPPORT","statut":"En attente","priorite":"Normal","sujet":"PRESTATION TECHNIQUE - Mise en place accès distant via Ninja","auteur":"Guillaume FLORENTIN","assigne":"Catherine PERROT","echeance":"","pct":"0","cree":"19/05/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":130.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"19/05/2026"},{"id":"6452","projet":"AIR-SUPPORT","statut":"En attente fournisseur","priorite":"Normal","sujet":"MATERIEL RESEAUX","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"19/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":15.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":95.6,"debut":"08/06/2026"},{"id":"6339","projet":"IMPEX - R-PAP-027215","statut":"En cours","priorite":"Normal","sujet":"FTTO 50Mbps - Upgrade Chimilin ","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"29/05/2026","pct":"30","cree":"18/05/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":530.0,"montantRecInitial":300.0,"montantNegoce":0.0,"debut":"18/05/2026"},{"id":"6301","projet":"SPORTLIFE - R-PAP-044298","statut":"A facturer","priorite":"Normal","sujet":"Upgrade 100Mbps magasin Jard sur mer ","auteur":"Boris LE SAUSSE","assigne":"Back-Office","echeance":"","pct":"100","cree":"07/05/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":440.0,"montantRecInitial":330.0,"montantNegoce":0.0,"debut":""},{"id":"6289","projet":"CSEAIRBUSDS","statut":"En cours","priorite":"Normal","sujet":"BOX 5G","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"07/05/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":39.9,"montantRecInitial":0.0,"montantNegoce":539.9,"debut":"08/06/2026"},{"id":"6282","projet":"TARAMM","statut":"A facturer","priorite":"Normal","sujet":"RENOUVELLEMENT RED HAT","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"05/05/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":829.9,"debut":"05/05/2026"},{"id":"6277","projet":"INFOMIL - R-PAP-039064","statut":"En cours","priorite":"Normal","sujet":"VILMURIER - GTL25092 - FTTO 100M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"05/05/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":350.0,"montantRec":432.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"24/04/2026"},{"id":"6268","projet":"INFOMIL - R-PAP-039064","statut":"En attente fournisseur","priorite":"Normal","sujet":"LORDIMAX - GTL24964 - FTTO 500M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"","pct":"100","cree":"04/05/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":350.0,"montantRec":310.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"24/04/2026"},{"id":"6265","projet":"ADSEA","statut":"A facturer","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"04/05/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":220.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"22/05/2026"},{"id":"6231","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"DILBAN - Lien d?interconnexion Fibre optique 20 Mb/s.+ Secours FttH","auteur":"Owen CUTLER","assigne":"Owen CUTLER","echeance":"","pct":"50","cree":"30/04/2026","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"30/04/2026"},{"id":"6229","projet":"ASSOCIATION-DES-PELERINS-DE-LA-SALETTE","statut":"Nouveau","priorite":"Urgent","sujet":"Raccordement fibre Sanctuaire de Notre Dame de la Salette","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"29/05/2026","pct":"0","cree":"29/04/2026","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":700.0,"montantPrest":0.0,"montantRec":350.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"29/04/2026"},{"id":"6181","projet":"CSEAIRBUSDS","statut":"En cours","priorite":"Normal","sujet":"MATERIEL INFORMATIQUE ","auteur":"Guillaume FLORENTIN","assigne":"Catherine PERROT","echeance":"","pct":"80","cree":"27/04/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":298.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":2759.6,"debut":"28/04/2026"},{"id":"6175","projet":"APPLICATION-SYSTEME - R-PAP-038656","statut":"En attente fournisseur","priorite":"Normal","sujet":"Déménagement Le Fousseret - FttH","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"02/05/2026","pct":"0","cree":"27/04/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":100.0,"montantPrest":579.0,"montantRec":132.7,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"6163","projet":"OTPA ","statut":"En attente fournisseur","priorite":"Normal","sujet":"PRESTATION TECHNIQUE LUDOVIA","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"100","cree":"27/04/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":5400.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/06/2026"},{"id":"6162","projet":"TARAMM","statut":"En cours","priorite":"Normal","sujet":"RENOUVELLEMENT PARE FEU","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"27/04/2026","commercial":"Guillaume FLORENTIN","bu":"Cyber","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":520.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":3800.0,"debut":"08/06/2026"},{"id":"6161","projet":"TARAMM","statut":"A facturer","priorite":"Normal","sujet":"Nouveaux Switchs","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"27/04/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":260.0,"montantRec":67.5,"montantRecInitial":0.0,"montantNegoce":619.7,"debut":""},{"id":"6160","projet":"AIR-SUPPORT","statut":"En cours","priorite":"Normal","sujet":"Téléphones & Coques Pixel","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"27/04/2026","commercial":"Guillaume FLORENTIN","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":13.5,"montantRecInitial":0.0,"montantNegoce":630.0,"debut":""},{"id":"6126","projet":"COMMUNAUTE-DE-COMMUNES-TARN-AGOUT","statut":"A facturer","priorite":"Normal","sujet":"4G - Piscine de Saint-Sulpice","auteur":"Mathéo CLAUDEL","assigne":"Back-Office","echeance":"","pct":"100","cree":"20/04/2026","commercial":"","bu":"Connectivité","engagement":"12,00","type":"Production","montantFAS":35.0,"montantPrest":0.0,"montantRec":32.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"21/04/2026"},{"id":"6104","projet":"TARAMM","statut":"A facturer","priorite":"Normal","sujet":"REMPLACEMENT DES DISKS","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"17/04/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":1100.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":919.8,"debut":"17/04/2026"},{"id":"6102","projet":"APPLICATION-SYSTEME - R-PAP-038656","statut":"A facturer","priorite":"Normal","sujet":"APPLICATION SYSTEME - Demande Re-Configuration Tel IP","auteur":"Nino GALDAVA","assigne":"Back-Office","echeance":"30/04/2026","pct":"0","cree":"16/04/2026","commercial":"Nino GALDAVA","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":69.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"16/04/2026"},{"id":"6073","projet":"SMECTOM","statut":"En cours","priorite":"Normal","sujet":"RENOUVELLEMENT DU MARCHE AVEC EVOLUTION DES RESSOURCES","auteur":"Guillaume FLORENTIN","assigne":"Loic CANCEL","echeance":"01/07/2026","pct":"22","cree":"13/04/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"48,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"30/04/2026"},{"id":"6072","projet":"DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936","statut":"En cours","priorite":"Haut","sujet":"DSI - FTTO 20/100Mbps - Saint Orens","auteur":"Maxime BETEMPS","assigne":"Maxime BETEMPS","echeance":"24/03/2026","pct":"100","cree":"13/04/2026","commercial":"","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":0.0,"montantRec":150.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"24/02/2026"},{"id":"6071","projet":"ARNAUD-ET-FILS","statut":"A facturer","priorite":"Normal","sujet":"EVOLUTION SERVEUR","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"13/04/2026","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":550.0,"montantRec":224.9,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/05/2026"},{"id":"6054","projet":"MICROZONE - R-PAP-043267","statut":"En cours","priorite":"Normal","sujet":"La Roche Sur Yon - Fibre Covage 1 Gbps + FTTH Pro de secours","auteur":"Boris LE SAUSSE","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"08/04/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":430.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"6040","projet":"CAMPING-LA-DIVE","statut":"En attente fournisseur","priorite":"Normal","sujet":"raccordement fibre 100 Mbps","auteur":"Boris LE SAUSSE","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"07/04/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":490.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"5975","projet":"COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-0248","statut":"En attente fournisseur","priorite":"Normal","sujet":"FIBRE FTTH PRO 1G","auteur":"Guillaume FLORENTIN","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"01/04/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":270.0,"montantRec":40.0,"montantRecInitial":0.0,"montantNegoce":100.0,"debut":"01/04/2026"},{"id":"5935","projet":"SARL-GRAND-HOTEL-D'ORLEANS - R-PAP-038761","statut":"Nouveau","priorite":"Haut","sujet":"PROD - HOTEL ORLEANS - FORTINET standard","auteur":"Mathéo CLAUDEL","assigne":"Tech-C3-C4","echeance":"15/04/2026","pct":"0","cree":"01/04/2026","commercial":"Mathéo CLAUDEL","bu":"Cyber","engagement":"36,00","type":"Production","montantFAS":300.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"01/04/2026"},{"id":"5924","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"Nouveau","priorite":"Normal","sujet":"DRD - CI DE QUERIGUT - FttH 1G","auteur":"Owen CUTLER","assigne":"Owen CUTLER","echeance":"","pct":"20","cree":"01/04/2026","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"5893","projet":"GELTI-CARS-FAURE - R-PAP-037518","statut":"En cours","priorite":"Haut","sujet":"Production FTTH - Villard-de-Lans - GELTI","auteur":"Mathéo CLAUDEL","assigne":"Maxime BETEMPS","echeance":"21/04/2026","pct":"20","cree":"31/03/2026","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":79.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"31/03/2026"},{"id":"5892","projet":"AMBULANCES-ENSALES","statut":"A facturer","priorite":"Normal","sujet":"MATERIEL INFORMATIQUE ","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"","pct":"100","cree":"31/03/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":149.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":982.57,"debut":"01/04/2026"},{"id":"5868","projet":"INFOMIL - R-PAP-039064","statut":"En attente fournisseur","priorite":"Normal","sujet":"BTLECOUEST_GTL24691 - FTTO 100M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"10/06/2026","pct":"0","cree":"26/03/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"12,00","type":"Production","montantFAS":2000.0,"montantPrest":350.0,"montantRec":1320.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"5860","projet":"PUBLI-NOE - R-PAP-034821","statut":"Nouveau","priorite":"Haut","sujet":"Upgrade FTTO mutualisée - PUBLI NOE #R-PAP-034821","auteur":"Rémi GAGNOT","assigne":"Owen CUTLER","echeance":"25/06/2026","pct":"0","cree":"25/03/2026","commercial":"Rémi GAGNOT","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":180.0,"montantPrest":0.0,"montantRec":165.0,"montantRecInitial":190.0,"montantNegoce":0.0,"debut":"25/03/2026"},{"id":"5859","projet":"OGON-DESIGNS - R-PAP-030202","statut":"Nouveau","priorite":"Haut","sujet":"Upgrade FTTO mutualisée - OGON DESIGNS #R-PAP-030202","auteur":"Rémi GAGNOT","assigne":"Owen CUTLER","echeance":"25/06/2026","pct":"0","cree":"25/03/2026","commercial":"Rémi GAGNOT","bu":"Connectivité","engagement":"36,00","type":"Changement d'offre","montantFAS":180.0,"montantPrest":0.0,"montantRec":165.0,"montantRecInitial":150.0,"montantNegoce":0.0,"debut":"25/03/2026"},{"id":"5858","projet":"AIR-SUPPORT","statut":"En attente client","priorite":"Normal","sujet":"FORTIIDENTITY","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"73","cree":"24/03/2026","commercial":"Guillaume FLORENTIN","bu":"Cyber","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":1560.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":1709.9,"debut":"26/03/2026"},{"id":"5773","projet":"CAMPING-LE-SOLEIL - R-PAP-022237","statut":"En attente fournisseur","priorite":"Normal","sujet":"Upgrade haute saison 2 GBPS","auteur":"Ibério DOVAL","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"12/03/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Changement d'offre","montantFAS":1000.0,"montantPrest":0.0,"montantRec":878.4,"montantRecInitial":699.2,"montantNegoce":0.0,"debut":""},{"id":"5741","projet":"ANDORRA-TELECOM","statut":"En attente fournisseur","priorite":"Urgent","sujet":"Service Cloud - Andorra- telecom","auteur":"Mathéo CLAUDEL","assigne":"Justine DURRIEU","echeance":"10/04/2026","pct":"0","cree":"10/03/2026","commercial":"Guillaume SACLIER","bu":"Cloud","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":1000.0,"montantRec":375.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"10/03/2026"},{"id":"5739","projet":"BIOCOOP","statut":"En cours","priorite":"Normal","sujet":"BACKUP 4G/5G","auteur":"Guillaume FLORENTIN","assigne":"Owen CUTLER","echeance":"","pct":"50","cree":"10/03/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":50.0,"montantPrest":0.0,"montantRec":50.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"08/04/2026"},{"id":"5707","projet":"SMDEA09","statut":"En attente","priorite":"Normal","sujet":"PRETATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Théo MARIN","echeance":"","pct":"50","cree":"06/03/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":440.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"06/03/2026"},{"id":"5682","projet":"SMDEA09","statut":"En attente","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"06/03/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":65.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"06/03/2026"},{"id":"5678","projet":"GELTI-CARS-FAURE - R-PAP-037518","statut":"En cours","priorite":"Haut","sujet":"FTTH site ST JEAN DE SOUDAIN - GELTI","auteur":"Mathéo CLAUDEL","assigne":"Maxime BETEMPS","echeance":"26/03/2026","pct":"20","cree":"05/03/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":79.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"05/03/2026"},{"id":"5648","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"CERTIFICAT SSL WILDCARD","auteur":"Guillaume FLORENTIN","assigne":"Back-Office","echeance":"16/06/2026","pct":"100","cree":"03/03/2026","commercial":"Guillaume FLORENTIN","bu":"Cyber","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":12.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"03/03/2026"},{"id":"5647","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"PAREFEU SEC SITE ARROUT","auteur":"Guillaume FLORENTIN","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"03/03/2026","commercial":"Guillaume FLORENTIN","bu":"Cyber","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":90.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"03/03/2026"},{"id":"5646","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"Nouveau","priorite":"Normal","sujet":"PAREFEU SEC SITE ERCE","auteur":"Guillaume FLORENTIN","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"03/03/2026","commercial":"Guillaume FLORENTIN","bu":"Cyber","engagement":"12,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":90.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"03/03/2026"},{"id":"5612","projet":"INFORMATIQUE-SUD-LOIRE - R-PAP-043254","statut":"En attente fournisseur","priorite":"Normal","sujet":"raccordement fibre dédiée Covage 100 Mbps","auteur":"Boris LE SAUSSE","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"02/03/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":0.0,"montantRec":280.0,"montantRecInitial":165.0,"montantNegoce":0.0,"debut":""},{"id":"5605","projet":"RECAERO","statut":"En attente fournisseur","priorite":"Normal","sujet":"Upgrade FttO 200M & FttH","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"50","cree":"02/03/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":909.0,"montantRecInitial":600.0,"montantNegoce":350.0,"debut":""},{"id":"5578","projet":"INFOMIL - R-PAP-039064","statut":"En attente fournisseur","priorite":"Normal","sujet":"SODIMAR - GTL24393 - FTTO 100M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"25/02/2026","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":730.0,"montantPrest":350.0,"montantRec":640.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"5569","projet":"DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936","statut":"En cours","priorite":"Haut","sujet":"DSI - FTTO 20/100Mbps - Saint Orens","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"24/03/2026","pct":"30","cree":"24/02/2026","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":0.0,"montantRec":150.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"24/02/2026"},{"id":"5528","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"FTTH PRO 1G","auteur":"Guillaume FLORENTIN","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"19/02/2026","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":395.0,"montantRec":49.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"19/02/2026"},{"id":"5312","projet":"TARAMM","statut":"En cours","priorite":"Normal","sujet":"MIGRATION W10 VERS W11","auteur":"Guillaume FLORENTIN","assigne":"Loic CANCEL","echeance":"","pct":"60","cree":"29/01/2026","commercial":"Guillaume FLORENTIN","bu":"Computer","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"29/01/2026"},{"id":"5311","projet":"CAMPAR-SARL-CAMPING-LES-CRIQUES-DE-PORTEILS - R-PA","statut":"En cours","priorite":"Haut","sujet":"Upgrade fibre à 2 Gbps","auteur":"Boris LE SAUSSE","assigne":"Maxime BETEMPS","echeance":"27/02/2026","pct":"30","cree":"28/01/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":50.0,"montantPrest":0.0,"montantRec":1100.0,"montantRecInitial":1100.0,"montantNegoce":0.0,"debut":"28/01/2026"},{"id":"5199","projet":"SPORTLIFE - R-PAP-044298","statut":"En cours","priorite":"Normal","sujet":"Luçon - FttO 10M + 1 ligne téléphonique","auteur":"Boris LE SAUSSE","assigne":"Justine DURRIEU","echeance":"25/05/2026","pct":"50","cree":"16/01/2026","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":0.0,"montantRec":291.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"06/05/2026"},{"id":"5036","projet":"APREVYA","statut":"En cours","priorite":"Normal","sujet":"WIFI","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"66","cree":"19/12/2025","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":813.0,"montantRec":255.0,"montantRecInitial":0.0,"montantNegoce":268.0,"debut":"06/02/2026"},{"id":"4905","projet":"CAMPING-DE-LA-RIVE - R-PAP-042867","statut":"En cours","priorite":"Normal","sujet":"évolution de services fibres saisonnières","auteur":"Boris LE SAUSSE","assigne":"Maxime BETEMPS","echeance":"27/02/2026","pct":"50","cree":"03/12/2025","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":400.0,"montantPrest":800.0,"montantRec":1400.0,"montantRecInitial":1290.0,"montantNegoce":0.0,"debut":"03/12/2025"},{"id":"4902","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"TELEPHONIE","auteur":"Guillaume FLORENTIN","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"02/12/2025","commercial":"Guillaume FLORENTIN","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":650.0,"montantRec":80.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"02/12/2025"},{"id":"4748","projet":"ALSATIS-RESEAUX","statut":"En cours","priorite":"Normal","sujet":"Materiel telephonique projet migration téléphonique BICOM","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"14/12/2025","pct":"0","cree":"14/11/2025","commercial":"Guillaume SACLIER","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":455.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"14/11/2025"},{"id":"4747","projet":"ALSATIS-RESEAUX","statut":"En cours","priorite":"Normal","sujet":"MIGRATION SOLUTION DE TELEPHONIE XiVo vers BICOM","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"14/01/2026","pct":"0","cree":"14/11/2025","commercial":"Guillaume SACLIER","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":699.0,"montantRec":253.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"14/11/2025"},{"id":"4744","projet":"INFOMIL - R-PAP-039064","statut":"En attente","priorite":"Normal","sujet":"PONTS - FTTO 20M","auteur":"Nino GALDAVA","assigne":"Justine DURRIEU","echeance":"","pct":"100","cree":"14/11/2025","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":350.0,"montantRec":280.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"4518","projet":"LES-BOIS-DU-MIDI - R-PAP-032669","statut":"En attente fournisseur","priorite":"Normal","sujet":"Upgrade fibre + routeur 4G - LES BOIS DU MIDI","auteur":"Mathéo CLAUDEL","assigne":"Mathéo CLAUDEL","echeance":"31/01/2026","pct":"33","cree":"27/10/2025","commercial":"Mathéo CLAUDEL","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":89.0,"montantPrest":0.0,"montantRec":128.0,"montantRecInitial":128.0,"montantNegoce":0.0,"debut":"27/10/2025"},{"id":"4489","projet":"THEMANIS","statut":"En cours","priorite":"Normal","sujet":"New business - Lien de secours THEMANIS","auteur":"Mathéo CLAUDEL","assigne":"Justine DURRIEU","echeance":"19/01/2026","pct":"47","cree":"23/10/2025","commercial":"Mathéo CLAUDEL","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":500.0,"montantPrest":0.0,"montantRec":230.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"09/01/2026"},{"id":"4412","projet":"ARIEGE-BATIMENT-CONSTRUCTION-RENOVATION","statut":"Demande incomplète","priorite":"Normal","sujet":"Hébergement machine virtuelle","auteur":"Nino GALDAVA","assigne":"Commerce","echeance":"15/11/2025","pct":"0","cree":"15/10/2025","commercial":"Guillaume SACLIER","bu":"Cloud","engagement":"60,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":299.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"15/10/2025"},{"id":"4372","projet":"RECAERO","statut":"En cours","priorite":"Normal","sujet":"PRESTATION TECHNIQUE","auteur":"Guillaume FLORENTIN","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"10/10/2025","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":982.5,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"03/11/2025"},{"id":"4246","projet":"AIR-SUPPORT","statut":"En cours","priorite":"Normal","sujet":"MISE A JOUR DES SERVEURS AIR","auteur":"Guillaume FLORENTIN","assigne":"Loic CANCEL","echeance":"","pct":"94","cree":"25/09/2025","commercial":"Guillaume FLORENTIN","bu":"Cloud","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":2305.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":45577.1,"debut":"14/10/2025"},{"id":"4231","projet":"ALSATIS-GROUPE","statut":"Demande incomplète","priorite":"Normal","sujet":"Firewall","auteur":"Nino GALDAVA","assigne":"Commerce","echeance":"07/10/2025","pct":"0","cree":"23/09/2025","commercial":"Guillaume SACLIER","bu":"Cyber","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":90.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/09/2025"},{"id":"4230","projet":"ALSATIS-GROUPE","statut":"Demande incomplète","priorite":"Normal","sujet":"Infogérence","auteur":"Nino GALDAVA","assigne":"Commerce","echeance":"07/10/2025","pct":"0","cree":"23/09/2025","commercial":"Guillaume SACLIER","bu":"Computer","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":298.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/09/2025"},{"id":"4229","projet":"ALSATIS-GROUPE","statut":"Demande incomplète","priorite":"Normal","sujet":"Hébergement et sauvegarde","auteur":"Nino GALDAVA","assigne":"Commerce","echeance":"07/10/2025","pct":"0","cree":"23/09/2025","commercial":"Guillaume SACLIER","bu":"Cloud","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":2490.0,"montantRec":568.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/09/2025"},{"id":"4209","projet":"GELTI-CARS-FAURE - R-PAP-037518","statut":"En cours","priorite":"Normal","sujet":"Téléphonie pour l'ensemble des sites","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"19/10/2025","pct":"0","cree":"19/09/2025","commercial":"Guillaume SACLIER","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":569.9,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"19/09/2025"},{"id":"4101","projet":"ALSATIS-GROUPE","statut":"Demande incomplète","priorite":"Normal","sujet":"mise en place téléphonie Bicom pour le 30 septembre","auteur":"Boris LE SAUSSE","assigne":"Commerce","echeance":"30/09/2025","pct":"0","cree":"12/09/2025","commercial":"Boris LE SAUSSE","bu":"Communication","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":292.0,"montantRec":54.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/09/2025"},{"id":"4090","projet":"IMPEX - R-PAP-027215","statut":"En attente client","priorite":"Normal","sujet":"BELMONT-Mise en place d'une solution de sécurisation haute disponibili","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"11/10/2025","pct":"0","cree":"11/09/2025","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"24,00","type":"Production","montantFAS":250.0,"montantPrest":0.0,"montantRec":25.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/09/2025"},{"id":"4089","projet":"IMPEX - R-PAP-027215","statut":"En attente client","priorite":"Normal","sujet":"CHIMILIN-Mise en place d'une solution de sécurisation haute disponibil","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"11/10/2025","pct":"0","cree":"11/09/2025","commercial":"Nino GALDAVA","bu":"Connectivité","engagement":"24,00","type":"Production","montantFAS":250.0,"montantPrest":0.0,"montantRec":25.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/09/2025"},{"id":"3757","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"Prise d'eau Erce - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3750","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"Centre Hydroélectrique Arrout - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"25","cree":"13/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3743","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"Prise d'eau Audressein - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3736","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"Centre Hydroélectrique Erce - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3731","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"SESTA - Grotte du Mas d'Azil - Option téléphonie","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":25.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"13/08/2025"},{"id":"3726","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"SESTA - Grotte de Niaux - Option téléphonie","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":25.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"13/08/2025"},{"id":"3721","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"SESTA - Grotte de Bédeilhac - Option téléphonie","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"13/08/2025","commercial":"","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":25.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"13/08/2025"},{"id":"3709","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"SESTA - Grotte de Niaux - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3702","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"SESTA - Grotte de Bédeilhac - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"20","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3695","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"DCSEP - Légumerie - FttH 1G","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3682","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"DSD - CL SAVERDUN MAZERES - FO 10M + Secours","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"26","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":221.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3650","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"DSD - ST GIRONS - FO 10M + Secours","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"33","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":221.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3643","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"DRD - CI DE VARILHES - FttH 1G","auteur":"Ibério DOVAL","assigne":"Back-Office","echeance":"","pct":"100","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3636","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"DRD - CI DE TARASCON - FttH 1G","auteur":"Ibério DOVAL","assigne":"Back-Office","echeance":"","pct":"100","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3629","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"DRD - CI DE SAVERDUN - FttH 1G","auteur":"Ibério DOVAL","assigne":"Back-Office","echeance":"","pct":"100","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3622","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente travaux client","priorite":"Normal","sujet":"DRD - CI DE LABASTIDE - FttH 1G","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3598","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"COLLEGE - Du Sabarthès - FO 30M + Secours & Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"50","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":276.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3553","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"A facturer","priorite":"Normal","sujet":"DRD - CI DE VICDESSOS -  FttH 1G","auteur":"Ibério DOVAL","assigne":"Back-Office","echeance":"23/12/2025","pct":"83","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":49.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3546","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente","priorite":"Normal","sujet":"DRD - CI DE SAINT LIZIER - 4G/5G 100 Go (Non éligible FttH)","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":40.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3532","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente fournisseur","priorite":"Normal","sujet":"CLIC - Saint Girons - FttH 1G Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"08/01/2026","pct":"0","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":52.2,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"12/08/2025"},{"id":"3520","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"COLLEGE - Joseph Lakanal - FO 50M + Secours & Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"41","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":400.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3508","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En attente travaux client","priorite":"Normal","sujet":"COLLEGE - Mario Beulaygue - FO 30M + Secours & Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"41","cree":"12/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":276.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3444","projet":"CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE","statut":"En cours","priorite":"Normal","sujet":"CITE SCOLAIRE DU COUSERANS - FO 50M + Secours & Internet & MultiS","auteur":"Ibério DOVAL","assigne":"Owen CUTLER","echeance":"","pct":"62","cree":"11/08/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":400.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/08/2025"},{"id":"3236","projet":"DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936","statut":"Nouveau","priorite":"Normal","sujet":"MAROLLES EN BRIE - FTTH","auteur":"Nino GALDAVA","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"16/07/2025","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":79.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"3050","projet":"SITCO-PLV - R-PAP-032985","statut":"En cours","priorite":"Normal","sujet":"Réengagement service Firewall avec mise en place solution SDWAN","auteur":"Boris LE SAUSSE","assigne":"Maxime BETEMPS","echeance":"31/07/2025","pct":"0","cree":"04/07/2025","commercial":"Boris LE SAUSSE","bu":"Cyber","engagement":"36,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":185.0,"montantRecInitial":175.0,"montantNegoce":0.0,"debut":"04/07/2025"},{"id":"3049","projet":"SITCO-PLV - R-PAP-032985","statut":"En cours","priorite":"Normal","sujet":"Nouvelle fibre FTTH Pro pour projet SDWan St Junien","auteur":"Boris LE SAUSSE","assigne":"Maxime BETEMPS","echeance":"","pct":"50","cree":"04/07/2025","commercial":"Boris LE SAUSSE","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":70.0,"montantPrest":300.0,"montantRec":90.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"04/07/2025"},{"id":"2930","projet":"CSEAIRBUSDS","statut":"En cours","priorite":"Immédiat","sujet":"FIBRE 10G IELO","auteur":"Guillaume FLORENTIN","assigne":"Maxime BETEMPS","echeance":"","pct":"50","cree":"17/06/2025","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":789.0,"montantRecInitial":0.0,"montantNegoce":1700.0,"debut":"17/06/2025"},{"id":"2417","projet":"BOIS-ARIEGEOIS","statut":"En attente","priorite":"Normal","sujet":"FTTE - St Paul de Jarrat","auteur":"Justine DURRIEU","assigne":"Ibério DOVAL","echeance":"","pct":"0","cree":"06/05/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":387.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"06/05/2025"},{"id":"2416","projet":"CMA-INDUSTRY","statut":"En cours","priorite":"Normal","sujet":"Segmentation Réseau","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"06/05/2025","commercial":"Guillaume FLORENTIN","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":2580.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"06/05/2025"},{"id":"2171","projet":"THEATRE-SORANO - R-PAP-038105","statut":"En attente travaux client","priorite":"Normal","sujet":"FTTO - THEATRE SORANO","auteur":"Nino GALDAVA","assigne":"Guillaume SACLIER","echeance":"25/08/2025","pct":"0","cree":"14/04/2025","commercial":"Guillaume SACLIER","bu":"Connectivité","engagement":"36,00","type":"Production","montantFAS":360.0,"montantPrest":0.0,"montantRec":150.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"2160","projet":"COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-0248","statut":"En cours","priorite":"Normal","sujet":"[AO - Lancement Marché 2025] Reprise ligne analogique","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"11/04/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"0,00","type":"Production","montantFAS":45.0,"montantPrest":0.0,"montantRec":110.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"11/04/2025"},{"id":"1633","projet":"RECAERO","statut":"En attente","priorite":"Normal","sujet":"Prestation réseau - Recaero Formation","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"25/02/2025","pct":"50","cree":"24/02/2025","commercial":"Vincent DE-SULZER-WART","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":1497.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"24/02/2025"},{"id":"1608","projet":"SMDEA09","statut":"En cours","priorite":"Normal","sujet":"UTE DU FOSSAT - FttO - 10M","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1590","projet":"SMDEA09","statut":"En cours","priorite":"Normal","sujet":"UTE DE LA TOUR-DU-CRIEU - FttO - 10M","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1584","projet":"SMDEA09","statut":"En cours","priorite":"Normal","sujet":"UTE DE VILLENEUVE-D'OLMES - FttO - 10M","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1572","projet":"SMDEA09","statut":"En cours","priorite":"Normal","sujet":"SAINT-PAUL-DE-JARRAT(Siège) - FttO 1G - Secours","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1566","projet":"SMDEA09","statut":"En cours","priorite":"Normal","sujet":"SAINT-PAUL-DE-JARRAT(Siège) - FttO 1G - Nominal","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1560","projet":"SMDEA09","statut":"En attente","priorite":"Normal","sujet":"STEP BENAGUES - 4G","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1548","projet":"SMDEA09","statut":"En attente","priorite":"Normal","sujet":"STEP MAZERES - 4G","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":22.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1512","projet":"SMDEA09","statut":"En attente","priorite":"Normal","sujet":"POMPAGE DE ROQUEBRUNE - 4G","auteur":"Justine DURRIEU","assigne":"Justine DURRIEU","echeance":"","pct":"0","cree":"21/02/2025","commercial":"","bu":"Connectivité","engagement":"0,00","type":"Production","montantFAS":0.0,"montantPrest":0.0,"montantRec":0.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""},{"id":"1120","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Maison des familles - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1113","projet":"MAIRIE-DE-L'UNION","statut":"En cours","priorite":"Normal","sujet":"Maison des familles - FTTH","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"10/06/2025","pct":"33","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":145.0,"montantPrest":0.0,"montantRec":50.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1107","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Halte garderie (secours) - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1081","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Pôle Petite Enfance - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1074","projet":"MAIRIE-DE-L'UNION","statut":"En cours","priorite":"Normal","sujet":"Pôle Petite Enfance - FTTH","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"12/06/2025","pct":"33","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":145.0,"montantPrest":0.0,"montantRec":50.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1068","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Asso syndicale et pole associatif - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1055","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"HALTE REPIT - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1048","projet":"MAIRIE-DE-L'UNION","statut":"En attente fournisseur","priorite":"Normal","sujet":"HALTE REPIT - FTTH","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"09/06/2025","pct":"16","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":145.0,"montantPrest":0.0,"montantRec":50.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1042","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"MASE - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"60","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1016","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Crèche Municipale - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"1003","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"ELEM BO - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Guillaume FLORENTIN","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"990","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Ferme Maraichère BIO - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"977","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Centre de Loisirs - Centrex","auteur":"Charles BANQUET","assigne":"Owen CUTLER","echeance":"","pct":"50","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":313.6,"montantPrest":0.0,"montantRec":20.6,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"964","projet":"MAIRIE-DE-L'UNION","statut":"En cours","priorite":"Normal","sujet":"Mairie de l'union - Trunk SIP","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"","pct":"0","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Communication","engagement":"48,00","type":"Production","montantFAS":173.5,"montantPrest":0.0,"montantRec":58.5,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"957","projet":"MAIRIE-DE-L'UNION","statut":"En attente","priorite":"Normal","sujet":"Mairie de l'union - FTTO 200Mbps","auteur":"Charles BANQUET","assigne":"Back-Office","echeance":"","pct":"100","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":2000.0,"montantPrest":0.0,"montantRec":314.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":"23/01/2025"},{"id":"951","projet":"MAIRIE-DE-L'UNION","statut":"Nouveau","priorite":"Normal","sujet":"Site de la mairie de l'union","auteur":"Charles BANQUET","assigne":"Maxime BETEMPS","echeance":"","pct":"16","cree":"23/01/2025","commercial":"Charles BANQUET","bu":"Connectivité","engagement":"48,00","type":"Production","montantFAS":2000.0,"montantPrest":0.0,"montantRec":314.0,"montantRecInitial":0.0,"montantNegoce":0.0,"debut":""}];
+const PROD_MONTHS = {"labels":["Jul 25","Aoû 25","Sep 25","Oct 25","Nov 25","Déc 25","Jan 26","Fév 26","Mar 26","Avr 26","Mai 26","Jun 26"],"vals":[3,23,8,4,3,3,3,3,17,19,24,19]};
+const PROD_COMMERCIAUX = ["Boris LE SAUSSE","Charles BANQUET","Guillaume FLORENTIN","Guillaume SACLIER","Mathéo CLAUDEL","Nino GALDAVA","Rémi GAGNOT","Vincent DE-SULZER-WART"];
+</script>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-brand">
+      <div class="hdr-logo">PROD</div>
+      <div>
+        <div class="hdr-name">Dashboard Productions — Alsatis Services</div>
+        <div class="hdr-sub">Suivi · <span id="hSource">Export du 10/06/2026</span></div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="chip chip-green" id="hCount">— prod.</span>
+      <span class="chip" id="hDate">—</span>
+      <button class="drive-btn connect" id="btnDriveConnect" onclick="driveAuth()" title="Connecter Google Drive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 2L12 12"/><path d="M15 2h7v7"/></svg>
+        Connecter Drive
+      </button>
+      <button class="drive-btn save" id="btnDriveSave" onclick="driveSave()" style="display:none">
+        <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+        Sauvegarder Drive
+      </button>
+      <button class="drive-btn load" id="btnDriveLoad" onclick="driveLoad()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Charger Drive
+      </button>
+      <div class="drive-sep" id="driveSep" style="display:none"></div>
+      <label class="hbtn" style="cursor:pointer">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importer CSV
+        <input type="file" accept=".csv" onchange="importCSV(event)" style="display:none">
+      </label>
+      <button class="hbtn" onclick="window.print()">⎙ Imprimer</button>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-in">
+    <button class="nav-tab active" onclick="showTab('vue',this)">Vue globale</button>
+    <button class="nav-tab" onclick="showTab('recurrant',this)">Récurrent</button>
+    <button class="nav-tab" onclick="showTab('facturer',this)">À facturer</button>
+    <button class="nav-tab" onclick="showTab('renew',this)">Renouvellements</button>
+    <button class="nav-tab" onclick="showTab('detail',this)">Détail</button>
+    <button class="nav-tab" onclick="showTab('charge',this)">Charge équipe</button>
+    <button class="nav-tab" onclick="showTab('retards',this)">Retards</button>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- VUE GLOBALE -->
+<div id="tab-vue" class="tab-panel active">
+  <div class="sec" id="alerteBand" style="display:none">
+    <div class="alerte-band">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alerteText">—</span>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Indicateurs clés</div>
+    <div class="kpi-grid">
+      <div class="kpi kteal"><div class="kpi-lbl">Total en cours</div><div class="kpi-val teal" id="k-total">—</div><div class="kpi-sub">Productions actives</div></div>
+      <div class="kpi kblue"><div class="kpi-lbl">En cours</div><div class="kpi-val blue" id="k-enc">—</div><div class="kpi-sub">En traitement actif</div></div>
+      <div class="kpi kteal"><div class="kpi-lbl">Nouvelles</div><div class="kpi-val teal" id="k-new">—</div><div class="kpi-sub">Statut Nouveau</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">À facturer</div><div class="kpi-val green" id="k-fact">—</div><div class="kpi-sub">Prêtes à facturer</div></div>
+      <div class="kpi kyellow"><div class="kpi-lbl">En attente</div><div class="kpi-val yellow" id="k-att">—</div><div class="kpi-sub">Client / Fourn. / Autre</div></div>
+      <div class="kpi kred"><div class="kpi-lbl">En retard</div><div class="kpi-val red" id="k-ret">—</div><div class="kpi-sub">Échéance dépassée</div></div>
+      <div class="kpi kpurple"><div class="kpi-lbl">Urgentes</div><div class="kpi-val purple" id="k-urg">—</div><div class="kpi-sub">Priorité haute</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">Montant total</div><div class="kpi-val green" id="k-montant">—</div><div class="kpi-sub">FAS + Prest + Rec + Négoce</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">Dont à facturer</div><div class="kpi-val green" id="k-afacturer">—</div><div class="kpi-sub">Encaissement à venir</div></div>
+      <div class="kpi kteal"><div class="kpi-lbl">MRR créé net</div><div class="kpi-val teal" id="k-rec">—</div><div class="kpi-sub" id="k-rec-sub">New + Δ renew/upgrade</div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Répartition</div>
+    <div class="g3">
+      <div class="card"><div class="card-title">Par statut</div><div class="chart-wrap donut"><canvas id="cSt"></canvas></div></div>
+      <div class="card"><div class="card-title">Par Business Unit</div><div class="chart-wrap donut"><canvas id="cBu"></canvas></div></div>
+      <div class="card"><div class="card-title">Durées d'engagement</div><div class="chart-wrap donut"><canvas id="cEng"></canvas></div><div class="eng-grid" id="engStats"></div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Montants &amp; commerciaux</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Montants par BU (€)</div><div class="chart-wrap"><canvas id="cMontBU"></canvas></div></div>
+      <div class="card"><div class="card-title">Productions par commercial — total &amp; à facturer</div><div class="chart-wrap"><canvas id="cComm"></canvas></div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Volume &amp; état par BU</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Productions créées par mois — 12 mois glissants</div><div class="chart-wrap"><canvas id="cMois"></canvas></div></div>
+      <div class="card"><div class="card-title">État par Business Unit</div><div class="bu-grid" id="buStats"></div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Charge techniciens</div>
+    <div style="background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:18px">
+      <div class="card-title">AV par technicien — total &amp; retards</div>
+      <canvas id="cTech"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- RÉCURRENT -->
+<div id="tab-recurrant" class="tab-panel">
+  <div class="sec">
+    <div class="sec-title">MRR par cycle de vie</div>
+    <div class="rec-cycle-grid" id="recCycleGrid"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">MRR récurrent — détail par statut</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Récurrent en cours de production (En cours)</div><div class="chart-wrap donut"><canvas id="cRecBuEnCours"></canvas></div></div>
+      <div class="card"><div class="card-title">Récurrent bloqué (En attente fournisseur)</div><div class="chart-wrap donut"><canvas id="cRecBuFourn"></canvas></div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Lignes récurrentes · <span id="recCount">—</span> · MRR total : <span id="recMrrTotal" style="color:var(--teal);font-weight:700">—</span></span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="fRecStatut" onchange="renderRecurrent()" style="border:1.5px solid var(--bdr);border-radius:6px;padding:5px 9px;font-size:.75rem;font-family:var(--font)">
+            <option value="">Tous statuts</option>
+            <option>Nouveau</option><option>En cours</option><option>À facturer</option>
+            <option>En attente</option><option>En attente fournisseur</option><option>En attente client</option>
+          </select>
+          <select id="fRecBU" onchange="renderRecurrent()" style="border:1.5px solid var(--bdr);border-radius:6px;padding:5px 9px;font-size:.75rem;font-family:var(--font)">
+            <option value="">Toutes BU</option>
+            <option>Cloud</option><option>Communication</option><option>Computer</option><option>Connectivité</option><option>Cyber</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Client</th><th>Sujet</th><th>BU</th><th>Statut</th><th>Commercial</th>
+            <th class="num">Récurrent/mois</th><th class="num">Engagement</th><th class="num">Valeur contrat</th>
+          </tr></thead>
+          <tbody id="tblRec"></tbody>
+          <tfoot id="tblRecFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- À FACTURER -->
+<div id="tab-facturer" class="tab-panel">
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Productions à facturer · <span id="factCount">—</span></span>
+        <button class="sbtn sbtn-green" onclick="exportFacturer()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export compta
+        </button>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Client</th><th>Sujet</th><th>BU</th><th>Commercial</th><th>Assigné</th>
+            <th class="num">FAS</th><th class="num">Prestation</th><th class="num">Récurrent</th><th class="num">Négoce</th><th class="num">Total ligne</th>
+          </tr></thead>
+          <tbody id="tblFact"></tbody>
+          <tfoot id="tblFactFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RENOUVELLEMENTS -->
+<div id="tab-renew" class="tab-panel">
+  <div class="sec">
+    <div class="sec-title">Bilan renouvellements</div>
+    <div class="kpi-grid" id="renewKpis"></div>
+  </div>
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Lignes avec ancien montant renseigné · <span id="renewCount">—</span></span>
+        <div style="display:flex;gap:8px">
+          <select id="fRenewFilter" onchange="renderRenew()" style="border:1.5px solid var(--bdr);border-radius:6px;padding:5px 9px;font-size:.75rem;font-family:var(--font)">
+            <option value="">Tous</option>
+            <option value="baisse">Baisses uniquement</option>
+            <option value="hausse">Hausses uniquement</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Client</th><th>Sujet</th><th>BU</th><th>Statut</th><th>Commercial</th>
+            <th class="num">Ancien MRR</th><th class="num">Nouveau MRR</th><th class="num">Δ mensuel</th><th class="num">Δ annuel</th>
+          </tr></thead>
+          <tbody id="tblRenew"></tbody>
+          <tfoot id="tblRenewFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="tab-detail" class="tab-panel">
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Toutes les productions · <span id="tblCount">—</span></span>
+        <button class="sbtn sbtn-slate" onclick="exportTableau()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exporter CSV
+        </button>
+      </div>
+      <div class="filters">
+        <label>Statut :</label>
+        <select id="fStatut" onchange="renderTable()">
+          <option value="">Tous</option>
+          <option>Nouveau</option><option>En cours</option><option>À facturer</option>
+          <option>En attente</option><option>En attente client</option>
+          <option>En attente fournisseur</option><option>En attente travaux client</option>
+          <option>Demande incomplète</option>
+        </select>
+        <label>Priorité :</label>
+        <select id="fPriorite" onchange="renderTable()">
+          <option value="">Toutes</option><option>Normal</option><option>Haut</option><option>Urgent</option><option>Immédiat</option>
+        </select>
+        <label>Commercial :</label>
+        <select id="fComm" onchange="renderTable()"><option value="">Tous</option></select>
+        <label>BU :</label>
+        <select id="fBU" onchange="renderTable()">
+          <option value="">Toutes</option><option>Cloud</option><option>Communication</option><option>Computer</option><option>Connectivité</option><option>Cyber</option>
+        </select>
+        <label>Recherche :</label>
+        <input type="text" id="fSearch" placeholder="Client, sujet..." oninput="renderTable()" style="min-width:140px">
+        <label><input type="checkbox" id="fRetard" onchange="renderTable()"> Retards</label>
+        <label><input type="checkbox" id="fFacturer" onchange="renderTable()"> À facturer</label>
+        <label><input type="checkbox" id="fRec" onchange="renderTable()"> Récurrents</label>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Client</th><th>Sujet</th><th>BU</th><th>Statut</th><th>Priorité</th><th>Commercial</th><th>Assigné</th><th>Échéance</th><th class="num">Engagement</th><th class="num">Montant</th><th>%</th>
+          </tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARGE -->
+<div id="tab-charge" class="tab-panel">
+  <div class="sec">
+    <div class="sec-title">Charge par technicien</div>
+    <div class="charge-grid" id="chargeTech"></div>
+  </div>
+</div>
+
+<!-- RETARDS -->
+<div id="tab-retards" class="tab-panel">
+  <div class="sec">
+    <div class="tbl-card">
+      <div class="tbl-hdr"><span class="tbl-title">Productions en retard · <span id="retardCount">—</span></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Client</th><th>Sujet</th><th>Assigné</th><th>Commercial</th><th>Échéance</th><th>Retard</th><th>Statut</th><th class="num">Montant</th></tr></thead>
+          <tbody id="tblRetard"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Créé par <strong>Guillaume Saclier</strong> · Alsatis Services · Dashboard Productions</span>
+  <span id="fDate">—</span>
+</div>
+
+</div><!-- .page -->
+<div class="toast" id="toast"></div>
+
+<script>
+const E = id => document.getElementById(id);
+const today = new Date(2026,5,10);
+const todayStr = () => new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const fmtE = (v,d=0) => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:d,maximumFractionDigits:d}).format(v||0);
+const fmtN = (v,d=2) => new Intl.NumberFormat('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v||0);
+const CO = {responsive:true,maintainAspectRatio:true};
+
+let DATA = PROD_DATA;
+
+const STATUT_C = {
+  'Nouveau':'#0891b2','En cours':'#2563eb','À facturer':'#16a34a','A facturer':'#16a34a',
+  'En attente fournisseur':'#7c3aed','En attente':'#ca8a04','En attente client':'#ea580c',
+  'En attente travaux client':'#f97316','Demande incomplète':'#dc2626'
+};
+const PRIO_C = {'Normal':'#94a3b8','Haut':'#ca8a04','Urgent':'#ea580c','Immédiat':'#dc2626'};
+const BU_C  = {'Cloud':'#2563eb','Communication':'#16a34a','Computer':'#ea580c','Connectivité':'#0891b2','Cyber':'#dc2626'};
+const COMM_C = ['#0891b2','#2563eb','#16a34a','#ea580c','#7c3aed','#ca8a04','#dc2626','#475569'];
+
+function isFact(r){return r.statut==='À facturer'||r.statut==='A facturer';}
+function isAtt(r){return r.statut.startsWith('En attente')||r.statut==='Demande incomplète';}
+function isTechProd(nom){if(!nom)return false;return !PROD_COMMERCIAUX.some(c=>nom.includes(c.split(' ').pop())||c.includes(nom.split(' ').pop()));}
+function parseDate(s){if(!s)return null;const p=s.split('/');if(p.length<3)return null;return new Date(+p[2],+p[1]-1,+p[0]);}
+function diffJours(d){return d?Math.floor((today-d)/(1000*60*60*24)):null;}
+function engMois(r){if(!r.engagement||r.engagement==='0,00')return 0;return Math.round(parseFloat(r.engagement.replace(',','.')));}
+
+function statutClass(s){
+  if(s==='Nouveau')return 's-nouveau';
+  if(s==='En cours')return 's-encours';
+  if(isFact({statut:s}))return 's-facturer';
+  if(s==='En attente fournisseur')return 's-atfourn';
+  if(s==='En attente client'||s==='En attente travaux client')return 's-atclient';
+  if(s==='Demande incomplète')return 's-incomplet';
+  return 's-attente';
+}
+function prioriteClass(p){
+  if(p==='Immédiat')return 'p-immediat';if(p==='Urgent')return 'p-urgent';if(p==='Haut')return 'p-haut';return 'p-normal';
+}
+function count(arr,key){const c={};arr.forEach(r=>{const v=r[key]||'—';c[v]=(c[v]||0)+1;});return c;}
+function toast(msg){const t=E('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  E('tab-'+id).classList.add('active');btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════
+   KPI GLOBAUX
+═══════════════════════════════════════════════ */
+function renderKPI(){
+  const d=DATA;
+  const nEnc=d.filter(r=>r.statut==='En cours').length;
+  const nNew=d.filter(r=>r.statut==='Nouveau').length;
+  const nFact=d.filter(r=>isFact(r)).length;
+  const nAtt=d.filter(r=>isAtt(r)).length;
+  const nRet=d.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+  const nUrg=d.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+  const tFAS=d.reduce((a,r)=>a+r.montantFAS,0);
+  const tPrest=d.reduce((a,r)=>a+r.montantPrest,0);
+  const tRecBrut=d.reduce((a,r)=>a+r.montantRec,0);
+  const tNeg=d.reduce((a,r)=>a+r.montantNegoce,0);
+  const tTotal=tFAS+tPrest+tRecBrut+tNeg;
+  const tFact=d.filter(r=>isFact(r)).reduce((a,r)=>a+r.montantFAS+r.montantPrest+r.montantRec+r.montantNegoce,0);
+  // MRR net créé = new pur + delta renew/upgrade (positif si upgrade, négatif si downsell)
+  const mrrNew=d.filter(r=>!r.montantRecInitial||r.montantRecInitial===0).reduce((a,r)=>a+r.montantRec,0);
+  const mrrDeltaRenew=d.filter(r=>r.montantRecInitial>0).reduce((a,r)=>a+(r.montantRec-r.montantRecInitial),0);
+  const mrrNet=mrrNew+mrrDeltaRenew;
+  E('k-total').textContent=d.length;E('k-enc').textContent=nEnc;E('k-new').textContent=nNew;
+  E('k-fact').textContent=nFact;E('k-att').textContent=nAtt;E('k-ret').textContent=nRet;E('k-urg').textContent=nUrg;
+  E('k-montant').textContent=fmtE(tTotal);E('k-afacturer').textContent=fmtE(tFact);
+  const signD=mrrDeltaRenew>=0?'+':'';
+  E('k-rec').textContent=fmtE(mrrNet,2);
+  E('k-rec').style.color=mrrNet>=0?'var(--teal)':'var(--orange)';
+  E('k-rec-sub').textContent='New: '+fmtE(mrrNew,0)+' · Δrenew: '+signD+fmtE(mrrDeltaRenew,0);
+  E('hCount').textContent=d.length+' prod.';
+  const parts=[];
+  if(nRet>0)parts.push(nRet+' production'+(nRet>1?'s':'')+' en retard');
+  if(nFact>0)parts.push(nFact+' à facturer ('+fmtE(tFact)+')');
+  if(nAtt>0)parts.push(nAtt+' en attente');
+  if(parts.length){E('alerteBand').style.display='block';E('alerteText').textContent=parts.join(' · ');}
+  else E('alerteBand').style.display='none';
+}
+
+/* ═══════════════════════════════════════════════
+   CHARTS GLOBAUX
+═══════════════════════════════════════════════ */
+let charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
+function mkDonut(id,labels,vals,colors,total){
+  return new Chart(E(id),{type:'doughnut',data:{
+    labels,datasets:[{data:vals,backgroundColor:colors,borderColor:'#fff',borderWidth:3,hoverOffset:5}]
+  },options:{...CO,cutout:'62%',plugins:{
+    legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:6}},
+    tooltip:{callbacks:{label:c=>' '+c.label+' : '+c.parsed+(total?' ('+((c.parsed/total)*100).toFixed(0)+'%)':'')}}
+  }}});
+}
+
+function buildCharts(){
+  destroyCharts();const d=DATA;
+  const st=count(d,'statut');
+  charts.cSt=mkDonut('cSt',Object.keys(st),Object.values(st),Object.keys(st).map(k=>STATUT_C[k]||'#94a3b8'),d.length);
+  const bu=count(d,'bu');
+  charts.cBu=mkDonut('cBu',Object.keys(bu),Object.values(bu),Object.keys(bu).map(k=>BU_C[k]||'#94a3b8'),d.length);
+  const buList=Object.keys(bu).filter(k=>k&&k!=='—');
+  charts.cMontBU=new Chart(E('cMontBU'),{type:'bar',data:{labels:buList,datasets:[
+    {label:'FAS',data:buList.map(b=>Math.round(d.filter(r=>r.bu===b).reduce((a,r)=>a+r.montantFAS,0))),backgroundColor:'rgba(37,99,235,.2)',borderColor:'#2563eb',borderWidth:2,borderRadius:3},
+    {label:'Prestation',data:buList.map(b=>Math.round(d.filter(r=>r.bu===b).reduce((a,r)=>a+r.montantPrest,0))),backgroundColor:'rgba(22,163,74,.2)',borderColor:'#16a34a',borderWidth:2,borderRadius:3},
+    {label:'Récurrent',data:buList.map(b=>Math.round(d.filter(r=>r.bu===b).reduce((a,r)=>a+r.montantRec,0))),backgroundColor:'rgba(8,145,178,.2)',borderColor:'#0891b2',borderWidth:2,borderRadius:3},
+    {label:'Négoce',data:buList.map(b=>Math.round(d.filter(r=>r.bu===b).reduce((a,r)=>a+r.montantNegoce,0))),backgroundColor:'rgba(234,88,12,.2)',borderColor:'#ea580c',borderWidth:2,borderRadius:3}
+  ]},options:{...CO,indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+fmtE(c.parsed.x)}}},scales:{x:{stacked:false,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmtE(v),font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+  const comms=Object.entries(count(d,'commercial')).filter(([k])=>k&&k!=='—').sort((a,b)=>b[1]-a[1]);
+  charts.cComm=new Chart(E('cComm'),{type:'bar',data:{labels:comms.map(([k])=>k.split(' ').pop()),datasets:[
+    {label:'Total',data:comms.map(([,v])=>v),backgroundColor:comms.map((_,i)=>COMM_C[i%COMM_C.length]+'33'),borderColor:comms.map((_,i)=>COMM_C[i%COMM_C.length]),borderWidth:2,borderRadius:5},
+    {label:'À facturer',data:comms.map(([k])=>d.filter(r=>r.commercial===k&&isFact(r)).length),backgroundColor:'rgba(22,163,74,.2)',borderColor:'#16a34a',borderWidth:2,borderRadius:5}
+  ]},options:{...CO,indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.x}}},scales:{x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  const techRows=d.filter(r=>isTechProd(r.assigne));
+  const techs=Object.entries(count(techRows,'assigne')).filter(([k])=>k&&k!=='—').sort((a,b)=>b[1]-a[1]);
+  charts.cTech=new Chart(E('cTech'),{type:'bar',data:{labels:techs.map(([k])=>k.split(' ').pop()),datasets:[
+    {label:'Total',data:techs.map(([,v])=>v),backgroundColor:'rgba(8,145,178,.15)',borderColor:'#0891b2',borderWidth:2,borderRadius:5},
+    {label:'En retard',data:techs.map(([k])=>d.filter(r=>r.assigne===k&&parseDate(r.echeance)&&parseDate(r.echeance)<today).length),backgroundColor:'rgba(220,38,38,.15)',borderColor:'#dc2626',borderWidth:2,borderRadius:5}
+  ]},options:{...CO,indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.x}}},scales:{x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  charts.cMois=new Chart(E('cMois'),{type:'bar',data:{labels:PROD_MONTHS.labels,datasets:[
+    {type:'bar',label:'Productions créées',data:PROD_MONTHS.vals,backgroundColor:'rgba(22,163,74,.18)',borderColor:'#16a34a',borderWidth:2,borderRadius:4,order:2},
+    {type:'line',label:'Tendance',data:PROD_MONTHS.vals,borderColor:'#0f2244',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#0f2244',pointBorderColor:'#fff',pointBorderWidth:2,tension:.35,order:1}
+  ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12,padding:14}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+c.parsed.y}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f1f5f9'},ticks:{stepSize:5,font:{size:10}}}}}});
+  const engCounts={};
+  d.forEach(r=>{const m=engMois(r);if(m>0){const lbl=m+' mois';engCounts[lbl]=(engCounts[lbl]||0)+1;}});
+  const engColors=['#2563eb','#0891b2','#16a34a','#7c3aed','#ca8a04','#ea580c'];
+  charts.cEng=mkDonut('cEng',Object.keys(engCounts),Object.values(engCounts),engColors.slice(0,Object.keys(engCounts).length),d.length);
+  renderEngagementStats();
+  buildChartsRecurrent();
+}
+
+function renderEngagementStats(){
+  const d=DATA;const g=E('engStats');g.innerHTML='';
+  const engMap={};
+  d.forEach(r=>{const m=engMois(r);if(m>0){if(!engMap[m])engMap[m]={count:0,rec:0};engMap[m].count++;engMap[m].rec+=r.montantRec;}});
+  Object.entries(engMap).sort((a,b)=>a[0]-b[0]).forEach(([mois,v])=>{
+    g.innerHTML+=`<div style="background:var(--bg2);border-radius:8px;padding:10px 12px">
+      <div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:4px">${mois} mois</div>
+      <div style="font-size:.72rem;color:var(--muted)">${v.count} prod · ${fmtE(v.rec,2)}/mois</div>
+      <div style="font-size:.78rem;font-weight:700;color:var(--purple);margin-top:3px">${fmtE(v.rec*parseInt(mois))} valeur contrat</div>
+    </div>`;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   BU STATS
+═══════════════════════════════════════════════ */
+function renderBUStats(){
+  const g=E('buStats');g.innerHTML='';const d=DATA;
+  const bus=[...new Set(d.map(r=>r.bu).filter(Boolean))].sort((a,b)=>d.filter(r=>r.bu===b).length-d.filter(r=>r.bu===a).length);
+  const maxCount=Math.max(...bus.map(b=>d.filter(r=>r.bu===b).length));
+  bus.forEach(bu=>{
+    const avs=d.filter(r=>r.bu===bu);
+    const nFact=avs.filter(r=>isFact(r)).length;
+    const nRet=avs.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+    const nUrg=avs.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+    const tRec=avs.reduce((a,r)=>a+r.montantRec,0);
+    const col=BU_C[bu]||'#94a3b8';
+    g.innerHTML+=`<div style="background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:13px 15px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px">
+        <span style="font-weight:700;font-size:.85rem;color:var(--navy)">${bu}</span>
+        <span style="font-size:1.2rem;font-weight:800;color:${col}">${avs.length}</span>
+      </div>
+      <div style="height:5px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden">
+        <div style="height:100%;border-radius:3px;background:${col};width:${Math.round(avs.length/maxCount*100)}%"></div>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px">Récurrent : <strong style="color:var(--teal)">${fmtE(tRec,2)}/mois</strong></div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${nFact>0?`<span style="font-size:.68rem;padding:2px 7px;background:rgba(22,163,74,.1);color:var(--green);border-radius:10px;font-weight:700">✓ ${nFact} à facturer</span>`:''}
+        ${nRet>0?`<span style="font-size:.68rem;padding:2px 7px;background:rgba(220,38,38,.1);color:var(--red);border-radius:10px;font-weight:700">⚠ ${nRet} retard</span>`:''}
+        ${nUrg>0?`<span style="font-size:.68rem;padding:2px 7px;background:rgba(234,88,12,.1);color:var(--orange);border-radius:10px;font-weight:700">🔥 ${nUrg} urgent</span>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   ONGLET RÉCURRENT
+═══════════════════════════════════════════════ */
+function buildChartsRecurrent(){
+  const d=DATA;
+  // Donut récurrent En cours par BU
+  const dEnCours=d.filter(r=>r.statut==='En cours'&&r.montantRec>0);
+  const buRec={};dEnCours.forEach(r=>{buRec[r.bu]=(buRec[r.bu]||0)+r.montantRec;});
+  if(charts.cRecBuEnCours)try{charts.cRecBuEnCours.destroy();}catch(e){}
+  charts.cRecBuEnCours=mkDonut('cRecBuEnCours',
+    Object.keys(buRec).map(k=>k+' ('+fmtE(buRec[k],0)+')'),
+    Object.values(buRec).map(v=>Math.round(v)),
+    Object.keys(buRec).map(k=>BU_C[k]||'#94a3b8'),
+    dEnCours.length
+  );
+  // Donut récurrent En attente fournisseur par BU
+  const dFourn=d.filter(r=>r.statut==='En attente fournisseur'&&r.montantRec>0);
+  const buFourn={};dFourn.forEach(r=>{buFourn[r.bu]=(buFourn[r.bu]||0)+r.montantRec;});
+  if(charts.cRecBuFourn)try{charts.cRecBuFourn.destroy();}catch(e){}
+  charts.cRecBuFourn=mkDonut('cRecBuFourn',
+    Object.keys(buFourn).map(k=>k+' ('+fmtE(buFourn[k],0)+')'),
+    Object.values(buFourn).map(v=>Math.round(v)),
+    Object.keys(buFourn).map(k=>BU_C[k]||'#94a3b8'),
+    dFourn.length
+  );
+}
+
+function renderRecCycleGrid(){
+  const d=DATA;
+  const cycles=[
+    {label:'En cours',key:'En cours',color:'var(--blue)',bg:'rgba(37,99,235,.07)',desc:'Production active'},
+    {label:'En attente fourn.',key:'En attente fournisseur',color:'var(--purple)',bg:'rgba(124,58,237,.07)',desc:'Bloqué fournisseur'},
+    {label:'En attente',key:'_att',color:'var(--yellow)',bg:'rgba(202,138,4,.07)',desc:'En attente client/autre'},
+    {label:'À facturer',key:'_fact',color:'var(--green)',bg:'rgba(22,163,74,.07)',desc:'Prêt à facturer'},
+    {label:'Nouveau',key:'Nouveau',color:'var(--teal)',bg:'rgba(8,145,178,.07)',desc:'Pas encore pris en charge'},
+  ];
+  const total=d.reduce((a,r)=>a+r.montantRec,0);
+  const g=E('recCycleGrid');g.innerHTML='';
+  cycles.forEach(c=>{
+    let rows;
+    if(c.key==='_fact') rows=d.filter(r=>isFact(r));
+    else if(c.key==='_att') rows=d.filter(r=>r.statut.startsWith('En attente')&&r.statut!=='En attente fournisseur');
+    else rows=d.filter(r=>r.statut===c.key);
+    const mrr=rows.reduce((a,r)=>a+r.montantRec,0);
+    const pct=total>0?Math.round(mrr/total*100):0;
+    const n=rows.filter(r=>r.montantRec>0).length;
+    g.innerHTML+=`<div class="rec-cycle-card" style="background:${c.bg};border:1px solid ${c.color}33">
+      <div class="rcc-label" style="color:${c.color}">${c.label}</div>
+      <div class="rcc-val" style="color:${c.color}">${fmtE(mrr,2)}<span style="font-size:.7rem;font-weight:600">/mois</span></div>
+      <div class="rcc-sub" style="color:${c.color}">${n} ligne${n>1?'s':''} · ${pct}% du MRR total · ×12 = ${fmtE(mrr*12)}</div>
+      <div class="rcc-bar" style="width:${pct}%;background:${c.color}"></div>
+    </div>`;
+  });
+  // Total
+  g.innerHTML+=`<div class="rec-cycle-card" style="background:rgba(15,34,68,.05);border:2px solid var(--navy)">
+    <div class="rcc-label" style="color:var(--navy)">MRR Total pipeline</div>
+    <div class="rcc-val" style="color:var(--navy)">${fmtE(total,2)}<span style="font-size:.7rem;font-weight:600">/mois</span></div>
+    <div class="rcc-sub" style="color:var(--navy)">Annualisé : ${fmtE(total*12)}</div>
+    <div class="rcc-bar" style="width:100%;background:var(--navy)"></div>
+  </div>`;
+}
+
+function renderRecurrent(){
+  const fs=E('fRecStatut').value, fb=E('fRecBU').value;
+  const d=DATA.filter(r=>r.montantRec>0);
+  const filtered=d.filter(r=>{
+    if(fs&&r.statut!==fs&&!(fs==='À facturer'&&r.statut==='A facturer'))return false;
+    if(fb&&r.bu!==fb)return false;
+    return true;
+  }).sort((a,b)=>b.montantRec-a.montantRec);
+  E('recCount').textContent=filtered.length+' ligne'+(filtered.length>1?'s':'');
+  const mrrTotal=filtered.reduce((a,r)=>a+r.montantRec,0);
+  E('recMrrTotal').textContent=fmtE(mrrTotal,2)+'/mois';
+  const tb=E('tblRec');tb.innerHTML='';
+  filtered.forEach(r=>{
+    const eng=engMois(r);
+    const valContrat=eng>0?r.montantRec*eng:0;
+    tb.innerHTML+=`<tr>
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="font-size:.73rem;font-weight:600;max-width:140px;white-space:normal">${r.projet}</td>
+      <td style="font-size:.73rem;max-width:180px;white-space:normal;color:var(--muted)">${r.sujet}</td>
+      <td><span class="bdg" style="background:${BU_C[r.bu]||'#94a3b8'}22;color:${BU_C[r.bu]||'#94a3b8'}">${r.bu||'—'}</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td style="font-size:.73rem">${r.commercial||'—'}</td>
+      <td class="num" style="font-weight:700;color:var(--teal)">${fmtE(r.montantRec,2)}</td>
+      <td class="num" style="font-size:.73rem">${eng>0?eng+' m':'—'}</td>
+      <td class="num" style="font-weight:700;color:var(--purple)">${valContrat>0?fmtE(valContrat):'—'}</td>
+    </tr>`;
+  });
+  // Tfoot
+  const annuel=mrrTotal*12;
+  const valContratTotal=filtered.reduce((a,r)=>{const m=engMois(r);return a+(m>0?r.montantRec*m:0);},0);
+  const tf=E('tblRecFoot');
+  tf.innerHTML=`<tr>
+    <td colspan="6" style="font-size:.75rem;color:var(--muted)">Total · ${filtered.length} ligne${filtered.length>1?'s':''}</td>
+    <td class="num total-cell">${fmtE(mrrTotal,2)}/mois</td>
+    <td class="num" style="color:var(--muted);font-size:.72rem">annuel : ${fmtE(annuel)}</td>
+    <td class="num total-cell">${valContratTotal>0?fmtE(valContratTotal):'—'}</td>
+  </tr>`;
+}
+
+/* ═══════════════════════════════════════════════
+   ONGLET À FACTURER
+═══════════════════════════════════════════════ */
+function renderFacturer(){
+  const fact=DATA.filter(r=>isFact(r)).sort((a,b)=>{
+    const da=parseDate(a.echeance),db=parseDate(b.echeance);
+    if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;
+  });
+  E('factCount').textContent=fact.length+' production'+(fact.length>1?'s':'');
+  const tb=E('tblFact');tb.innerHTML='';
+  let sFAS=0,sPrest=0,sRec=0,sNeg=0,sTotal=0;
+  fact.forEach(r=>{
+    const t=r.montantFAS+r.montantPrest+r.montantRec+r.montantNegoce;
+    sFAS+=r.montantFAS;sPrest+=r.montantPrest;sRec+=r.montantRec;sNeg+=r.montantNegoce;sTotal+=t;
+    const recLabel=r.montantRec>0?`<span style="color:var(--teal);font-weight:700">${fmtE(r.montantRec,2)}</span>`:'—';
+    tb.innerHTML+=`<tr>
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="font-size:.73rem;font-weight:600;max-width:140px;white-space:normal">${r.projet}</td>
+      <td style="font-size:.73rem;max-width:180px;white-space:normal;color:var(--muted)">${r.sujet}</td>
+      <td><span class="bdg" style="background:${BU_C[r.bu]||'#94a3b8'}22;color:${BU_C[r.bu]||'#94a3b8'}">${r.bu||'—'}</span></td>
+      <td style="font-size:.73rem">${r.commercial||'—'}</td>
+      <td style="font-size:.73rem">${r.assigne||'—'}</td>
+      <td class="num" style="font-size:.73rem">${r.montantFAS>0?fmtE(r.montantFAS):'—'}</td>
+      <td class="num" style="font-size:.73rem">${r.montantPrest>0?fmtE(r.montantPrest):'—'}</td>
+      <td class="num" style="font-size:.73rem">${recLabel}</td>
+      <td class="num" style="font-size:.73rem">${r.montantNegoce>0?fmtE(r.montantNegoce):'—'}</td>
+      <td class="num" style="font-weight:700;color:var(--green)">${fmtE(t)}</td>
+    </tr>`;
+  });
+  // TOTAUX pied de tableau
+  const tf=E('tblFactFoot');
+  tf.innerHTML=`<tr>
+    <td colspan="6">Total · ${fact.length} production${fact.length>1?'s':''}</td>
+    <td class="num">${sFAS>0?fmtE(sFAS):'—'}</td>
+    <td class="num">${sPrest>0?fmtE(sPrest):'—'}</td>
+    <td class="num" style="color:var(--teal)">${sRec>0?fmtE(sRec,2)+'<span style="font-size:.7rem">/mois</span>':'—'}</td>
+    <td class="num">${sNeg>0?fmtE(sNeg):'—'}</td>
+    <td class="num total-cell">${fmtE(sTotal)}</td>
+  </tr>
+  <tr>
+    <td colspan="8" style="font-size:.7rem;color:var(--muted)">One-shot encaissable (FAS + Prest + Négoce)</td>
+    <td colspan="2" class="num" style="font-size:.7rem;color:var(--muted)">Récurrent mensuel démarrant</td>
+    <td class="num" style="color:var(--teal);font-size:.75rem">${fmtE(sFAS+sPrest+sNeg)} + ${fmtE(sRec,2)}/m</td>
+  </tr>`;
+}
+
+/* ═══════════════════════════════════════════════
+   ONGLET RENOUVELLEMENTS
+═══════════════════════════════════════════════ */
+function renderRenew(){
+  const filter=E('fRenewFilter').value;
+  let renew=DATA.filter(r=>r.montantRecInitial>0);
+  if(filter==='baisse') renew=renew.filter(r=>r.montantRec<r.montantRecInitial);
+  else if(filter==='hausse') renew=renew.filter(r=>r.montantRec>r.montantRecInitial);
+  renew.sort((a,b)=>(a.montantRec-a.montantRecInitial)-(b.montantRec-b.montantRecInitial));
+  E('renewCount').textContent=renew.length+' ligne'+(renew.length>1?'s':'');
+  const tb=E('tblRenew');tb.innerHTML='';
+  let sAnc=0,sNouv=0,sDelta=0;
+  renew.forEach(r=>{
+    const delta=r.montantRec-r.montantRecInitial;
+    const deltaA=delta*12;
+    sAnc+=r.montantRecInitial;sNouv+=r.montantRec;sDelta+=delta;
+    const dc=delta<0?'delta-neg':delta>0?'delta-pos':'delta-zero';
+    const sign=delta>0?'+':'';
+    const isLoss=delta<0;
+    tb.innerHTML+=`<tr class="${isLoss?'renew-loss':''}">
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="font-size:.73rem;font-weight:600;max-width:140px;white-space:normal">${r.projet}</td>
+      <td style="font-size:.73rem;max-width:180px;white-space:normal;color:var(--muted)">${r.sujet}</td>
+      <td><span class="bdg" style="background:${BU_C[r.bu]||'#94a3b8'}22;color:${BU_C[r.bu]||'#94a3b8'}">${r.bu||'—'}</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td style="font-size:.73rem">${r.commercial||'—'}</td>
+      <td class="num" style="color:var(--muted)">${fmtE(r.montantRecInitial,2)}</td>
+      <td class="num" style="font-weight:700">${fmtE(r.montantRec,2)}</td>
+      <td class="num ${dc}">${sign}${fmtE(delta,2)}</td>
+      <td class="num ${dc}">${sign}${fmtE(deltaA,2)}</td>
+    </tr>`;
+  });
+  // Tfoot
+  const deltaTotal=sNouv-sAnc;
+  const retentionPct=sAnc>0?Math.round(sNouv/sAnc*100):0;
+  const dc=deltaTotal<0?'delta-neg':deltaTotal>0?'delta-pos':'delta-zero';
+  const sign=deltaTotal>0?'+':'';
+  E('tblRenewFoot').innerHTML=`<tr>
+    <td colspan="6">Total · ${renew.length} renouvellement${renew.length>1?'s':''} · rétention valeur : <span class="${retentionPct>=100?'delta-pos':'delta-neg'}">${retentionPct}%</span></td>
+    <td class="num" style="color:var(--muted)">${fmtE(sAnc,2)}/mois</td>
+    <td class="num" style="font-weight:700">${fmtE(sNouv,2)}/mois</td>
+    <td class="num ${dc} total-cell">${sign}${fmtE(deltaTotal,2)}/mois</td>
+    <td class="num ${dc} total-cell">${sign}${fmtE(deltaTotal*12)}/an</td>
+  </tr>`;
+  // KPIs renew
+  const all=DATA.filter(r=>r.montantRecInitial>0);
+  const allAnc=all.reduce((a,r)=>a+r.montantRecInitial,0);
+  const allNouv=all.reduce((a,r)=>a+r.montantRec,0);
+  const allDelta=allNouv-allAnc;
+  const baisses=all.filter(r=>r.montantRec<r.montantRecInitial);
+  const perteBrute=baisses.reduce((a,r)=>a+(r.montantRec-r.montantRecInitial),0);
+  const allRet=allAnc>0?Math.round(allNouv/allAnc*100):0;
+  const g=E('renewKpis');
+  g.innerHTML=`
+    <div class="kpi kteal"><div class="kpi-lbl">Renouvellements</div><div class="kpi-val teal">${all.length}</div><div class="kpi-sub">Avec ancien montant renseigné</div></div>
+    <div class="kpi kblue"><div class="kpi-lbl">Base initiale</div><div class="kpi-val blue">${fmtE(allAnc,2)}</div><div class="kpi-sub">/mois avant réengagement</div></div>
+    <div class="kpi kgreen"><div class="kpi-lbl">Base réengagée</div><div class="kpi-val green">${fmtE(allNouv,2)}</div><div class="kpi-sub">/mois après réengagement</div></div>
+    <div class="kpi ${allDelta>=0?'kgreen':'korange'}"><div class="kpi-lbl">Delta net</div><div class="kpi-val ${allDelta>=0?'green':'orange'}">${allDelta>=0?'+':''}${fmtE(allDelta,2)}</div><div class="kpi-sub">/mois · annuel : ${allDelta>=0?'+':''}${fmtE(allDelta*12)}</div></div>
+    <div class="kpi ${allRet>=100?'kgreen':'kyellow'}"><div class="kpi-lbl">Taux rétention valeur</div><div class="kpi-val ${allRet>=100?'green':'yellow'}">${allRet}%</div><div class="kpi-sub">Réengagé / initial</div></div>
+    <div class="kpi korange"><div class="kpi-lbl">Baisses</div><div class="kpi-val orange">${baisses.length}</div><div class="kpi-sub">Perte brute : ${fmtE(perteBrute,2)}/mois</div></div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════
+   DÉTAIL
+═══════════════════════════════════════════════ */
+function initFilters(){
+  const sel=E('fComm');sel.innerHTML='<option value="">Tous</option>';
+  const comms=[...new Set(DATA.map(r=>r.commercial).filter(Boolean))].sort();
+  comms.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;sel.appendChild(o);});
+}
+
+function renderTable(){
+  const fs=E('fStatut').value,fp=E('fPriorite').value,fc=E('fComm').value,fb=E('fBU').value;
+  const fq=E('fSearch').value.toLowerCase();
+  const fRet=E('fRetard').checked,fFact=E('fFacturer').checked,fRec=E('fRec').checked;
+  const filtered=DATA.filter(r=>{
+    if(fs&&r.statut!==fs&&!(fs==='À facturer'&&r.statut==='A facturer'))return false;
+    if(fp&&r.priorite!==fp)return false;
+    if(fc&&r.commercial!==fc)return false;
+    if(fb&&r.bu!==fb)return false;
+    if(fq&&!r.projet.toLowerCase().includes(fq)&&!r.sujet.toLowerCase().includes(fq))return false;
+    if(fRet){const dt=parseDate(r.echeance);if(!dt||dt>=today)return false;}
+    if(fFact&&!isFact(r))return false;
+    if(fRec&&r.montantRec<=0)return false;
+    return true;
+  });
+  E('tblCount').textContent=filtered.length+' résultat'+(filtered.length>1?'s':'');
+  const tb=E('tblBody');tb.innerHTML='';
+  filtered.forEach(r=>{
+    const ech=parseDate(r.echeance);
+    const retard=ech&&ech<today;const jours=retard?diffJours(ech):null;
+    const pct=parseInt(r.pct)||0;
+    const total=r.montantFAS+r.montantPrest+r.montantRec+r.montantNegoce;
+    const hasRenew=r.montantRecInitial>0;
+    tb.innerHTML+=`<tr class="${retard?'retard-row':''}">
+      <td style="font-weight:700;color:var(--navy)">#${r.id}${hasRenew?'<span title="Renouvellement" style="margin-left:3px;font-size:.65rem;color:var(--purple)">↺</span>':''}</td>
+      <td style="max-width:140px;white-space:normal;font-size:.73rem;font-weight:600">${r.projet}</td>
+      <td style="max-width:180px;white-space:normal;font-size:.73rem;color:var(--muted)">${r.sujet}</td>
+      <td><span class="bdg" style="background:${BU_C[r.bu]||'#94a3b8'}22;color:${BU_C[r.bu]||'#94a3b8'}">${r.bu||'—'}</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td><span class="bdg ${prioriteClass(r.priorite)}">${r.priorite}</span></td>
+      <td style="font-size:.73rem">${r.commercial||'—'}</td>
+      <td style="font-size:.73rem">${r.assigne||'—'}</td>
+      <td style="font-size:.73rem;color:${retard?'var(--red)':'var(--muted)'}${retard?';font-weight:700':''}">${r.echeance||'—'}${retard?` <span style="font-size:.65rem">(+${jours}j)</span>`:''}</td>
+      <td class="num" style="font-size:.73rem">${engMois(r)>0?engMois(r)+' m':'—'}</td>
+      <td class="num" style="font-size:.73rem;font-weight:600;color:var(--navy)">${total>0?fmtE(total):'—'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span style="font-size:.68rem;color:var(--muted)">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   RETARDS
+═══════════════════════════════════════════════ */
+function renderRetards(){
+  const ret=DATA.filter(r=>{const d=parseDate(r.echeance);return d&&d<today;}).sort((a,b)=>parseDate(a.echeance)-parseDate(b.echeance));
+  E('retardCount').textContent=ret.length+' production'+(ret.length>1?'s':'');
+  const tb=E('tblRetard');tb.innerHTML='';
+  ret.forEach(r=>{
+    const d=parseDate(r.echeance);const jours=diffJours(d);
+    const sev=jours>30?'var(--red)':jours>7?'var(--orange)':'var(--yellow)';
+    const total=r.montantFAS+r.montantPrest+r.montantRec+r.montantNegoce;
+    tb.innerHTML+=`<tr>
+      <td style="font-weight:700;color:var(--navy)">#${r.id}</td>
+      <td style="font-size:.73rem;font-weight:600;max-width:140px;white-space:normal">${r.projet}</td>
+      <td style="font-size:.73rem;max-width:170px;white-space:normal;color:var(--muted)">${r.sujet}</td>
+      <td style="font-size:.73rem">${r.assigne||'—'}</td>
+      <td style="font-size:.73rem">${r.commercial||'—'}</td>
+      <td style="font-size:.73rem;color:var(--red);font-weight:600">${r.echeance}</td>
+      <td><span class="bdg" style="background:${sev}22;color:${sev}">+${jours}j</span></td>
+      <td><span class="bdg ${statutClass(r.statut)}">${r.statut}</span></td>
+      <td class="num" style="font-weight:600;color:var(--navy)">${total>0?fmtE(total):'—'}</td>
+    </tr>`;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   CHARGE
+═══════════════════════════════════════════════ */
+function renderCharge(){
+  const d=DATA;
+  const techRows=d.filter(r=>isTechProd(r.assigne));
+  const techNames=[...new Set(techRows.map(r=>r.assigne).filter(Boolean))].sort((a,b)=>techRows.filter(r=>r.assigne===b).length-techRows.filter(r=>r.assigne===a).length);
+  const maxTech=Math.max(...techNames.map(t=>d.filter(r=>r.assigne===t).length),1);
+  const g=E('chargeTech');g.innerHTML='';
+  techNames.forEach(tech=>{
+    const avs=d.filter(r=>r.assigne===tech);
+    const nEnc=avs.filter(r=>r.statut==='En cours').length;
+    const nNew=avs.filter(r=>r.statut==='Nouveau').length;
+    const nFact=avs.filter(r=>isFact(r)).length;
+    const nAtt=avs.filter(r=>r.statut.startsWith('En attente')).length;
+    const nRet=avs.filter(r=>{const dt=parseDate(r.echeance);return dt&&dt<today;}).length;
+    const nUrg=avs.filter(r=>r.priorite==='Urgent'||r.priorite==='Immédiat').length;
+    const tRec=avs.reduce((a,r)=>a+r.montantRec,0);
+    const col=avs.length>15?'var(--red)':avs.length>8?'var(--orange)':'var(--green)';
+    g.innerHTML+=`<div class="charge-card">
+      <div class="charge-top">
+        <div>
+          <div class="charge-name">${tech}</div>
+          ${tRec>0?`<div style="font-size:.68rem;color:var(--teal);margin-top:1px">${fmtE(tRec,2)}/mois en charge</div>`:''}
+        </div>
+        <div class="charge-count" style="color:${col}">${avs.length}</div>
+      </div>
+      <div class="charge-bar-track"><div class="charge-bar-fill" style="width:${Math.round(avs.length/maxTech*100)}%;background:${col}"></div></div>
+      <div class="charge-stats">
+        <div class="charge-stat"><span>Nouveau</span><strong>${nNew}</strong></div>
+        <div class="charge-stat" style="background:rgba(37,99,235,.08)"><span>En cours</span><strong style="color:var(--blue)">${nEnc}</strong></div>
+        <div class="charge-stat" style="background:rgba(22,163,74,.08)"><span>À facturer</span><strong style="color:var(--green)">${nFact}</strong></div>
+        <div class="charge-stat" style="background:rgba(202,138,4,.08)"><span>Attente</span><strong style="color:var(--yellow)">${nAtt}</strong></div>
+        ${nRet>0?`<div class="charge-stat" style="background:rgba(220,38,38,.08)"><span style="color:var(--red)">Retard</span><strong style="color:var(--red)">${nRet}</strong></div>`:''}
+        ${nUrg>0?`<div class="charge-stat" style="background:rgba(234,88,12,.08)"><span style="color:var(--orange)">Urgent</span><strong style="color:var(--orange)">${nUrg}</strong></div>`:''}
+      </div>
+      <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">
+        ${[...new Set(avs.map(r=>r.bu).filter(Boolean))].map(bu=>`<span style="font-size:.66rem;padding:2px 6px;background:${BU_C[bu]||'#94a3b8'}18;color:${BU_C[bu]||'#94a3b8'};border-radius:8px">${bu}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   IMPORT CSV
+═══════════════════════════════════════════════ */
+function importCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const text=ev.target.result;
+      const lines=text.split('\n');
+      const sep=lines[0].includes(';')?';':',';
+      function parseCSVLine(line){
+        const res=[];let cur='';let inQ=false;
+        for(let i=0;i<line.length;i++){
+          const c=line[i];
+          if(c==='"'){inQ=!inQ;}else if(c===sep&&!inQ){res.push(cur);cur='';}else cur+=c;
+        }
+        res.push(cur);return res;
+      }
+      function pf(v){try{return parseFloat(v.replace(/\s/g,'').replace(',','.').replace('€','').trim())||0;}catch{return 0;}}
+      const headers=parseCSVLine(lines[0]);
+      const idx={
+        id:headers.findIndex(h=>h.trim()==='#'),
+        projet:headers.findIndex(h=>h.trim()==='Projet'),
+        statut:headers.findIndex(h=>h.trim()==='Statut'),
+        priorite:headers.findIndex(h=>h.trim()==='Priorité'),
+        sujet:headers.findIndex(h=>h.trim()==='Sujet'),
+        auteur:headers.findIndex(h=>h.trim()==='Auteur'),
+        assigne:headers.findIndex(h=>h.trim()==='Assigné à'),
+        echeance:headers.findIndex(h=>h.trim()==='Echéance'),
+        pct:headers.findIndex(h=>h.trim()==='% réalisé'),
+        cree:headers.findIndex(h=>h.trim()==='Créé'),
+        commercial:headers.findIndex(h=>h.trim()==='Commercial(e)'),
+        bu:headers.findIndex(h=>h.trim()==='Business Unit'),
+        engagement:headers.findIndex(h=>h.trim()==='Engagement'),
+        type:headers.findIndex(h=>h.trim()==='Type'),
+        montantFAS:headers.findIndex(h=>h.trim()==='Montant FAS'),
+        montantPrest:headers.findIndex(h=>h.trim()==='Montant Prestation'),
+        montantRec:headers.findIndex(h=>h.trim()==='Montant récurrent mensuel'),
+        montantRecInitial:headers.findIndex(h=>h.trim()==='Ancien montant'),
+        montantNegoce:headers.findIndex(h=>h.trim()==='Montant négoce'),
+        debut:headers.findIndex(h=>h.trim()==='Début'),
+      };
+      const rows=[];
+      for(let i=1;i<lines.length;i++){
+        if(!lines[i].trim())continue;
+        const cols=parseCSVLine(lines[i]);
+        const g=(k)=>idx[k]>=0&&idx[k]<cols.length?cols[idx[k]].replace(/^"|"$/g,'').trim():'';
+        const r={
+          id:g('id'),projet:g('projet').substring(0,50),statut:g('statut'),
+          priorite:g('priorite'),sujet:g('sujet').substring(0,70),
+          auteur:g('auteur'),assigne:g('assigne'),echeance:g('echeance'),
+          pct:g('pct'),cree:g('cree').substring(0,10),
+          commercial:g('commercial'),bu:g('bu'),engagement:g('engagement'),type:g('type'),
+          montantFAS:pf(g('montantFAS')),montantPrest:pf(g('montantPrest')),
+          montantRec:pf(g('montantRec')),montantRecInitial:pf(g('montantRecInitial')),
+          montantNegoce:pf(g('montantNegoce')),debut:g('debut')
+        };
+        if(r.id)rows.push(r);
+      }
+      DATA=rows;E('hSource').textContent=file.name;
+      renderAll();toast('✅ '+rows.length+' productions chargées');
+    }catch(err){toast('⚠️ Erreur : '+err.message);}
+  };
+  reader.readAsText(file,'ISO-8859-1');e.target.value='';
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORTS
+═══════════════════════════════════════════════ */
+function exportTableau(){
+  const fs=E('fStatut').value,fp=E('fPriorite').value,fc=E('fComm').value,fb=E('fBU').value;
+  const fq=E('fSearch').value.toLowerCase();
+  const fRet=E('fRetard').checked,fFact=E('fFacturer').checked,fRec=E('fRec').checked;
+  const filtered=DATA.filter(r=>{
+    if(fs&&r.statut!==fs&&!(fs==='À facturer'&&r.statut==='A facturer'))return false;
+    if(fp&&r.priorite!==fp)return false;
+    if(fc&&r.commercial!==fc)return false;
+    if(fb&&r.bu!==fb)return false;
+    if(fq&&!r.projet.toLowerCase().includes(fq)&&!r.sujet.toLowerCase().includes(fq))return false;
+    if(fRet){const dt=parseDate(r.echeance);if(!dt||dt>=today)return false;}
+    if(fFact&&!isFact(r))return false;
+    if(fRec&&r.montantRec<=0)return false;
+    return true;
+  });
+  const hdr='#;Projet;Sujet;BU;Statut;Priorité;Commercial;Assigné;Échéance;Engagement;FAS;Prestation;Récurrent;Ancien récurrent;Négoce\n';
+  const rows=filtered.map(r=>[r.id,r.projet,r.sujet,r.bu,r.statut,r.priorite,r.commercial,r.assigne,r.echeance,r.engagement,r.montantFAS,r.montantPrest,r.montantRec,r.montantRecInitial,r.montantNegoce].join(';')).join('\n');
+  const blob=new Blob(['\uFEFF'+hdr+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='prod_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('✅ Export téléchargé');
+}
+
+function exportFacturer(){
+  const fact=DATA.filter(r=>isFact(r));
+  const hdr='#;Client;Sujet;BU;Commercial;FAS;Prestation;Récurrent/mois;Négoce;Total\n';
+  const rows=fact.map(r=>{
+    const t=r.montantFAS+r.montantPrest+r.montantRec+r.montantNegoce;
+    return [r.id,r.projet,r.sujet,r.bu,r.commercial,r.montantFAS,r.montantPrest,r.montantRec,r.montantNegoce,t].join(';');
+  }).join('\n');
+  const blob=new Blob(['\uFEFF'+hdr+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='a_facturer_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('✅ Export compta téléchargé');
+}
+
+/* ══════════════════════════════════
+   GOOGLE DRIVE SYNC — PROD
+══════════════════════════════════ */
+const GD={CLIENT_ID:'433068590462-1jrk2s46e7kpgc79hi0leaefqkbvqaf9.apps.googleusercontent.com',SCOPE:'https://www.googleapis.com/auth/drive.file',FILE_NAME:'alsatis_prod_dashboard.json',token:null,fileId:null,_gapiReady:false,_gsiReady:false,_tokenClient:null};
+(function(){const s1=document.createElement('script');s1.src='https://accounts.google.com/gsi/client';s1.async=true;s1.defer=true;s1.onload=()=>{GD._gsiReady=true;gdCheckReady();};document.head.appendChild(s1);const s2=document.createElement('script');s2.src='https://apis.google.com/js/api.js';s2.async=true;s2.defer=true;s2.onload=()=>{gapi.load('client',async()=>{await gapi.client.init({});GD._gapiReady=true;gdCheckReady();});};document.head.appendChild(s2);})();
+function gdCheckReady(){if(!GD._gsiReady||!GD._gapiReady)return;try{const saved=JSON.parse(sessionStorage.getItem('als_gd_prod_token')||'null');if(saved&&saved.expires_at>Date.now()+30000){GD.token=saved;gapi.client.setToken({access_token:saved.access_token});GD.fileId=sessionStorage.getItem('als_gd_prod_fid')||null;gdSetConnected(true);gdAutoLoad();}}catch(e){}GD._tokenClient=google.accounts.oauth2.initTokenClient({client_id:GD.CLIENT_ID,scope:GD.SCOPE,callback:async(resp)=>{if(resp.error){toast('⚠️ Connexion Drive annulée');return;}const tok={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};GD.token=tok;gapi.client.setToken({access_token:tok.access_token});sessionStorage.setItem('als_gd_prod_token',JSON.stringify(tok));gdSetConnected(true);toast('✅ Drive connecté');await gdAutoLoad();}});}
+function driveAuth(){if(!GD._tokenClient){toast('⚠️ Libs Google en cours de chargement, réessaie dans 2s');return;}GD._tokenClient.requestAccessToken({prompt:'consent'});}
+function gdSetConnected(ok){document.getElementById('btnDriveConnect').style.display=ok?'none':'';document.getElementById('btnDriveSave').style.display=ok?'':'none';document.getElementById('btnDriveLoad').style.display=ok?'':'none';document.getElementById('driveSep').style.display=ok?'':'none';}
+async function gdGetFileId(){if(GD.fileId)return GD.fileId;try{const res=await gapi.client.request({path:'https://www.googleapis.com/drive/v3/files',params:{q:`name='${GD.FILE_NAME}' and trashed=false`,spaces:'drive',fields:'files(id,name,modifiedTime)'}});const files=res.result.files||[];if(files.length>0){GD.fileId=files[0].id;sessionStorage.setItem('als_gd_prod_fid',GD.fileId);return GD.fileId;}}catch(e){console.warn(e);}return null;}
+async function driveSave(){if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}const btn=document.getElementById('btnDriveSave');btn.textContent='Sauvegarde…';btn.disabled=true;try{const payload=JSON.stringify({version:1,date:new Date().toISOString(),source:document.getElementById('hSource').textContent,data:DATA},null,2);const fid=await gdGetFileId();if(fid){await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Authorization':'Bearer '+GD.token.access_token,'Content-Type':'application/json'},body:payload});}else{const meta=new Blob([JSON.stringify({name:GD.FILE_NAME,mimeType:'application/json'})],{type:'application/json'});const data=new Blob([payload],{type:'application/json'});const form=new FormData();form.append('metadata',meta);form.append('file',data);const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Authorization':'Bearer '+GD.token.access_token},body:form});const j=await r.json();GD.fileId=j.id;sessionStorage.setItem('als_gd_prod_fid',GD.fileId);}sessionStorage.setItem('als_gd_prod_lastsave',new Date().toISOString());toast('☁️ Sauvegardé sur Google Drive');}catch(err){toast('⚠️ Erreur Drive — '+err.message);}btn.textContent='Sauvegarder Drive';btn.disabled=false;}
+async function driveLoad(){if(!GD.token){toast('⚠️ Connecte Drive d\'abord');return;}const btn=document.getElementById('btnDriveLoad');btn.textContent='Chargement…';btn.disabled=true;try{const fid=await gdGetFileId();if(!fid){toast('⚠️ Aucune sauvegarde Drive trouvée');btn.textContent='Charger Drive';btn.disabled=false;return;}const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{headers:{'Authorization':'Bearer '+GD.token.access_token}});const d=await r.json();if(!d.version||!d.data){toast('⚠️ Format invalide');btn.textContent='Charger Drive';btn.disabled=false;return;}if(!confirm('Charger la sauvegarde Drive du '+new Date(d.date).toLocaleString('fr-FR')+' ('+d.data.length+' lignes) ?')){btn.textContent='Charger Drive';btn.disabled=false;return;}DATA=d.data;if(d.source)document.getElementById('hSource').textContent=d.source+' (Drive)';renderAll();toast('☁️ '+DATA.length+' productions chargées depuis Drive');}catch(err){toast('⚠️ Erreur Drive — '+err.message);}btn.textContent='Charger Drive';btn.disabled=false;}
+async function gdAutoLoad(){try{const fid=await gdGetFileId();if(!fid)return;const res=await gapi.client.request({path:`https://www.googleapis.com/drive/v3/files/${fid}`,params:{fields:'modifiedTime'}});const driveDate=new Date(res.result.modifiedTime);const localSave=sessionStorage.getItem('als_gd_prod_lastsave');if(localSave&&new Date(localSave)>=driveDate)return;if(DATA&&DATA.length>0){if(!confirm('Une sauvegarde Drive est disponible ('+driveDate.toLocaleString('fr-FR')+').\nCharger ?'))return;}await driveLoad();}catch(e){console.warn('gdAutoLoad',e);}}
+
+/* ═══════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════ */
+function renderAll(){
+  E('hDate').textContent=todayStr();E('fDate').textContent='Édité le '+todayStr();
+  renderKPI();buildCharts();initFilters();
+  renderRecCycleGrid();renderRecurrent();
+  renderFacturer();renderRenew();
+  renderTable();renderRetards();renderCharge();renderBUStats();
+}
+
+renderAll();
+</script>
+</body>
+</html>
