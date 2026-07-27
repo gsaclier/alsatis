@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carnet de production — Alsatis Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F7FA;--card:#fff;--ink:#16213A;--muted:#5B6478;--line:#E3E7EF;--accent:#1E3A8A;
+--p1:#9DB6EA;--p2:#6E93E3;--p3:#3E63C9;--p4:#1E3A8A;
+--ok:#16A34A;--bad:#DC2626;--wc:#7C3AED;--wf:#B7791F;--gr:#94A3B8;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.5 Roboto,system-ui,sans-serif;display:flex;flex-direction:column}
+h1{font:800 19px Mulish;margin:0}
+button,label.btn{font:600 12.5px Mulish;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover,label.btn:hover{background:#EEF2FB}
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:focus-visible,input:focus-visible,label.btn:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.topbar .sub{color:var(--muted);font-size:12px}
+.grow{flex:1}
+.zgrp{display:flex}.zgrp button{border-radius:0}.zgrp button:first-child{border-radius:8px 0 0 8px}.zgrp button:last-child{border-radius:0 8px 8px 0}.zgrp button+button{border-left:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:10px;padding:12px 18px 4px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.kpi .v{font:800 20px Mulish}.kpi .l{color:var(--muted);font-size:11.5px;margin-top:1px}
+.kpi .s{font-size:11px;color:var(--muted)}
+.v.bad{color:var(--bad)}.v.ok{color:var(--ok)}
+.fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 18px}
+.fbar input[type=search]{flex:1 1 220px;min-width:170px;font:13px Roboto;padding:8px 11px;border:1px solid var(--line);border-radius:8px}
+.chip{font:600 11.5px Mulish;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;cursor:pointer;color:var(--muted)}
+.chip.on{color:#fff;border-color:transparent}
+.chip .n{opacity:.75;font-weight:400}
+.leg{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:2px 18px 8px;color:var(--muted);font-size:11.5px}
+.leg .sw{display:inline-block;width:14px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.leg .dia{display:inline-block;width:8px;height:8px;border:1.5px solid var(--accent);background:#fff;transform:rotate(45deg);margin:0 5px 0 1px}
+.leg .lt{display:inline-block;width:14px;height:3px;background:var(--bad);border-radius:2px;vertical-align:2px;margin-right:4px}
+.gwrap{flex:1;overflow:auto;border-top:1px solid var(--line);background:var(--card)}
+.grow-row{display:flex;width:max-content;min-width:100%}
+.lab{position:sticky;left:0;z-index:2;flex:0 0 330px;width:330px;background:var(--card);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 10px;display:flex;flex-direction:column;justify-content:center}
+.track{position:relative;border-bottom:1px solid var(--line);flex:0 0 auto}
+.ghead{position:sticky;top:0;z-index:3}
+.ghead .lab{z-index:4;border-bottom:1px solid var(--line);justify-content:flex-end;font:700 11px Mulish;color:var(--muted)}
+.mrow{position:relative;height:24px;border-bottom:1px solid var(--line);background:#F9FAFD}
+.mcell{position:absolute;top:0;height:100%;border-left:1px solid var(--line);font:700 11px Mulish;color:var(--muted);padding:4px 6px;white-space:nowrap;overflow:hidden}
+.wrow{position:relative;height:18px;background:#F9FAFD}
+.wtick{position:absolute;top:0;height:100%;border-left:1px solid #EDF0F7;font:400 10px Roboto;color:#9AA3B5;padding:2px 3px;white-space:nowrap}
+.r-aff .lab{cursor:pointer}
+.r-aff{background:#FBFCFE}
+.r-aff .lab .t1{display:flex;gap:6px;align-items:center;font:700 13px Mulish}
+.chev{display:inline-block;width:10px;color:var(--muted);transition:transform .15s}
+.open .chev{transform:rotate(90deg)}
+.t2{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:11px;margin-top:1px;flex-wrap:wrap}
+.cb{font:700 9.5px Mulish;color:#fff;border-radius:4px;padding:1px 5px}
+.pill{font:600 10.5px Mulish;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pl-livree{background:#E4F5EA;color:var(--ok)}.pl-en_cours{background:#E7EDFB;color:var(--accent)}
+.pl-en_retard{background:#FCE7E7;color:var(--bad)}.pl-attente_client{background:#F1E8FD;color:var(--wc)}
+.pl-attente_fournisseur{background:#FAF0DC;color:var(--wf)}.pl-a_demarrer{background:#FCE7E7;color:var(--bad)}
+.pl-planifie{background:#EEF1F6;color:var(--muted)}
+.pl-retour_commercial{background:#FCE7F3;color:#BE185D}
+.r-lig .lab{padding-left:26px}
+.r-lig .t1{font:500 12.5px Roboto;display:flex;gap:6px;align-items:center}
+.r-lig{cursor:pointer}
+.r-lig:hover .lab,.r-lig:hover .track{background:#F6F9FF}
+.bar{position:absolute;top:12px;height:16px;border-radius:4px}
+.seg{position:absolute;top:0;height:100%}
+.seg:first-child{border-radius:4px 0 0 4px}.seg.last{border-radius:0 4px 4px 0}
+.sv{opacity:.35}
+.sw-att{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.75) 0 5px,transparent 5px 10px)}
+.abar{position:absolute;top:19px;height:5px;border-radius:3px;background:#D9E1F2}
+.dia{position:absolute;top:14px;width:11px;height:11px;transform:rotate(45deg);background:#fff;border:2px solid var(--accent);z-index:1}
+.dia.bad{border-color:var(--bad)}.dia.done{border-color:var(--ok);background:var(--ok)}
+.late{position:absolute;top:30px;height:3px;background:var(--bad);border-radius:2px}
+.tl{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #64748B99;z-index:1}
+.h-aff{height:42px}.h-lig{height:44px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.tabs{display:flex;background:#EEF1F7;border-radius:9px;padding:3px}
+.tabs button{border:0;background:transparent;border-radius:7px;padding:6px 13px}
+.tabs button.on{background:var(--accent);color:#fff}
+.fbar select{font:13px Roboto;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.viewbox{flex:1;overflow:auto;border-top:1px solid var(--line);background:var(--card);padding:16px 18px;display:none}
+.secttl{font:800 15px Mulish;margin:2px 0 10px}
+.note{color:var(--muted);font-size:11.5px;margin:10px 0 0}
+.ch-t{border-collapse:collapse;font-size:12.5px}
+.ch-t th,.ch-t td{border:1px solid var(--line);padding:6px 9px;text-align:center;white-space:nowrap}
+.ch-t th{background:#F1F4FA;font:700 11px Mulish;color:var(--muted)}
+.ch-t td:first-child,.ch-t th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1}
+.ch-t th:first-child{background:#F1F4FA}
+.cl-ok{background:#F2F7F3;color:#256C43}.cl-mid{background:#FBF3DF;color:#8A6116}
+.cl-hot{background:#FCE7E7;color:var(--bad);font-weight:700}
+.cl-off{color:#B6BECE}.cl-past{opacity:.55}
+.fx-bars{display:flex;align-items:flex-end;gap:14px;padding:10px 4px 0;overflow-x:auto}
+.fx-col{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:80px;cursor:pointer}
+.fx-stack{display:flex;flex-direction:column-reverse;width:46px}
+.fx-os{background:var(--accent);border-radius:3px 3px 0 0}
+.fx-mrr{background:#0D9488;border-radius:0 0 3px 3px}
+.fx-col.fut .fx-os,.fx-col.fut .fx-mrr{opacity:.5;outline:1px dashed #94A3B8}
+.fx-v{font:700 11.5px Mulish}.fx-l{font-size:11px;color:var(--muted);text-transform:capitalize}
+.fx-t{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:16px}
+.fx-t th,.fx-t td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:right}
+.fx-t th:first-child,.fx-t td:first-child{text-align:left;text-transform:capitalize}
+.fx-t th{font:700 11px Mulish;color:var(--muted);background:#F1F4FA}
+.fx-t tr.cl{cursor:pointer}.fx-t tr.cl:hover{background:#F6F9FF}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-p:hover{background:#274CB0}
+.btn-d{color:var(--bad);border-color:#F3C7C7}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;margin:10px 0}
+.fg label{font:600 10.5px Mulish;color:var(--muted);display:block;margin:0 0 3px;text-transform:uppercase;letter-spacing:.3px}
+.fg input,.fg select{width:100%;font:12.5px Roboto;padding:7px 8px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+.fg .full{grid-column:1/-1}
+.tchk{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 0}
+.tchk label{font:400 12.5px Roboto;color:var(--ink);text-transform:none;letter-spacing:0;display:flex;gap:5px;align-items:center;margin:0}
+.btnrow{display:flex;gap:8px;margin:14px 0 4px;flex-wrap:wrap}
+.capin{width:56px;font:12px Roboto;padding:3px 5px;border:1px solid var(--line);border-radius:6px;text-align:center}
+.skb{display:inline-block;font:700 9.5px Mulish;border-radius:4px;padding:1px 5px;margin:3px 3px 0 0;cursor:pointer;color:#fff}
+.skb.off{background:#EEF1F6;color:#9AA3B5}
+.tchk label.hc{opacity:.5}
+.cfg-sec{margin:0 0 26px}
+.cfg-t{font:800 13px Mulish;margin:0 0 8px;color:var(--ink)}
+.tin{font:12.5px Roboto;padding:5px 7px;border:1px solid var(--line);border-radius:6px;min-width:170px}
+.mdur,.mchg{width:66px;font:12px Roboto;padding:3px 5px;border:1px solid var(--line);border-radius:6px;text-align:center}
+.mdl{background:#FBFCFE;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:0 0 8px}
+.mdl summary{cursor:pointer;font:600 13px Roboto}
+.mdl[open] summary{margin-bottom:6px}
+.impk{color:var(--bad);font-size:12px}
+.impw{color:#8A6116;font-size:12px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16213A;color:#fff;font:600 12.5px Mulish;padding:9px 16px;border-radius:9px;z-index:20;box-shadow:0 6px 20px #16213A44}
+.nextstep{font:700 10.5px Mulish;border:1px solid #CBE5D3;border-radius:6px;background:#F2FBF5;color:#15803D;padding:1px 7px;cursor:pointer}
+.nextstep:hover{background:#DCF3E3}
+.tv{font:700 9px Mulish;border-radius:4px;padding:1px 4px}
+.tv-upgrade{background:#E1F0E8;color:#0B6B44}.tv-downgrade{background:#FCE7E7;color:#B42318}
+.tv-renouvellement{background:#EEF1F6;color:#5B6478}
+.albar{display:flex;flex-wrap:wrap;gap:8px;padding:2px 18px 8px}
+.alp{border:0;border-radius:999px;font:700 11.5px Mulish;padding:5px 12px;cursor:pointer}
+
+/* Google Drive */
+.drive-btn{display:inline-flex;align-items:center;gap:5px;font:600 12px Mulish;border-radius:8px;padding:7px 11px;white-space:nowrap}
+.drive-btn.connect{background:#fff;color:#334155;border:1px solid var(--line)}
+.drive-btn.save{background:#1a73e8;color:#fff;border-color:#1a73e8}
+.drive-btn.load{background:#EEF2FB;color:var(--accent);border-color:#C9D5F0}
+.drive-btn svg{width:13px;height:13px;flex-shrink:0}
+.save-status{font:700 10.5px Mulish;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.save-status.ok{background:#E4F5EA;color:var(--ok)}
+.save-status.dirty{background:#FAF0DC;color:#8A6116}
+.save-status.none{background:#EEF1F6;color:var(--muted)}
+/* panneau */
+#ov{position:fixed;inset:0;background:#16213A33;display:none;z-index:8}
+#panel{position:fixed;top:0;right:0;bottom:0;width:430px;max-width:94vw;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 30px #16213A1f;z-index:9;display:none;flex-direction:column}
+#panel.on,#ov.on{display:flex}#ov.on{display:block}
+#panel header{padding:14px 18px;border-bottom:1px solid var(--line)}
+#panel h2{font:800 15px Mulish;margin:0 0 2px}
+#panel .body{overflow:auto;padding:12px 18px 24px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:12.5px}
+.kv .k{color:var(--muted)}
+.stp{display:flex;gap:9px;padding:6px 8px;border-radius:8px;align-items:baseline}
+.stp.cur{background:#EEF2FB}
+.stp .ic{width:16px;text-align:center}
+.stp .nm{flex:1}
+.stp .dt{color:var(--muted);font-size:11.5px;white-space:nowrap}
+.pd{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+#close{margin-left:auto}
+@media(max-width:760px){.lab{flex-basis:210px;width:210px}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><h1>Carnet de production</h1><div class="sub" id="subttl">Ventes → livraison client · C1–C5</div></div>
+  <div class="tabs" role="tablist" aria-label="Vue">
+    <button data-view="gantt" class="on">Gantt</button><button data-view="charge">Charge équipe</button><button data-view="fact">Facturation</button><button data-view="conf">Réglages</button>
+  </div>
+  <div class="grow"></div>
+  <div class="zgrp" role="group" aria-label="Échelle">
+    <button data-z="jour">Jour</button><button data-z="sem">Semaine</button><button data-z="mois" class="on">Mois</button><button data-z="trim">Trimestre</button>
+  </div>
+  <button id="btoday">Aujourd\u2019hui</button>
+  <button id="bfold">Tout replier</button>
+  <button id="baff" class="btn-p">+ Affaire</button>
+  <button id="bcsv">Import CSV</button>
+  <span class="save-status none" id="saveStatus" title="État de sauvegarde">Aucune sauvegarde</span>
+  <button class="drive-btn connect" id="btnDriveConnect" onclick="driveAuth()" title="Connecter Google Drive">Connecter Drive</button>
+  <button class="drive-btn save" id="btnDriveSave" onclick="driveSave()" style="display:none" title="Sauvegarder sur Google Drive">Sauvegarder Drive</button>
+  <button class="drive-btn load" id="btnDriveLoad" onclick="driveLoad()" style="display:none" title="Charger depuis Google Drive">Charger Drive</button>
+  <button id="bopen">Ouvrir local…</button>
+  <button id="bsave">Enregistrer local</button>
+  <button id="bexport">Exporter JSON</button>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+  <input type="file" id="csvfile" accept=".csv,text/csv" hidden>
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="albar" id="albar" style="display:none"></div>
+<div class="fbar">
+  <input type="search" id="q" placeholder="Rechercher client, affaire, produit, commercial…" aria-label="Rechercher">
+  <select id="ftech" aria-label="Technicien"></select>
+  <span id="catchips"></span><span style="width:8px"></span><span id="etatchips"></span>
+</div>
+<div class="leg" id="leg"></div>
+<div class="gwrap" id="gwrap"></div>
+<div id="vcharge" class="viewbox"></div>
+<div id="vfact" class="viewbox"></div>
+<div id="vconf" class="viewbox"></div>
+<div id="ov"></div>
+<aside id="panel" aria-label="Détail de la ligne"></aside>
+<script>
+const DONNEES = {"aide": {"objet": "Carnet de production Alsatis — de la vente à la livraison client, par catégorie C1–C5, avec charge techniciens et facturation prévisionnelle.", "utilisation": "Tout est modifiable en direct dans l'outil : cliquez une ligne pour l'éditer, « + Affaire » pour en créer une, et les capacités se règlent dans l'onglet Charge équipe. « Ouvrir… » lit ce fichier, « Enregistrer » le réécrit directement (Chrome/Edge), « Exporter » télécharge une copie. Supprimez date_reference pour utiliser la date du jour.", "champs_ligne": "categorie (C1–C5) · produit · mrr (€/mois) · oneshot (€) · date_signature · etat (a_demarrer | en_cours | attente_client | attente_fournisseur | retour_commercial | livree) · etape_courante (nom exact d'une étape du modèle) + date_debut_etape · date_livraison_reelle (si livrée) · date_livraison_prevue (engagement, sinon calculée) · technicien \"Prénom Nom\" ou techniciens [\"…\",\"…\"] (charge partagée) · charge_jours (charge totale) · prochaine_relance (date de relance) · note (commentaire interne) · date_facturation_oneshot (facture émise le) · type_vente (new | upgrade | downgrade | renouvellement) · mrr_precedent (facturation mensuelle remplacée, déduite du MRR net et de la facturation prévisionnelle).", "techniciens": "config.techniciens : capacité dédiée à la production en jours/semaine et categories (compétences C1–C5) par personne — les deux se modifient en direct dans l'onglet Charge équipe (champ capacité + clic sur les badges C1–C5). Une affectation hors compétence reste possible mais est signalée ⚠. Les charges par étape (charge_jours) sont dans config.modeles.", "facturation": "Règle appliquée : one-shot facturé le mois de la livraison ; MRR facturé à partir du 1er du mois suivant la livraison. Les mois futurs sont prévisionnels (dates projetées).", "delais": "Les durées standards par C se règlent dans config.modeles (jours ouvrés)."}, "config": {"date_reference": "2026-07-27", "delai_prise_en_charge_jours_ouvres": 2, "phases": [{"id": "P1", "nom": "Qualification", "couleur": "#9DB6EA"}, {"id": "P2", "nom": "Commande & appro", "couleur": "#6E93E3"}, {"id": "P3", "nom": "Production & config", "couleur": "#3E63C9"}, {"id": "P4", "nom": "Livraison & recette", "couleur": "#1E3A8A"}], "modeles": {"C1": {"nom": "Cloud", "couleur": "#2563EB", "etapes": [{"nom": "Validation du besoin", "duree_jours_ouvres": 2, "phase": "P1", "jalon": false, "charge_jours": 0.25}, {"nom": "Collecte des prérequis", "duree_jours_ouvres": 4, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Dimensionnement", "duree_jours_ouvres": 2, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Commande licences & ressources", "duree_jours_ouvres": 1, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Provisionnement", "duree_jours_ouvres": 2, "phase": "P2", "jalon": false, "charge_jours": 0.5}, {"nom": "Configuration", "duree_jours_ouvres": 5, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Migration", "duree_jours_ouvres": 5, "phase": "P3", "jalon": false, "charge_jours": 2}, {"nom": "Tests", "duree_jours_ouvres": 3, "phase": "P3", "jalon": false, "charge_jours": 1}, {"nom": "Recette client", "duree_jours_ouvres": 3, "phase": "P4", "jalon": false, "charge_jours": 0.5}, {"nom": "Mise en production", "duree_jours_ouvres": 1, "phase": "P4", "jalon": true, "charge_jours": 0.25}]}, "C2": {"nom": "Computer", "couleur": "#64748B", "etapes": [{"nom": "Validation du matériel", "duree_jours_ouvres": 1, "phase": "P1", "jalon": false, "charge_jours": 0.25}, {"nom": "Commande fournisseur", "duree_jours_ouvres": 1, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Attente livraison fournisseur", "duree_jours_ouvres": 10, "phase": "P2", "jalon": false, "charge_jours": 0}, {"nom": "Réception", "duree_jours_ouvres": 1, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Préparation & masterisation", "duree_jours_ouvres": 3, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Enrôlement", "duree_jours_ouvres": 2, "phase": "P3", "jalon": false, "charge_jours": 1}, {"nom": "Installation sur site", "duree_jours_ouvres": 2, "phase": "P3", "jalon": false, "charge_jours": 1}, {"nom": "Livraison & PV de réception", "duree_jours_ouvres": 1, "phase": "P4", "jalon": true, "charge_jours": 0.25}]}, "C3": {"nom": "Communication", "couleur": "#6366F1", "etapes": [{"nom": "Audit de l'existant", "duree_jours_ouvres": 2, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Collecte des numéros & mandat", "duree_jours_ouvres": 3, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Plan de numérotation", "duree_jours_ouvres": 2, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Commande licences & terminaux", "duree_jours_ouvres": 2, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Demande de portabilité", "duree_jours_ouvres": 1, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Attente opérateur & livraison", "duree_jours_ouvres": 7, "phase": "P2", "jalon": false, "charge_jours": 0}, {"nom": "Préparation", "duree_jours_ouvres": 3, "phase": "P3", "jalon": false, "charge_jours": 1}, {"nom": "Installation", "duree_jours_ouvres": 2, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Formation", "duree_jours_ouvres": 1, "phase": "P3", "jalon": false, "charge_jours": 0.5}, {"nom": "Portabilité effective", "duree_jours_ouvres": 1, "phase": "P4", "jalon": true, "charge_jours": 0.25}, {"nom": "Recette", "duree_jours_ouvres": 2, "phase": "P4", "jalon": false, "charge_jours": 0.5}, {"nom": "Mise en production", "duree_jours_ouvres": 1, "phase": "P4", "jalon": false, "charge_jours": 0.25}]}, "C4": {"nom": "Connectivité", "couleur": "#0D9488", "etapes": [{"nom": "Validation de l'adresse", "duree_jours_ouvres": 1, "phase": "P1", "jalon": false, "charge_jours": 0.25}, {"nom": "Éligibilité", "duree_jours_ouvres": 3, "phase": "P1", "jalon": false, "charge_jours": 0.25}, {"nom": "Commande opérateur", "duree_jours_ouvres": 2, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Accusé de réception opérateur", "duree_jours_ouvres": 5, "phase": "P2", "jalon": false, "charge_jours": 0}, {"nom": "Production opérateur & RDV raccordement", "duree_jours_ouvres": 30, "phase": "P2", "jalon": false, "charge_jours": 0.5}, {"nom": "Livraison du lien", "duree_jours_ouvres": 1, "phase": "P2", "jalon": true, "charge_jours": 0.25}, {"nom": "Configuration routeur & firewall", "duree_jours_ouvres": 3, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Tests", "duree_jours_ouvres": 2, "phase": "P3", "jalon": false, "charge_jours": 0.5}, {"nom": "Bascule", "duree_jours_ouvres": 1, "phase": "P4", "jalon": true, "charge_jours": 0.5}, {"nom": "Recette", "duree_jours_ouvres": 3, "phase": "P4", "jalon": false, "charge_jours": 0.5}, {"nom": "Mise en production", "duree_jours_ouvres": 1, "phase": "P4", "jalon": false, "charge_jours": 0.25}]}, "C5": {"nom": "Cybersécurité", "couleur": "#D97706", "etapes": [{"nom": "Audit", "duree_jours_ouvres": 3, "phase": "P1", "jalon": false, "charge_jours": 1}, {"nom": "Définition du périmètre", "duree_jours_ouvres": 2, "phase": "P1", "jalon": false, "charge_jours": 0.5}, {"nom": "Commande licences & matériel", "duree_jours_ouvres": 2, "phase": "P2", "jalon": false, "charge_jours": 0.25}, {"nom": "Création du tenant", "duree_jours_ouvres": 1, "phase": "P3", "jalon": false, "charge_jours": 0.25}, {"nom": "Déploiement des agents", "duree_jours_ouvres": 5, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Paramétrage", "duree_jours_ouvres": 4, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Tests", "duree_jours_ouvres": 3, "phase": "P3", "jalon": false, "charge_jours": 1}, {"nom": "Remédiation", "duree_jours_ouvres": 4, "phase": "P3", "jalon": false, "charge_jours": 1.5}, {"nom": "Validation & recette", "duree_jours_ouvres": 2, "phase": "P4", "jalon": false, "charge_jours": 0.5}, {"nom": "Mise en production", "duree_jours_ouvres": 1, "phase": "P4", "jalon": true, "charge_jours": 0.25}]}}, "techniciens": [{"nom": "Justine Durrieu", "jours_prod_par_semaine": 3, "categories": ["C4"]}, {"nom": "Maxime Betemps", "jours_prod_par_semaine": 2.5, "categories": ["C3", "C4"]}, {"nom": "Aurélien Poncini", "jours_prod_par_semaine": 3, "categories": ["C1", "C5"]}, {"nom": "Théo Marin", "jours_prod_par_semaine": 2.5, "categories": ["C2", "C5"]}, {"nom": "Back-Office", "jours_prod_par_semaine": 0, "categories": []}, {"nom": "Tech-C1-C2", "jours_prod_par_semaine": 0, "categories": ["C1", "C2"]}, {"nom": "Catherine Perrot", "jours_prod_par_semaine": 2, "categories": ["C1", "C2"]}, {"nom": "Ethan Sanjuan", "jours_prod_par_semaine": 2, "categories": ["C1"]}, {"nom": "Paul Pichon", "jours_prod_par_semaine": 2, "categories": ["C2"]}, {"nom": "Tech-C3-C4", "jours_prod_par_semaine": 0, "categories": ["C3", "C4"]}, {"nom": "Baptiste Calvet", "jours_prod_par_semaine": 2, "categories": ["C4"]}, {"nom": "Ibério Doval", "jours_prod_par_semaine": 2, "categories": ["C4"]}], "commerciaux": [{"nom": "Guillaume Saclier", "actif": true}, {"nom": "Guillaume Florentin", "actif": true}, {"nom": "Boris Le Sausse", "actif": true}, {"nom": "Mathéo Claudel", "actif": true}, {"nom": "Sami Anissi", "actif": true}, {"nom": "Rémi Gagnot", "actif": true}, {"nom": "Nino Galdava", "actif": true}, {"nom": "Charles Banquet", "actif": false}, {"nom": "Vincent De-Sulzer-Wart", "actif": false}]}, "affaires": [{"id": "DEVIS_26-07-27-504", "client": "NANOMADE", "libelle": "LICENCE O365 STANDARD", "commercial": "Guillaume Florentin", "lignes": [{"id": "6881", "categorie": "C2", "produit": "LICENCE O365 STANDARD", "mrr": 12.29, "oneshot": 0.0, "date_signature": "2026-07-27", "etat": "a_demarrer", "technicien": "Tech-C1-C2"}]}, {"id": "DEVIS_26-07-23-502", "client": "ALSATIS-RESEAUX", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6877", "categorie": "C2", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 149.0, "date_signature": "2026-07-24", "etat": "en_cours", "etape_courante": "Validation du matériel", "date_debut_etape": "2026-07-24", "technicien": "Paul Pichon"}]}, {"id": "DEVIS_26-07-08-484", "client": "FDI-MATELEC - R-PAP-040093", "libelle": "Upgrade fibre Axione à 1 GBPS", "commercial": "Boris Le Sausse", "lignes": [{"id": "6874", "categorie": "C4", "produit": "Upgrade fibre Axione à 1 GBPS", "mrr": 690.0, "oneshot": 0.0, "date_signature": "2026-07-23", "etat": "a_demarrer", "mrr_precedent": 620.0, "type_vente": "upgrade", "date_livraison_prevue": "2026-08-17", "technicien": "Tech-C3-C4", "note": "Engagement 36 mois · Achat 380 €"}]}, {"id": "DEVIS_26-07-22-501", "client": "COMMUNAUTE-DE-COMMUNES-VAL-DE-GERS - R-PAP-044813", "libelle": "FIBRE FTTH PRO 1G", "commercial": "Guillaume Florentin", "lignes": [{"id": "6867", "categorie": "C4", "produit": "FIBRE FTTH PRO 1G", "mrr": 51.0, "oneshot": 0.0, "date_signature": "2026-07-23", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-24", "technicien": "Théo Marin", "note": "Engagement 12 mois · Achat 34 €"}]}, {"id": "DEVIS_26-07-06-472", "client": "SMDEA09", "libelle": "CERTIFICAT SSL", "commercial": "Guillaume Florentin", "lignes": [{"id": "6865", "categorie": "C2", "produit": "CERTIFICAT SSL", "mrr": 0.0, "oneshot": 99.0, "date_signature": "2026-07-23", "etat": "livree", "date_livraison_reelle": "2026-07-24", "technicien": "Back-Office", "note": "Achat 30 €"}]}, {"id": "DEVIS_26-07-16-497", "client": "AIR-SUPPORT", "libelle": "MATERIEL INFORMATIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6839", "categorie": "C2", "produit": "MATERIEL INFORMATIQUE", "mrr": 0.0, "oneshot": 1263.0, "date_signature": "2026-07-17", "etat": "en_cours", "etape_courante": "Préparation & masterisation", "date_debut_etape": "2026-07-24", "technicien": "Tech-C1-C2"}]}, {"id": "DEVIS_26-07-16-495", "client": "NANOMADE", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6835", "categorie": "C2", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 65.0, "date_signature": "2026-07-16", "etat": "a_demarrer", "technicien": "Tech-C1-C2"}]}, {"id": "DEVIS_26-07-07-474", "client": "BIOCOOP", "libelle": "BOX 4G", "commercial": "Guillaume Florentin", "lignes": [{"id": "6826", "categorie": "C4", "produit": "BOX 4G", "mrr": 50.0, "oneshot": 50.0, "date_signature": "2026-07-15", "etat": "en_cours", "etape_courante": "Tests", "date_debut_etape": "2026-07-22", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-06-15-430", "client": "MARION-TECHNOLOGIES", "libelle": "MIGARTION VERS O365", "commercial": "Guillaume Florentin", "lignes": [{"id": "6825", "categorie": "C2", "produit": "MIGARTION VERS O365", "mrr": 176.4, "oneshot": 1540.0, "date_signature": "2026-07-15", "etat": "a_demarrer", "technicien": "Tech-C1-C2", "note": "Engagement 12 mois"}]}, {"id": "DEVIS_26-07-10-492", "client": "COMMUNAUTE-DE-COMMUNES-COUSERANS-PYRENEES", "libelle": "BOX 4G", "commercial": "Guillaume Florentin", "lignes": [{"id": "6823", "categorie": "C4", "produit": "BOX 4G", "mrr": 50.0, "oneshot": 0.0, "date_signature": "2026-07-15", "etat": "en_cours", "etape_courante": "Tests", "date_debut_etape": "2026-07-20", "technicien": "Justine Durrieu", "note": "Engagement 12 mois"}]}, {"id": "DEVIS_26-07-09-488", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "Prise d'eau ERCE - Pare-feu SEC (sans analyse du contenu)", "commercial": "Guillaume Florentin", "lignes": [{"id": "6817", "categorie": "C5", "produit": "Prise d'eau ERCE - Pare-feu SEC (sans analyse du contenu)", "mrr": 90.0, "oneshot": 0.0, "date_signature": "2026-07-09", "etat": "a_demarrer", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-07-09-487", "client": "COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-024864", "libelle": "BOX 4G CHABONS", "commercial": "Guillaume Florentin", "lignes": [{"id": "6816", "categorie": "C4", "produit": "BOX 4G CHABONS", "mrr": 50.0, "oneshot": 35.0, "date_signature": "2026-07-09", "etat": "livree", "date_livraison_reelle": "2026-07-24", "technicien": "Back-Office", "note": "Engagement 36 mois · Achat 15 €"}]}, {"id": "DEVIS_26-06-11-424", "client": "DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936", "libelle": "DSI - Commande routeur pour le SD-WAN", "commercial": "Guillaume Saclier", "lignes": [{"id": "6805", "categorie": "C4", "produit": "DSI - Commande routeur pour le SD-WAN", "mrr": 0.0, "oneshot": 1393.0, "date_signature": "2026-07-08", "etat": "en_cours", "date_livraison_prevue": "2026-08-08", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-07-20", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-06-18-443", "client": "KRATOS-COMMUNICATIONS - R-PAP-038963", "libelle": "Ramonville - Lien 1 Gbps", "commercial": "Mathéo Claudel", "lignes": [{"id": "6791", "categorie": "C4", "produit": "Ramonville - Lien 1 Gbps", "mrr": 330.0, "oneshot": 0.0, "date_signature": "2026-07-06", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-20", "technicien": "Justine Durrieu", "note": "Engagement 36 mois · Achat 190 €"}]}, {"id": "DEVIS_26-06-29-466", "client": "AIR-SUPPORT", "libelle": "MATERIEL INFORMATIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6783", "categorie": "C2", "produit": "MATERIEL INFORMATIQUE", "mrr": 0.0, "oneshot": 3297.6, "date_signature": "2026-07-06", "etat": "livree", "date_livraison_reelle": "2026-07-27", "technicien": "Back-Office", "note": "Achat 2621.58 €"}]}, {"id": "DEVIS_26-07-03-471", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "CAP COUSERANS - FttH (+2 autres)", "commercial": "Guillaume Florentin", "lignes": [{"id": "6781", "categorie": "C4", "produit": "CAP COUSERANS - FttH", "mrr": 58.0, "oneshot": 0.0, "date_signature": "2026-07-03", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-23", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}, {"id": "6780", "categorie": "C4", "produit": "CAP MIRABEAU - FttH", "mrr": 58.0, "oneshot": 0.0, "date_signature": "2026-07-03", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-23", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}, {"id": "6779", "categorie": "C4", "produit": "CAP DELTA - FttH", "mrr": 58.0, "oneshot": 0.0, "date_signature": "2026-07-03", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-23", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-05-05-343", "client": "SCIC-DU-PLANTAUREL", "libelle": "Mise en place Yubikey (MFA Office365)", "commercial": "Guillaume Florentin", "lignes": [{"id": "6680", "categorie": "C5", "produit": "Mise en place Yubikey (MFA Office365)", "mrr": 0.0, "oneshot": 1038.7, "date_signature": "2026-06-24", "etat": "en_cours", "etape_courante": "Commande licences & matériel", "date_debut_etape": "2026-06-25", "technicien": "Tech-C1-C2", "note": "Achat 766 €"}]}, {"id": "DEVIS_26-06-23-453", "client": "AIR-INFORMATIQUE-CHADOTEL - R-PAP-044492", "libelle": "Upgrade fibre Axione à 1 Gbps camping Domaine d'oléron", "commercial": "Boris Le Sausse", "lignes": [{"id": "6678", "categorie": "C4", "produit": "Upgrade fibre Axione à 1 Gbps camping Domaine d'oléron", "mrr": 391.0, "oneshot": 340.0, "date_signature": "2026-06-24", "etat": "a_demarrer", "mrr_precedent": 243.0, "type_vente": "upgrade", "date_livraison_prevue": "2026-07-09", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 250 €"}]}, {"id": "DEVIS_26-06-23-452", "client": "2C-PEINTURE", "libelle": "FTTO - La Salvetat", "commercial": "Mathéo Claudel", "lignes": [{"id": "6677", "categorie": "C4", "produit": "FTTO - La Salvetat", "mrr": 179.0, "oneshot": 0.0, "date_signature": "2026-06-23", "etat": "en_cours", "date_livraison_prevue": "2026-07-28", "etape_courante": "Mise en production", "date_debut_etape": "2026-07-27", "technicien": "Théo Marin", "note": "Engagement 36 mois · Achat 95 €"}]}, {"id": "DEVIS_26-06-16-437", "client": "COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-024864", "libelle": "FIBRE FTTO 20M", "commercial": "Guillaume Florentin", "lignes": [{"id": "6640", "categorie": "C4", "produit": "FIBRE FTTO 20M", "mrr": 223.0, "oneshot": 880.0, "date_signature": "2026-06-17", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-03-13-237", "client": "MECAPACK - R-PAP-038309", "libelle": "Downgrade fibre site Pouzauges à 20 Mbps", "commercial": "Boris Le Sausse", "lignes": [{"id": "6628", "categorie": "C4", "produit": "Downgrade fibre site Pouzauges à 20 Mbps", "mrr": 410.0, "oneshot": 0.0, "date_signature": "2026-06-16", "etat": "en_cours", "mrr_precedent": 810.0, "type_vente": "downgrade", "date_livraison_prevue": "2026-06-23", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-06-30", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 240 €"}]}, {"id": "DEVIS_26-03-26-261", "client": "TARAMM", "libelle": "Segmentation Réseau Mazères", "commercial": "Guillaume Florentin", "lignes": [{"id": "6609", "categorie": "C4", "produit": "Segmentation Réseau Mazères", "mrr": 0.0, "oneshot": 1040.0, "date_signature": "2026-06-12", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-25", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_26-06-09-415", "client": "EXPERTISES-ET-PATRIMOINE", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6603", "categorie": "C4", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 220.0, "date_signature": "2026-06-11", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-25", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_26-05-26-382", "client": "TARAMM", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6575", "categorie": "C4", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 65.0, "date_signature": "2026-06-05", "etat": "retour_commercial", "note": "Retour commercial (Guillaume Florentin) · Demande incomplète"}]}, {"id": "DEVIS_26-03-12-234", "client": "BIOCOOP", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6566", "categorie": "C4", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 130.0, "date_signature": "2026-06-04", "etat": "a_demarrer", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_26-05-07-352", "client": "BRIO-GEL SAINT-GEORGES-DE-MONTAIGU - R-PAP-041512", "libelle": "fibre Covage 100 Mbps", "commercial": "Boris Le Sausse", "lignes": [{"id": "6500", "categorie": "C4", "produit": "fibre Covage 100 Mbps", "mrr": 380.0, "oneshot": 0.0, "date_signature": "2026-05-27", "etat": "en_cours", "mrr_precedent": 460.0, "type_vente": "downgrade", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-16", "technicien": "Théo Marin", "note": "Engagement 36 mois · Achat 180 €"}]}, {"id": "DEVIS_26-05-07-353", "client": "BRIO-GEL-LA-TARDIERE-LA-CHATAIGNERAIE", "libelle": "fibre Covage 100 Mbps", "commercial": "Boris Le Sausse", "lignes": [{"id": "6499", "categorie": "C4", "produit": "fibre Covage 100 Mbps", "mrr": 380.0, "oneshot": 0.0, "date_signature": "2026-05-27", "etat": "en_cours", "mrr_precedent": 430.0, "type_vente": "downgrade", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-16", "technicien": "Théo Marin", "note": "Engagement 36 mois · Achat 180 €"}]}, {"id": "DEVIS_26-05-20-374", "client": "CCHA", "libelle": "MESSAGERIE COLLABORATIVE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6496", "categorie": "C2", "produit": "MESSAGERIE COLLABORATIVE", "mrr": 4.0, "oneshot": 0.0, "date_signature": "2026-05-26", "etat": "retour_commercial", "note": "Retour commercial (Guillaume Florentin) · Engagement 12 mois"}]}, {"id": "DEVIS_26-04-27-324", "client": "AIR-SUPPORT", "libelle": "PRESTATION TECHNIQUE - Mise en place accès distant via Ninja", "commercial": "Guillaume Florentin", "lignes": [{"id": "6453", "categorie": "C1", "produit": "PRESTATION TECHNIQUE - Mise en place accès distant via Ninja", "mrr": 0.0, "oneshot": 130.0, "date_signature": "2026-05-19", "etat": "attente_client", "etape_courante": "Validation du besoin", "date_debut_etape": "2026-06-25", "technicien": "Catherine Perrot", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_26-05-05-344", "client": "CSEAIRBUSDS", "libelle": "BOX 5G", "commercial": "Guillaume Florentin", "lignes": [{"id": "6289", "categorie": "C4", "produit": "BOX 5G", "mrr": 39.9, "oneshot": 539.9, "date_signature": "2026-05-07", "etat": "en_cours", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-06-09", "technicien": "Justine Durrieu", "note": "Engagement 36 mois · Achat 25 €"}]}, {"id": "DEVIS_26-04-30-336", "client": "INFOMIL - R-PAP-039064", "libelle": "VILMURIER - GTL25092 - FTTO 100M", "commercial": "Nino Galdava", "lignes": [{"id": "6277", "categorie": "C4", "produit": "VILMURIER - GTL25092 - FTTO 100M", "mrr": 432.0, "oneshot": 710.0, "date_signature": "2026-05-05", "etat": "attente_fournisseur", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-17", "technicien": "Justine Durrieu", "note": "Engagement 36 mois · Achat 270 €"}]}, {"id": "DEVIS_26-04-30-97", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DILBAN - Lien d?interconnexion Fibre optique 20 Mb/s.+ Secours FttH", "commercial": "", "lignes": [{"id": "6231", "categorie": "C4", "produit": "DILBAN - Lien d?interconnexion Fibre optique 20 Mb/s.+ Secours FttH", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2026-04-30", "etat": "en_cours", "etape_courante": "Bascule", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-04-15-315", "client": "ASSOCIATION-DES-PELERINS-DE-LA-SALETTE", "libelle": "Raccordement fibre Sanctuaire de Notre Dame de la Salette", "commercial": "Guillaume Saclier", "lignes": [{"id": "6229", "categorie": "C4", "produit": "Raccordement fibre Sanctuaire de Notre Dame de la Salette", "mrr": 350.0, "oneshot": 700.0, "date_signature": "2026-04-29", "etat": "a_demarrer", "date_livraison_prevue": "2026-05-29", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 285 €"}]}, {"id": "DEVIS_26-04-27-325", "client": "CSEAIRBUSDS", "libelle": "MATERIEL INFORMATIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "6181", "categorie": "C2", "produit": "MATERIEL INFORMATIQUE", "mrr": 0.0, "oneshot": 3057.6, "date_signature": "2026-04-27", "etat": "en_cours", "etape_courante": "Installation sur site", "date_debut_etape": "2026-06-25", "technicien": "Catherine Perrot"}]}, {"id": "DEVIS_26-02-26-189", "client": "OTPA", "libelle": "PRESTATION TECHNIQUE LUDOVIA", "commercial": "Guillaume Florentin", "lignes": [{"id": "6163", "categorie": "C4", "produit": "PRESTATION TECHNIQUE LUDOVIA", "mrr": 0.0, "oneshot": 5400.0, "date_signature": "2026-04-27", "etat": "en_cours", "etape_courante": "Mise en production", "date_debut_etape": "2026-07-15", "technicien": "Baptiste Calvet"}]}, {"id": "DEVIS_26-03-31-0001", "client": "SMECTOM", "libelle": "RENOUVELLEMENT DU MARCHE AVEC EVOLUTION DES RESSOURCES", "commercial": "Guillaume Florentin", "lignes": [{"id": "6073", "categorie": "C1", "produit": "RENOUVELLEMENT DU MARCHE AVEC EVOLUTION DES RESSOURCES", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2026-04-13", "etat": "en_cours", "date_livraison_prevue": "2026-07-01", "etape_courante": "Provisionnement", "date_debut_etape": "2026-06-25", "technicien": "Ethan Sanjuan", "note": "Engagement 48 mois"}]}, {"id": "DEVIS_26-02-19-172", "client": "DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936", "libelle": "DSI - FTTO 20/100Mbps - Saint Orens", "commercial": "", "lignes": [{"id": "6072", "categorie": "C4", "produit": "DSI - FTTO 20/100Mbps - Saint Orens", "mrr": 150.0, "oneshot": 360.0, "date_signature": "2026-04-13", "etat": "en_cours", "date_livraison_prevue": "2026-03-24", "etape_courante": "Mise en production", "date_debut_etape": "2026-05-22", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 80 €"}]}, {"id": "DEVIS_26-01-08-51", "client": "MICROZONE - R-PAP-043267", "libelle": "La Roche Sur Yon - Fibre Covage 1 Gbps + FTTH Pro de secours", "commercial": "Boris Le Sausse", "lignes": [{"id": "6054", "categorie": "C4", "produit": "La Roche Sur Yon - Fibre Covage 1 Gbps + FTTH Pro de secours", "mrr": 430.0, "oneshot": 0.0, "date_signature": "2026-04-08", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-17", "technicien": "Justine Durrieu", "note": "À qualifier : attente client ou fournisseur ? · Engagement 36 mois · Achat 234 €"}]}, {"id": "DEVIS_26-04-07-285", "client": "CAMPING-LA-DIVE", "libelle": "raccordement fibre 100 Mbps", "commercial": "Boris Le Sausse", "lignes": [{"id": "6040", "categorie": "C4", "produit": "raccordement fibre 100 Mbps", "mrr": 490.0, "oneshot": 0.0, "date_signature": "2026-04-07", "etat": "attente_client", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-06-19", "technicien": "Justine Durrieu", "note": "À qualifier : attente client ou fournisseur ? · Engagement 36 mois · Achat 320 €"}]}, {"id": "DEVIS_26-03-25-254", "client": "COMMUNAUTE-DE-COMMUNES-DE-BIEVRE-EST -  R-PAP-024864", "libelle": "FIBRE FTTH PRO 1G", "commercial": "Guillaume Florentin", "lignes": [{"id": "5975", "categorie": "C4", "produit": "FIBRE FTTH PRO 1G", "mrr": 40.0, "oneshot": 370.0, "date_signature": "2026-04-01", "etat": "en_cours", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-07-16", "technicien": "Maxime Betemps", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-03-31-271", "client": "SARL-GRAND-HOTEL-D'ORLEANS - R-PAP-038761", "libelle": "PROD - HOTEL ORLEANS - FORTINET standard", "commercial": "Mathéo Claudel", "lignes": [{"id": "5935", "categorie": "C5", "produit": "PROD - HOTEL ORLEANS - FORTINET standard", "mrr": 0.0, "oneshot": 300.0, "date_signature": "2026-04-01", "etat": "retour_commercial", "date_livraison_prevue": "2026-04-15", "etape_courante": "Audit", "date_debut_etape": "2026-07-21", "note": "Retour commercial (Mathéo Claudel) · Engagement 36 mois · Achat 30 €"}]}, {"id": "DEVIS_26-04-01-99", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DRD - CI DE QUERIGUT - FttH 1G", "commercial": "", "lignes": [{"id": "5924", "categorie": "C4", "produit": "DRD - CI DE QUERIGUT - FttH 1G", "mrr": 49.5, "oneshot": 0.0, "date_signature": "2026-04-01", "etat": "attente_fournisseur", "etape_courante": "Éligibilité", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-03-26-262", "client": "GELTI-CARS-FAURE - R-PAP-037518", "libelle": "Production FTTH - Villard-de-Lans - GELTI", "commercial": "Guillaume Saclier", "lignes": [{"id": "5893", "categorie": "C4", "produit": "Production FTTH - Villard-de-Lans - GELTI", "mrr": 79.0, "oneshot": 0.0, "date_signature": "2026-03-31", "etat": "retour_commercial", "date_livraison_prevue": "2026-04-21", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-06-26", "note": "Retour commercial (Mathéo Claudel) · Engagement 36 mois · Achat 34 €"}]}, {"id": "DEVIS_26-03-12-233", "client": "PUBLI-NOE - R-PAP-034821", "libelle": "Upgrade FTTO mutualisée - PUBLI NOE #R-PAP-034821", "commercial": "Rémi Gagnot", "lignes": [{"id": "5860", "categorie": "C4", "produit": "Upgrade FTTO mutualisée - PUBLI NOE #R-PAP-034821", "mrr": 165.0, "oneshot": 180.0, "date_signature": "2026-03-25", "etat": "retour_commercial", "mrr_precedent": 190.0, "type_vente": "downgrade", "date_livraison_prevue": "2026-06-25", "note": "Retour commercial (Rémi Gagnot) · Demande incomplète · Engagement 36 mois · Achat 190 €"}]}, {"id": "DEVIS_26-03-12-232", "client": "OGON-DESIGNS - R-PAP-030202", "libelle": "Upgrade FTTO mutualisée - OGON DESIGNS #R-PAP-030202", "commercial": "Rémi Gagnot", "lignes": [{"id": "5859", "categorie": "C4", "produit": "Upgrade FTTO mutualisée - OGON DESIGNS #R-PAP-030202", "mrr": 165.0, "oneshot": 180.0, "date_signature": "2026-03-25", "etat": "retour_commercial", "mrr_precedent": 150.0, "type_vente": "upgrade", "date_livraison_prevue": "2026-06-25", "note": "Retour commercial (Rémi Gagnot) · Engagement 36 mois · Achat 190 €"}]}, {"id": "DEVIS_26-03-09-222", "client": "AIR-SUPPORT", "libelle": "FORTIIDENTITY", "commercial": "Guillaume Florentin", "lignes": [{"id": "5858", "categorie": "C5", "produit": "FORTIIDENTITY", "mrr": 0.0, "oneshot": 3269.9, "date_signature": "2026-03-24", "etat": "attente_client", "etape_courante": "Remédiation", "date_debut_etape": "2026-06-25", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_26-01-07-45", "client": "CAMPING-LE-SOLEIL - R-PAP-022237", "libelle": "Upgrade haute saison 2 GBPS", "commercial": "Boris Le Sausse", "lignes": [{"id": "5773", "categorie": "C4", "produit": "Upgrade haute saison 2 GBPS", "mrr": 878.4, "oneshot": 1000.0, "date_signature": "2026-03-12", "etat": "attente_fournisseur", "mrr_precedent": 699.2, "type_vente": "upgrade", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-18", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-02-03-127", "client": "ANDORRA-TELECOM", "libelle": "Service Cloud - Andorra- telecom (+1 autres)", "commercial": "Guillaume Saclier", "lignes": [{"id": "5741", "categorie": "C1", "produit": "Service Cloud - Andorra- telecom", "mrr": 375.0, "oneshot": 1000.0, "date_signature": "2026-03-10", "etat": "attente_fournisseur", "date_livraison_prevue": "2026-04-10", "etape_courante": "Validation du besoin", "date_debut_etape": "2026-05-04", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}, {"id": "5678", "categorie": "C4", "produit": "FTTH site ST JEAN DE SOUDAIN - GELTI", "mrr": 79.0, "oneshot": 0.0, "date_signature": "2026-03-05", "etat": "en_cours", "date_livraison_prevue": "2026-03-26", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-07-20", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 34 €"}]}, {"id": "DEVIS_26-03-09-217", "client": "BIOCOOP", "libelle": "BACKUP 4G/5G", "commercial": "Guillaume Florentin", "lignes": [{"id": "5739", "categorie": "C4", "produit": "BACKUP 4G/5G", "mrr": 50.0, "oneshot": 50.0, "date_signature": "2026-03-10", "etat": "en_cours", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-07-03", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-03-06-213", "client": "SMDEA09", "libelle": "PRETATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "5707", "categorie": "C4", "produit": "PRETATION TECHNIQUE", "mrr": 0.0, "oneshot": 440.0, "date_signature": "2026-03-06", "etat": "attente_client", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-06-25", "technicien": "Théo Marin", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_26-01-16-82", "client": "SMDEA09", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "5682", "categorie": "C4", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 65.0, "date_signature": "2026-03-06", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-25", "technicien": "Justine Durrieu", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_26-03-03-204", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "PAREFEU SEC SITE ARROUT", "commercial": "Guillaume Florentin", "lignes": [{"id": "5647", "categorie": "C5", "produit": "PAREFEU SEC SITE ARROUT", "mrr": 90.0, "oneshot": 0.0, "date_signature": "2026-03-03", "etat": "en_cours", "etape_courante": "Audit", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin", "note": "Engagement 12 mois"}]}, {"id": "DEVIS_26-03-03-203", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "PAREFEU SEC SITE ERCE", "commercial": "Guillaume Florentin", "lignes": [{"id": "5646", "categorie": "C5", "produit": "PAREFEU SEC SITE ERCE", "mrr": 90.0, "oneshot": 0.0, "date_signature": "2026-03-03", "etat": "en_cours", "etape_courante": "Audit", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin", "note": "Engagement 12 mois"}]}, {"id": "DEVIS_26-02-23-182", "client": "RECAERO", "libelle": "Upgrade FttO 200M & FttH", "commercial": "Guillaume Florentin", "lignes": [{"id": "5605", "categorie": "C4", "produit": "Upgrade FttO 200M & FttH", "mrr": 909.0, "oneshot": 350.0, "date_signature": "2026-03-02", "etat": "attente_fournisseur", "mrr_precedent": 600.0, "type_vente": "upgrade", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-06-25", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-01-23-97", "client": "INFOMIL - R-PAP-039064", "libelle": "SODIMAR - GTL24393 - FTTO 100M", "commercial": "Nino Galdava", "lignes": [{"id": "5578", "categorie": "C4", "produit": "SODIMAR - GTL24393 - FTTO 100M", "mrr": 640.0, "oneshot": 1080.0, "date_signature": "2026-02-25", "etat": "attente_fournisseur", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-04-02", "technicien": "Justine Durrieu", "note": "Engagement 36 mois · Achat 370 €"}]}, {"id": "DEVIS_26-02-04-129", "client": "MAIRIE-DE-L'UNION", "libelle": "FTTH PRO 1G", "commercial": "Guillaume Florentin", "lignes": [{"id": "5528", "categorie": "C4", "produit": "FTTH PRO 1G", "mrr": 49.0, "oneshot": 395.0, "date_signature": "2026-02-19", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_25-09-26-56", "client": "APREVYA", "libelle": "WIFI", "commercial": "Guillaume Florentin", "lignes": [{"id": "5036", "categorie": "C4", "produit": "WIFI", "mrr": 255.0, "oneshot": 1081.0, "date_signature": "2025-12-19", "etat": "en_cours", "etape_courante": "Tests", "date_debut_etape": "2026-02-19", "technicien": "Justine Durrieu", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_26-01-01-00", "client": "CSEAIRBUSDS", "libelle": "MCO ET EDR", "commercial": "Guillaume Florentin", "lignes": [{"id": "4940", "categorie": "C5", "produit": "MCO ET EDR", "mrr": 1927.5, "oneshot": 0.0, "date_signature": "2025-12-05", "etat": "livree", "date_livraison_reelle": "2026-02-09", "technicien": "Back-Office", "note": "Engagement 36 mois"}]}, {"id": "DEVIS_25-09-24-01", "client": "LES-BOIS-DU-MIDI - R-PAP-032669", "libelle": "Upgrade fibre + routeur 4G - LES BOIS DU MIDI (+1 autres)", "commercial": "Mathéo Claudel", "lignes": [{"id": "4518", "categorie": "C4", "produit": "Upgrade fibre + routeur 4G - LES BOIS DU MIDI", "mrr": 128.0, "oneshot": 89.0, "date_signature": "2025-10-27", "etat": "retour_commercial", "mrr_precedent": 128.0, "type_vente": "upgrade", "date_livraison_prevue": "2026-01-31", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-04-20", "note": "Retour commercial (Mathéo Claudel) · Engagement 36 mois · Achat 55 €"}, {"id": "4246", "categorie": "C1", "produit": "MISE A JOUR DES SERVEURS AIR", "mrr": 0.0, "oneshot": 47882.1, "date_signature": "2025-09-25", "etat": "en_cours", "etape_courante": "Recette client", "date_debut_etape": "2026-06-25", "technicien": "Ethan Sanjuan"}]}, {"id": "DEVIS_25-10-16-01", "client": "THEMANIS", "libelle": "New business - Lien de secours THEMANIS", "commercial": "Mathéo Claudel", "lignes": [{"id": "4489", "categorie": "C4", "produit": "New business - Lien de secours THEMANIS", "mrr": 230.0, "oneshot": 500.0, "date_signature": "2025-10-23", "etat": "en_cours", "date_livraison_prevue": "2026-01-19", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-04-09", "technicien": "Justine Durrieu", "note": "Engagement 36 mois · Achat 160 €"}]}, {"id": "TCK-4412", "client": "ARIEGE-BATIMENT-CONSTRUCTION-RENOVATION", "libelle": "Hébergement machine virtuelle", "commercial": "Guillaume Saclier", "lignes": [{"id": "4412", "categorie": "C1", "produit": "Hébergement machine virtuelle", "mrr": 299.0, "oneshot": 0.0, "date_signature": "2025-10-15", "etat": "retour_commercial", "date_livraison_prevue": "2025-11-15", "note": "Retour commercial · Demande incomplète · Engagement 60 mois · Achat 113.72 €"}]}, {"id": "DEVIS_25-10-10-01", "client": "RECAERO", "libelle": "PRESTATION TECHNIQUE", "commercial": "Guillaume Florentin", "lignes": [{"id": "4372", "categorie": "C4", "produit": "PRESTATION TECHNIQUE", "mrr": 0.0, "oneshot": 982.5, "date_signature": "2025-10-10", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-04-17", "technicien": "Justine Durrieu"}]}, {"id": "TCK-4231", "client": "ALSATIS-GROUPE", "libelle": "Firewall", "commercial": "Guillaume Saclier", "lignes": [{"id": "4231", "categorie": "C5", "produit": "Firewall", "mrr": 90.0, "oneshot": 0.0, "date_signature": "2025-09-23", "etat": "retour_commercial", "date_livraison_prevue": "2025-10-07", "note": "Retour commercial · Demande incomplète · Engagement 36 mois"}]}, {"id": "TCK-4230", "client": "ALSATIS-GROUPE", "libelle": "Infogérence", "commercial": "Guillaume Saclier", "lignes": [{"id": "4230", "categorie": "C2", "produit": "Infogérence", "mrr": 298.0, "oneshot": 0.0, "date_signature": "2025-09-23", "etat": "retour_commercial", "date_livraison_prevue": "2025-10-07", "note": "Retour commercial · Demande incomplète · Engagement 36 mois"}]}, {"id": "TCK-4229", "client": "ALSATIS-GROUPE", "libelle": "Hébergement et sauvegarde", "commercial": "Guillaume Saclier", "lignes": [{"id": "4229", "categorie": "C1", "produit": "Hébergement et sauvegarde", "mrr": 568.0, "oneshot": 2490.0, "date_signature": "2025-09-23", "etat": "retour_commercial", "date_livraison_prevue": "2025-10-07", "note": "Retour commercial · Demande incomplète · Engagement 36 mois"}]}, {"id": "DEVIS_00-00-00-000", "client": "GELTI-CARS-FAURE - R-PAP-037518", "libelle": "Téléphonie pour l'ensemble des sites (+1 autres)", "commercial": "Guillaume Saclier", "lignes": [{"id": "4209", "categorie": "C3", "produit": "Téléphonie pour l'ensemble des sites", "mrr": 569.9, "oneshot": 0.0, "date_signature": "2025-09-19", "etat": "livree", "date_livraison_prevue": "2025-10-19", "date_livraison_reelle": "2025-09-26", "technicien": "Back-Office", "note": "Engagement 36 mois · Achat 246 €"}, {"id": "3050", "categorie": "C5", "produit": "Réengagement service Firewall avec mise en place solution SDWAN", "mrr": 185.0, "oneshot": 0.0, "date_signature": "2025-07-04", "etat": "livree", "mrr_precedent": 175.0, "type_vente": "upgrade", "date_livraison_prevue": "2025-07-31", "date_livraison_reelle": "2026-06-17", "technicien": "Back-Office", "note": "Engagement 36 mois · Achat 450 €"}]}, {"id": "TCK-4101", "client": "ALSATIS-GROUPE", "libelle": "mise en place téléphonie Bicom pour le 30 septembre", "commercial": "Boris Le Sausse", "lignes": [{"id": "4101", "categorie": "C3", "produit": "mise en place téléphonie Bicom pour le 30 septembre", "mrr": 54.0, "oneshot": 292.0, "date_signature": "2025-09-12", "etat": "retour_commercial", "date_livraison_prevue": "2025-09-30", "note": "Retour commercial · Demande incomplète · Engagement 36 mois"}]}, {"id": "TCK-4090", "client": "IMPEX - R-PAP-027215", "libelle": "BELMONT-Mise en place d'une solution de sécurisation haute disponibilité", "commercial": "Nino Galdava", "lignes": [{"id": "4090", "categorie": "C4", "produit": "BELMONT-Mise en place d'une solution de sécurisation haute disponibilité", "mrr": 25.0, "oneshot": 250.0, "date_signature": "2025-09-11", "etat": "attente_client", "date_livraison_prevue": "2025-10-11", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-01-30", "technicien": "Maxime Betemps", "note": "Engagement 24 mois"}]}, {"id": "DEVIS_26-07-09-489", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "Prise d'eau Erce - FttH 1G Internet & MultiS", "commercial": "Guillaume Florentin", "lignes": [{"id": "3757", "categorie": "C4", "produit": "Prise d'eau Erce - FttH 1G Internet & MultiS", "mrr": 52.2, "oneshot": 0.0, "date_signature": "2025-08-13", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-03-03-202", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "Centre Hydroélectrique Arrout - FttH 1G Internet & MultiS", "commercial": "", "lignes": [{"id": "3750", "categorie": "C4", "produit": "Centre Hydroélectrique Arrout - FttH 1G Internet & MultiS", "mrr": 52.2, "oneshot": 0.0, "date_signature": "2025-08-13", "etat": "en_cours", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "TCK-3743", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "Prise d'eau Audressein - FttH 1G Internet & MultiS", "commercial": "", "lignes": [{"id": "3743", "categorie": "C4", "produit": "Prise d'eau Audressein - FttH 1G Internet & MultiS", "mrr": 52.2, "oneshot": 0.0, "date_signature": "2025-08-13", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_26-03-03-201", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "Centre Hydroélectrique Erce - FttH 1G Internet & MultiS", "commercial": "Guillaume Florentin", "lignes": [{"id": "3736", "categorie": "C4", "produit": "Centre Hydroélectrique Erce - FttH 1G Internet & MultiS", "mrr": 52.2, "oneshot": 0.0, "date_signature": "2025-08-13", "etat": "en_cours", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_01-01-01-01", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DCSEP - Légumerie - FttH 1G (+1 autres)", "commercial": "", "lignes": [{"id": "3695", "categorie": "C4", "produit": "DCSEP - Légumerie - FttH 1G", "mrr": 49.5, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "en_cours", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-07-23", "technicien": "Théo Marin"}, {"id": "1120", "categorie": "C3", "produit": "Maison des familles - Centrex", "mrr": 20.6, "oneshot": 313.6, "date_signature": "2025-01-23", "etat": "attente_client", "etape_courante": "Audit de l'existant", "date_debut_etape": "2026-07-17", "technicien": "Maxime Betemps", "note": "À qualifier : attente client ou fournisseur ? · Engagement 48 mois"}]}, {"id": "DEVIS_00-00-00-00", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DSD - CL SAVERDUN MAZERES - FO 10M + Secours (+1 autres)", "commercial": "", "lignes": [{"id": "3682", "categorie": "C4", "produit": "DSD - CL SAVERDUN MAZERES - FO 10M + Secours", "mrr": 221.0, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "en_cours", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}, {"id": "1566", "categorie": "C4", "produit": "SAINT-PAUL-DE-JARRAT(Siège) - FttO 1G - Nominal", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "attente_fournisseur", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-26", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_00-00-02-02", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DSD - ST GIRONS - FO 10M + Secours", "commercial": "", "lignes": [{"id": "3650", "categorie": "C4", "produit": "DSD - ST GIRONS - FO 10M + Secours", "mrr": 221.0, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "attente_client", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_00-01-01-01", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DRD - CI DE LABASTIDE - FttH 1G", "commercial": "", "lignes": [{"id": "3622", "categorie": "C4", "produit": "DRD - CI DE LABASTIDE - FttH 1G", "mrr": 49.5, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "en_cours", "etape_courante": "Éligibilité", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "DEVIS_26-02-02-01", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "DRD - CI DE SAINT LIZIER - FttH (+2 autres)", "commercial": "", "lignes": [{"id": "3546", "categorie": "C4", "produit": "DRD - CI DE SAINT LIZIER - FttH", "mrr": 40.5, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "en_cours", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-07-22", "technicien": "Théo Marin"}, {"id": "2417", "categorie": "C4", "produit": "FTTE - St Paul de Jarrat", "mrr": 387.0, "oneshot": 0.0, "date_signature": "2025-05-06", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-03-25", "technicien": "Ibério Doval", "note": "À qualifier : attente client ou fournisseur ?"}, {"id": "1560", "categorie": "C4", "produit": "STEP BENAGUES - 4G", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "attente_client", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-02-02", "technicien": "Justine Durrieu", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_26-02-16-98", "client": "CONSEIL-DEPARTEMENTAL-DE-L'ARIEGE", "libelle": "CLIC - Saint Girons - FttH 1G Internet & MultiS", "commercial": "", "lignes": [{"id": "3532", "categorie": "C4", "produit": "CLIC - Saint Girons - FttH 1G Internet & MultiS", "mrr": 52.2, "oneshot": 0.0, "date_signature": "2025-08-12", "etat": "en_cours", "date_livraison_prevue": "2026-01-08", "etape_courante": "Éligibilité", "date_debut_etape": "2026-07-17", "technicien": "Théo Marin"}]}, {"id": "TCK-3236", "client": "DISTRIBUTION-SERVICES-INDUSTRIELS - R-PAP-012936", "libelle": "MAROLLES EN BRIE - FTTH", "commercial": "Guillaume Saclier", "lignes": [{"id": "3236", "categorie": "C4", "produit": "MAROLLES EN BRIE - FTTH", "mrr": 79.0, "oneshot": 0.0, "date_signature": "2025-07-16", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 34 €"}]}, {"id": "TCK-2930", "client": "CSEAIRBUSDS", "libelle": "FIBRE 10G IELO", "commercial": "Guillaume Florentin", "lignes": [{"id": "2930", "categorie": "C4", "produit": "FIBRE 10G IELO", "mrr": 789.0, "oneshot": 1700.0, "date_signature": "2025-06-17", "etat": "en_cours", "etape_courante": "Livraison du lien", "date_debut_etape": "2025-08-07", "technicien": "Maxime Betemps", "note": "Engagement 48 mois · Achat 500 €"}]}, {"id": "DEVIS_26-02-17-01", "client": "AJH - R-PAP-040546", "libelle": "CYBER", "commercial": "Guillaume Saclier", "lignes": [{"id": "2494", "categorie": "C5", "produit": "CYBER", "mrr": 475.0, "oneshot": 800.0, "date_signature": "2025-05-07", "etat": "livree", "date_livraison_reelle": "2026-05-18", "date_facturation_oneshot": "2026-05-18", "technicien": "Maxime Betemps", "note": "Engagement 36 mois · Achat 240 €"}]}, {"id": "DEVIS_23-10-18-01", "client": "CMA-INDUSTRY", "libelle": "Segmentation Réseau", "commercial": "Guillaume Florentin", "lignes": [{"id": "2416", "categorie": "C4", "produit": "Segmentation Réseau", "mrr": 0.0, "oneshot": 2580.0, "date_signature": "2025-05-06", "etat": "en_cours", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-01-29", "technicien": "Justine Durrieu"}]}, {"id": "DEVIS_25-03-04-10", "client": "THEATRE-SORANO - R-PAP-038105", "libelle": "FTTO - THEATRE SORANO", "commercial": "Guillaume Saclier", "lignes": [{"id": "2171", "categorie": "C4", "produit": "FTTO - THEATRE SORANO", "mrr": 150.0, "oneshot": 360.0, "date_signature": "2025-04-14", "etat": "retour_commercial", "date_livraison_prevue": "2025-08-25", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-04-28", "note": "Retour commercial (Guillaume Saclier) · Engagement 36 mois · Achat 80 €"}]}, {"id": "DEVIS_06-04-30-01", "client": "RECAERO", "libelle": "Prestation réseau - Recaero Formation", "commercial": "Vincent De-Sulzer-Wart", "lignes": [{"id": "1633", "categorie": "C4", "produit": "Prestation réseau - Recaero Formation", "mrr": 0.0, "oneshot": 1497.0, "date_signature": "2025-02-24", "etat": "attente_client", "date_livraison_prevue": "2025-02-25", "etape_courante": "Livraison du lien", "date_debut_etape": "2026-04-30", "technicien": "Justine Durrieu", "note": "À qualifier : attente client ou fournisseur ?"}]}, {"id": "DEVIS_02-02-02-02", "client": "SMDEA09", "libelle": "UTE DU FOSSAT - FttO - 10M (+2 autres)", "commercial": "", "lignes": [{"id": "1608", "categorie": "C4", "produit": "UTE DU FOSSAT - FttO - 10M", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "attente_fournisseur", "date_livraison_prevue": "2026-07-31", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-26", "technicien": "Justine Durrieu"}, {"id": "1590", "categorie": "C4", "produit": "UTE DE LA TOUR-DU-CRIEU - FttO - 10M", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "en_cours", "etape_courante": "Production opérateur & RDV raccordement", "date_debut_etape": "2026-07-20", "technicien": "Justine Durrieu"}, {"id": "1584", "categorie": "C4", "produit": "UTE DE VILLENEUVE-D'OLMES - FttO - 10M", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "attente_fournisseur", "etape_courante": "Validation de l'adresse", "date_debut_etape": "2026-06-26", "technicien": "Justine Durrieu"}]}, {"id": "TCK-1572", "client": "SMDEA09", "libelle": "SAINT-PAUL-DE-JARRAT(Siège) - FttO 1G - Secours", "commercial": "", "lignes": [{"id": "1572", "categorie": "C4", "produit": "SAINT-PAUL-DE-JARRAT(Siège) - FttO 1G - Secours", "mrr": 0.0, "oneshot": 0.0, "date_signature": "2025-02-21", "etat": "en_cours", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-06-26", "technicien": "Justine Durrieu"}]}, {"id": "TCK-1113", "client": "MAIRIE-DE-L'UNION", "libelle": "Maison des familles - FTTH", "commercial": "Charles Banquet", "lignes": [{"id": "1113", "categorie": "C4", "produit": "Maison des familles - FTTH", "mrr": 50.0, "oneshot": 145.0, "date_signature": "2025-01-23", "etat": "en_cours", "date_livraison_prevue": "2025-06-10", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2025-08-08", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "TCK-1074", "client": "MAIRIE-DE-L'UNION", "libelle": "Pôle Petite Enfance - FTTH", "commercial": "Charles Banquet", "lignes": [{"id": "1074", "categorie": "C4", "produit": "Pôle Petite Enfance - FTTH", "mrr": 50.0, "oneshot": 145.0, "date_signature": "2025-01-23", "etat": "en_cours", "date_livraison_prevue": "2025-06-12", "etape_courante": "Accusé de réception opérateur", "date_debut_etape": "2026-04-28", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "DEVIS_26-07-17-99", "client": "MAIRIE-DE-L'UNION", "libelle": "Asso syndicale et pole associatif - Centrex", "commercial": "Charles Banquet", "lignes": [{"id": "1068", "categorie": "C3", "produit": "Asso syndicale et pole associatif - Centrex", "mrr": 20.6, "oneshot": 313.6, "date_signature": "2025-01-23", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "TCK-1048", "client": "MAIRIE-DE-L'UNION", "libelle": "HALTE REPIT - FTTH", "commercial": "Charles Banquet", "lignes": [{"id": "1048", "categorie": "C4", "produit": "HALTE REPIT - FTTH", "mrr": 50.0, "oneshot": 145.0, "date_signature": "2025-01-23", "etat": "attente_fournisseur", "date_livraison_prevue": "2025-06-09", "etape_courante": "Commande opérateur", "date_debut_etape": "2026-01-30", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "DEVIS_26-04-01-272", "client": "MAIRIE-DE-L'UNION", "libelle": "ELEM BO - Centrex", "commercial": "Guillaume Florentin", "lignes": [{"id": "1003", "categorie": "C3", "produit": "ELEM BO - Centrex", "mrr": 20.6, "oneshot": 313.6, "date_signature": "2025-01-23", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "DEVIS_26-06-18-441", "client": "MAIRIE-DE-L'UNION", "libelle": "Ferme Maraichère BIO - Centrex", "commercial": "Guillaume Florentin", "lignes": [{"id": "990", "categorie": "C3", "produit": "Ferme Maraichère BIO - Centrex", "mrr": 20.6, "oneshot": 313.6, "date_signature": "2025-01-23", "etat": "a_demarrer", "technicien": "Maxime Betemps", "note": "Engagement 48 mois"}]}, {"id": "TCK-957", "client": "MAIRIE-DE-L'UNION", "libelle": "Mairie de l'union - FTTO 200Mbps", "commercial": "Charles Banquet", "lignes": [{"id": "957", "categorie": "C4", "produit": "Mairie de l'union - FTTO 200Mbps", "mrr": 314.0, "oneshot": 2000.0, "date_signature": "2025-01-23", "etat": "livree", "date_livraison_reelle": "2025-06-23", "date_facturation_oneshot": "2025-06-23", "technicien": "Back-Office", "note": "À qualifier : attente client ou fournisseur ? · Engagement 48 mois"}]}]};
+/* ---------- fonctions pures ---------- */
+function pDate(s){return new Date(s+"T12:00:00");}
+function iso(d){return d.toISOString().slice(0,10);}
+function calDiff(a,b){return Math.round((b-a)/86400000);}
+function isBD(d){var g=d.getDay();return g>=1&&g<=5;}
+function addBD(d0,n){var d=new Date(d0);while(!isBD(d))d.setDate(d.getDate()+1);var k=0;while(k<n){d.setDate(d.getDate()+1);if(isBD(d))k++;}return d;}
+function bdBetween(a,b){if(b<a)return -bdBetween(b,a);var d=new Date(a),n=0;while(d<b){d.setDate(d.getDate()+1);if(isBD(d))n++;}return n;}
+function maxD(a,b){return a>b?a:b;}
+function schedule(l,cfg){
+  var mod=cfg.modeles[l.categorie];if(!mod)return null;
+  var steps=mod.etapes,today=cfg._ref;
+  var sig=pDate(l.date_signature);
+  var lanc=l.date_lancement?pDate(l.date_lancement):addBD(sig,cfg.delai_prise_en_charge_jours_ouvres||2);
+  if(l.date_debut_etape){var db0=pDate(l.date_debut_etape);if(db0<lanc)lanc=db0;}
+  var t=new Date(lanc);steps.forEach(function(st){t=addBD(t,st.duree_jours_ouvres);});
+  var prevue=l.date_livraison_prevue?pDate(l.date_livraison_prevue):new Date(t);
+  var totalStd=steps.reduce(function(s,x){return s+x.duree_jours_ouvres;},0);
+  var out=[],proj,reelle=null,etat=l.etat||"en_cours";
+  if(etat==="livree"&&l.date_livraison_reelle){
+    reelle=pDate(l.date_livraison_reelle);
+    var span=Math.max(1,calDiff(lanc,reelle)),cum=0;
+    steps.forEach(function(st){
+      var b=new Date(lanc);b.setDate(b.getDate()+Math.round(span*cum/totalStd));
+      cum+=st.duree_jours_ouvres;
+      var e=new Date(lanc);e.setDate(e.getDate()+Math.round(span*cum/totalStd));
+      out.push({nom:st.nom,phase:st.phase,duree:st.duree_jours_ouvres,debut:b,fin:e,statut:"fait"});});
+    proj=reelle;
+  }else if(!l.etape_courante||etat==="a_demarrer"){
+    var t2=maxD(lanc,today);
+    steps.forEach(function(st){var b=new Date(t2);t2=addBD(t2,st.duree_jours_ouvres);
+      out.push({nom:st.nom,phase:st.phase,duree:st.duree_jours_ouvres,debut:b,fin:new Date(t2),statut:"a_venir"});});
+    proj=new Date(t2);
+  }else{
+    var idx=steps.findIndex(function(st){return st.nom===l.etape_courante;});if(idx<0)idx=0;
+    var deb=l.date_debut_etape?pDate(l.date_debut_etape):new Date(today);
+    var pastTotal=0,i;for(i=0;i<idx;i++)pastTotal+=steps[i].duree_jours_ouvres;
+    var span2=Math.max(0,calDiff(lanc,deb)),cum2=0;
+    for(i=0;i<idx;i++){
+      var b=new Date(lanc);b.setDate(b.getDate()+(pastTotal?Math.round(span2*cum2/pastTotal):0));
+      cum2+=steps[i].duree_jours_ouvres;
+      var e=new Date(lanc);e.setDate(e.getDate()+(pastTotal?Math.round(span2*cum2/pastTotal):0));
+      out.push({nom:steps[i].nom,phase:steps[i].phase,duree:steps[i].duree_jours_ouvres,debut:b,fin:e,statut:"fait"});}
+    var curEnd=maxD(addBD(deb,steps[idx].duree_jours_ouvres),today);
+    var curStat=(etat==="attente_client"||etat==="attente_fournisseur"||etat==="retour_commercial")?etat:"en_cours";
+    out.push({nom:steps[idx].nom,phase:steps[idx].phase,duree:steps[idx].duree_jours_ouvres,debut:deb,fin:curEnd,statut:curStat});
+    var t3=new Date(curEnd);
+    for(i=idx+1;i<steps.length;i++){var b2=new Date(t3);t3=addBD(t3,steps[i].duree_jours_ouvres);
+      out.push({nom:steps[i].nom,phase:steps[i].phase,duree:steps[i].duree_jours_ouvres,debut:b2,fin:new Date(t3),statut:"a_venir"});}
+    proj=new Date(t3);
+  }
+  var retard=bdBetween(prevue,proj);
+  var demRet=(etat==="a_demarrer"&&lanc<today)?calDiff(lanc,today):0;
+  var classe=etat==="livree"?"livree":etat==="retour_commercial"?"retour_commercial":(etat==="attente_client"||etat==="attente_fournisseur")?etat:
+    etat==="a_demarrer"?(demRet>0?"a_demarrer":"planifie"):(retard>0?"en_retard":"en_cours");
+  var attJ=0;
+  if(classe==="attente_client"||classe==="attente_fournisseur"||classe==="retour_commercial"){
+    attJ=l.date_debut_etape?calDiff(pDate(l.date_debut_etape),today):Math.max(0,calDiff(lanc,today));}
+  return {steps:out,lancement:lanc,signature:sig,prevue:prevue,projection:proj,reelle:reelle,retard:retard,classe:classe,demRetard:demRet,attenteJours:attJ};
+}
+function segments(sc){var s=[];sc.steps.forEach(function(x){var l=s[s.length-1];
+  if(l&&l.phase===x.phase&&l.statut===x.statut){l.fin=x.fin;}else s.push({phase:x.phase,debut:x.debut,fin:x.fin,statut:x.statut});});return s;}
+function mondayOf(d){var x=new Date(d);while(x.getDay()!==1)x.setDate(x.getDate()-1);return x;}
+function moisKey(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2);}
+var MOIS_L=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function getTechs(l){return l.techniciens&&l.techniciens.length?l.techniciens:(l.technicien?[l.technicien]:[]);}
+function techQualifie(nom,cat,cfg){var t=(cfg.techniciens||[]).find(function(z){return z.nom===nom;});
+  return !t||!t.categories||!t.categories.length||t.categories.indexOf(cat)>=0;}
+function avanceEtape(l,cfg){var m=cfg.modeles[l.categorie];if(!m||l.etat==="livree")return null;
+  var ref=cfg._ref||new Date();var idx=-1;
+  if(l.etape_courante)m.etapes.forEach(function(e2,i2){if(e2.nom===l.etape_courante)idx=i2;});
+  if(l.etat==="a_demarrer"||idx<0){l.etat="en_cours";l.etape_courante=m.etapes[0].nom;l.date_debut_etape=iso(ref);return "Démarrée : "+m.etapes[0].nom;}
+  var nx=idx+1;
+  if(nx>=m.etapes.length){l.etat="livree";l.date_livraison_reelle=iso(ref);delete l.etape_courante;delete l.date_debut_etape;delete l.prochaine_relance;return "LIVREE";}
+  l.etat="en_cours";l.etape_courante=m.etapes[nx].nom;l.date_debut_etape=iso(ref);return "Étape suivante : "+m.etapes[nx].nom;}
+function chargeLigne(l,cfg){if(typeof l.charge_jours==="number")return l.charge_jours;
+  var m=cfg.modeles[l.categorie];return m?m.etapes.reduce(function(s,e){return s+(e.charge_jours||0);},0):0;}
+function computeFacturation(items,ref){
+  var map={};function ens(k){if(!map[k])map[k]={oneshot:0,mrrNew:0,mrrPrec:0,lignes:[]};return map[k];}
+  items.forEach(function(it){var liv=it.sc.reelle||it.sc.projection,l=it.l;
+    if(l.oneshot){var m=ens(moisKey(liv));m.oneshot+=l.oneshot;
+      m.lignes.push({client:it.a.client,produit:l.produit,type:"os",montant:l.oneshot,date:liv,reel:!!it.sc.reelle,fact:l.date_facturation_oneshot||null});}
+    if(l.mrr||l.mrr_precedent){var s=new Date(liv.getFullYear(),liv.getMonth()+1,1,12);var m2=ens(moisKey(s));
+      m2.mrrNew+=(l.mrr||0);m2.mrrPrec+=(l.mrr_precedent||0);
+      m2.lignes.push({client:it.a.client,produit:l.produit,type:"mrr",montant:l.mrr||0,prec:l.mrr_precedent||0,tv:l.type_vente||"",date:s,reel:!!it.sc.reelle});}});
+  var ks=Object.keys(map).sort();if(!ks.length)return [];
+  var out=[],cum=0,cur=ks[0],last=ks[ks.length-1],refK=moisKey(ref);
+  while(cur<=last){var mm=map[cur]||{oneshot:0,mrrNew:0,mrrPrec:0,lignes:[]};var net=mm.mrrNew-mm.mrrPrec;cum+=net;
+    var y=+cur.slice(0,4),mo=+cur.slice(5,7)-1;
+    out.push({key:cur,label:MOIS_L[mo]+" "+y,oneshot:mm.oneshot,mrrNew:mm.mrrNew,mrrPrec:mm.mrrPrec,mrrNet:net,mrrCum:cum,
+      total:mm.oneshot+cum,lignes:mm.lignes,futur:cur>refK,courant:cur===refK});
+    mo++;if(mo>11){mo=0;y++;}cur=y+"-"+("0"+(mo+1)).slice(-2);}
+  return out;}
+function computeCharge(items,cfg,ref,nbSem){
+  var start=mondayOf(ref);start.setDate(start.getDate()-14);
+  var weeks=[];for(var i=0;i<nbSem;i++){var w=new Date(start);w.setDate(w.getDate()+7*i);weeks.push(w);}
+  var end=new Date(start);end.setDate(end.getDate()+7*nbSem);
+  var rows={};(cfg.techniciens||[]).forEach(function(t){rows[t.nom]={cap:t.jours_prod_par_semaine||0,cells:weeks.map(function(){return {load:0,items:[]};})};});
+  items.forEach(function(it){var l=it.l,sc=it.sc;if(!sc||sc.classe==="livree")return;
+    var techs=getTechs(l);if(!techs.length)techs=["Non affecté"];
+    techs.forEach(function(tn){if(!rows[tn])rows[tn]={cap:0,cells:weeks.map(function(){return {load:0,items:[]};})};});
+    var tot=chargeLigne(l,cfg),m=cfg.modeles[l.categorie];
+    var stdTot=m.etapes.reduce(function(s,e){return s+(e.charge_jours||0);},0)||1;
+    sc.steps.forEach(function(st,si){if(st.statut==="fait")return;
+      var chStd=(m.etapes[si]&&m.etapes[si].charge_jours)||0;if(!chStd)return;
+      var ch=tot*chStd/stdTot/techs.length;
+      var span=bdBetween(st.debut,st.fin);if(span<1)span=1;
+      var per=ch/span,d0=new Date(st.debut);
+      for(var k=0;k<span;k++){while(!isBD(d0))d0.setDate(d0.getDate()+1);
+        if(d0>=start&&d0<end){var wi=Math.floor(calDiff(start,d0)/7);
+          techs.forEach(function(tn){var c=rows[tn].cells[wi];c.load+=per;
+            if(c.items.indexOf(it.a.client+" · "+l.produit)<0)c.items.push(it.a.client+" · "+l.produit);});}
+        d0.setDate(d0.getDate()+1);}});});
+  return {weeks:weeks,rows:rows};}
+function isoWeek(d){var t=new Date(d);t.setDate(t.getDate()+3-((t.getDay()+6)%7));var w1=new Date(t.getFullYear(),0,4);
+  return 1+Math.round(((t-w1)/86400000-3+((w1.getDay()+6)%7))/7);}
+function deAccent(x){var A="àâäáéèêëíîïóôöúùûüçñ",B="aaaaeeeeiiioooouuucn",o="",i;x=String(x).toLowerCase();
+  for(i=0;i<x.length;i++){var p=A.indexOf(x[i]);o+=p>=0?B[p]:x[i];}return o;}
+function normKey(x){return deAccent(x).trim().split(" ").join("_");}
+function parseDateAny(v){v=String(v||"").trim();if(!v)return null;
+  var a=v.split("/");if(a.length===3){var d2=+a[0],m2=+a[1],y2=+a[2];if(y2<100)y2+=2000;
+    if(d2>=1&&d2<=31&&m2>=1&&m2<=12&&y2>1999)return y2+"-"+("0"+m2).slice(-2)+"-"+("0"+d2).slice(-2);return null;}
+  var b=v.split("-");if(b.length===3&&b[0].length===4)return b[0]+"-"+("0"+ +b[1]).slice(-2)+"-"+("0"+ +b[2]).slice(-2);
+  return null;}
+function parseNumFR(v){v=String(v==null?"":v).split(String.fromCharCode(160)).join("").split(" ").join("").split("€").join("");
+  if(v==="")return null;v=v.split(",").join(".");var n=parseFloat(v);return isNaN(n)?null:n;}
+function parseCSV(txt){
+  txt=String(txt);if(txt.charCodeAt(0)===65279)txt=txt.slice(1);
+  var NL=String.fromCharCode(10),CR=String.fromCharCode(13);
+  var first=txt.split(NL)[0]||"";var sep=";";var best=first.split(";").length;
+  [",",String.fromCharCode(9)].forEach(function(s2){var c2=first.split(s2).length;if(c2>best){best=c2;sep=s2;}});
+  var rows=[],row=[],cur="",inQ=false,i,c;
+  for(i=0;i<txt.length;i++){c=txt[i];
+    if(inQ){if(c==='"'){if(txt[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}
+    else if(c==='"')inQ=true;
+    else if(c===sep){row.push(cur);cur="";}
+    else if(c===NL||c===CR){if(c===CR&&txt[i+1]===NL)i++;row.push(cur);cur="";
+      if(row.join("").trim()!=="")rows.push(row);row=[];}
+    else cur+=c;}
+  row.push(cur);if(row.join("").trim()!=="")rows.push(row);
+  return rows;}
+var CSV_ALIAS={id:["id","id_ligne","#"],affaire:["affaire","numero_affaire","n_affaire","num_affaire","numero_de_devis"],client:["client","projet"],libelle:["libelle","intitule","objet"],commercial:["commercial","commercial(e)"],categorie:["categorie","cat","business_unit"],produit:["produit","service","produit_service","sujet"],mrr:["mrr","abonnement","recurrent","montant_recurrent_mensuel"],oneshot:["oneshot","one_shot","montant","fas","materiel"],date_signature:["date_signature","signature","signe_le","date_de_signature","cree"],etat:["etat","statut"],etape_courante:["etape_courante","etape","etape_en_cours"],date_debut_etape:["date_debut_etape","debut_etape","date_debut"],date_livraison_prevue:["date_livraison_prevue","livraison_prevue","prevue","date_prevue","echeance"],date_livraison_reelle:["date_livraison_reelle","livraison_reelle","livree_le","date_livraison"],technicien:["technicien","techniciens","tech","assigne_a"],charge_jours:["charge_jours","charge"],prochaine_relance:["prochaine_relance","relance"],note:["note","commentaire"],date_facturation_oneshot:["date_facturation_oneshot","facture_le","facturation","facture"],type_vente:["type_vente","type"],mrr_precedent:["mrr_precedent","ancien_montant","ancien_mrr","mrr_remplace"]};
+function mapHeaders(hrow){var idx={};hrow.forEach(function(h2,i2){var k=normKey(h2);
+  Object.keys(CSV_ALIAS).forEach(function(f2){if(CSV_ALIAS[f2].indexOf(k)>=0&&idx[f2]===undefined)idx[f2]=i2;});});return idx;}
+var ETAT_MAP={a_demarrer:"a_demarrer",en_cours:"en_cours",attente_client:"attente_client",attente_fournisseur:"attente_fournisseur",livree:"livree",livre:"livree",planifiee:"a_demarrer",planifie:"a_demarrer",nouveau:"a_demarrer",demande_incomplete:"retour_commercial",retour_commercial:"retour_commercial",retour:"retour_commercial",en_attente:"attente_client",en_attente_client:"attente_client",en_attente_travaux_client:"attente_client",en_attente_fournisseur:"attente_fournisseur",a_facturer:"livree",ferme:"livree",fermee:"livree"};
+var BU_MAP={CLOUD:"C1",COMPUTER:"C2",COMMUNICATION:"C3",CONNECTIVITE:"C4",CYBER:"C5",CYBERSECURITE:"C5"};
+function buildImportPlan(rows,data,cfg){
+  var plan={nouvellesLignes:[],nouvellesAffaires:[],maj:[],erreurs:[],avert:[],doublons:0};
+  if(rows.length<2){plan.erreurs.push({n:1,motif:"fichier vide ou sans données"});return plan;}
+  var idx=mapHeaders(rows[0]);
+  if(idx.client===undefined&&idx.id===undefined){plan.erreurs.push({n:1,motif:"en-tête sans colonne client ni id"});return plan;}
+  var byId={},byKey={};
+  data.affaires.forEach(function(a2){a2.lignes.forEach(function(l2){byId[l2.id]={a:a2,l:l2};
+    byKey[normKey(a2.client)+"|"+l2.categorie+"|"+normKey(l2.produit)]={a:a2,l:l2};});});
+  var seen={};
+  function gv2(r,f2){return idx[f2]===undefined?"":String(r[idx[f2]]||"").trim();}
+  for(var n=1;n<rows.length;n++){var r=rows[n];
+    var id=gv2(r,"id"),client=gv2(r,"client"),prod=gv2(r,"produit");
+    var catRaw=gv2(r,"categorie"),cat=catRaw.toUpperCase();
+    var cn=deAccent(catRaw).toUpperCase().trim();if(BU_MAP[cn])cat=BU_MAP[cn];
+    var cible=id&&byId[id]?byId[id]:null;
+    if(!cible){
+      if(!client){plan.erreurs.push({n:n+1,motif:"client manquant"});continue;}
+      if(cat&&!cfg.modeles[cat]){plan.erreurs.push({n:n+1,motif:"catégorie inconnue « "+cat+" »"});continue;}
+      if(prod&&cat)cible=byKey[normKey(client)+"|"+cat+"|"+normKey(prod)]||null;
+      if(!cible&&(!cat||!prod)){plan.erreurs.push({n:n+1,motif:"catégorie ou produit manquant"});continue;}}
+    var ch={};
+    if(cat&&cfg.modeles[cat])ch.categorie=cat;
+    if(prod)ch.produit=prod;
+    var mrr=parseNumFR(gv2(r,"mrr"));if(mrr!==null)ch.mrr=mrr;
+    var os=parseNumFR(gv2(r,"oneshot"));if(os!==null)ch.oneshot=os;
+    var cj=parseNumFR(gv2(r,"charge_jours"));if(cj!==null)ch.charge_jours=cj;
+    var ds=gv2(r,"date_signature");if(ds){var d3=parseDateAny(ds);if(d3)ch.date_signature=d3;else plan.avert.push({n:n+1,motif:"date de signature illisible « "+ds+" »"});}
+    var dp=gv2(r,"date_livraison_prevue");if(dp){var d4=parseDateAny(dp);if(d4)ch.date_livraison_prevue=d4;else plan.avert.push({n:n+1,motif:"livraison prévue illisible"});}
+    var dr=gv2(r,"date_livraison_reelle");if(dr){var d5=parseDateAny(dr);if(d5)ch.date_livraison_reelle=d5;}
+    var et=gv2(r,"etat");if(et){var ek=ETAT_MAP[normKey(et)];if(ek)ch.etat=ek;else plan.avert.push({n:n+1,motif:"état inconnu « "+et+" » ignoré"});}
+    if(ch.date_livraison_reelle&&!ch.etat)ch.etat="livree";
+    var ec=gv2(r,"etape_courante");
+    if(ec){var mcat=ch.categorie||(cible?cible.l.categorie:"");var mm2=cfg.modeles[mcat];var found=null;
+      if(mm2)mm2.etapes.forEach(function(e4){if(normKey(e4.nom)===normKey(ec))found=e4.nom;});
+      if(found){ch.etape_courante=found;if(!ch.etat)ch.etat="en_cours";}
+      else plan.avert.push({n:n+1,motif:"étape inconnue « "+ec+" » ignorée"});}
+    var db=gv2(r,"date_debut_etape");if(db){var d6=parseDateAny(db);if(d6)ch.date_debut_etape=d6;}
+    var te=gv2(r,"technicien");
+    if(te){var ts2=[];te.split("|").join(",").split("/").join(",").split("+").join(",").split(",").forEach(function(x4){x4=x4.trim();if(x4)ts2.push(x4);});
+      if(ts2.length)ch._techs=ts2;}
+    var rl=gv2(r,"prochaine_relance");if(rl){var d7=parseDateAny(rl);if(d7)ch.prochaine_relance=d7;}
+    var nt=gv2(r,"note");if(nt)ch.note=nt;
+    var fo=gv2(r,"date_facturation_oneshot");if(fo){var d8=parseDateAny(fo);if(d8)ch.date_facturation_oneshot=d8;}
+    var mp=parseNumFR(gv2(r,"mrr_precedent"));if(mp!==null&&mp>0)ch.mrr_precedent=mp;
+    var tvv=normKey(gv2(r,"type_vente"));
+    if(tvv==="upgrade"||tvv==="downgrade"||tvv==="renouvellement")ch.type_vente=tvv;
+    else if((ch.mrr_precedent||0)>0)ch.type_vente=(ch.mrr||0)>=ch.mrr_precedent?"upgrade":"downgrade";
+    var key=cible?"id:"+cible.l.id:normKey(client)+"|"+cat+"|"+normKey(prod);
+    if(seen[key]){plan.doublons++;var prev=seen[key];Object.keys(ch).forEach(function(k4){prev.ch[k4]=ch[k4];});continue;}
+    var item={n:n+1,ch:ch,cible:cible,client:client,
+      affKey:gv2(r,"affaire")||normKey(client)+"|"+normKey(gv2(r,"libelle")),
+      libelle:gv2(r,"libelle"),commercial:gv2(r,"commercial")};
+    seen[key]=item;
+    if(cible)plan.maj.push(item);else plan.nouvellesLignes.push(item);}
+  var groups={};plan.nouvellesLignes.forEach(function(it){groups[it.affKey]=groups[it.affKey]||[];groups[it.affKey].push(it);});
+  plan.nouvellesAffaires=Object.keys(groups).map(function(k5){return groups[k5];});
+  return plan;}
+function applyImportPlan(plan,data,cfg,mkId,mkLid){
+  var ref2=cfg._ref||new Date();
+  function finLigne(l4){
+    if(l4.etat==="livree"){if(!l4.date_livraison_reelle)l4.date_livraison_reelle=l4.date_signature||iso(ref2);delete l4.etape_courante;delete l4.date_debut_etape;}
+    else{delete l4.date_livraison_reelle;
+      if(l4.etat==="a_demarrer"){delete l4.etape_courante;delete l4.date_debut_etape;}
+      else if(l4.etape_courante&&!l4.date_debut_etape)l4.date_debut_etape=iso(ref2);}}
+  plan.maj.forEach(function(it){var l2=it.cible.l;Object.keys(it.ch).forEach(function(k6){
+    if(k6==="_techs"){var ts3=it.ch._techs;delete l2.technicien;delete l2.techniciens;
+      if(ts3.length===1)l2.technicien=ts3[0];else if(ts3.length)l2.techniciens=ts3;}
+    else l2[k6]=it.ch[k6];});finLigne(l2);});
+  plan.nouvellesAffaires.forEach(function(grp){var f3=grp[0];
+    var a3={id:mkId(),client:f3.client,libelle:f3.libelle||"Import CSV",commercial:f3.commercial||"",lignes:[]};
+    grp.forEach(function(it){var l3={id:mkLid(),categorie:it.ch.categorie,produit:it.ch.produit||"Ligne importée",
+      mrr:it.ch.mrr||0,oneshot:it.ch.oneshot||0,date_signature:it.ch.date_signature||iso(ref2),etat:it.ch.etat||"a_demarrer"};
+      ["date_livraison_prevue","date_livraison_reelle","etape_courante","date_debut_etape","charge_jours","prochaine_relance","note","date_facturation_oneshot","type_vente","mrr_precedent"].forEach(function(k7){if(it.ch[k7]!==undefined)l3[k7]=it.ch[k7];});
+      if(it.ch._techs){if(it.ch._techs.length===1)l3.technicien=it.ch._techs[0];else l3.techniciens=it.ch._techs;}
+      finLigne(l3);a3.lignes.push(l3);});
+    data.affaires.push(a3);});}
+/* ---------- application ---------- */
+(function(){if(typeof document==="undefined")return;
+var DATA=DONNEES,cfg,SCH,ZOOMS={jour:34,sem:16,mois:5.5,trim:2.3},zoom="mois";
+var collapsed={},allFolded=false,view="gantt",LAST=null,pendScroll=null,LASTF=null,fileHandle=null,fileLastMod=null,dirty=false;
+var CHIP_ETATS=[["en_cours","En cours","#1E3A8A"],["en_retard","En retard","#DC2626"],["attente_client","Attente client","#7C3AED"],["attente_fournisseur","Attente fournisseur","#B7791F"],["retour_commercial","Retour commercial","#BE185D"],["a_demarrer","À démarrer","#64748B"],["livree","Livrées","#16A34A"]];
+var F={q:"",cats:{},etats:{},tech:""};
+Object.keys(DONNEES.config.modeles).forEach(function(c){F.cats[c]=true;});
+CHIP_ETATS.forEach(function(e){F.etats[e[0]]=e[0]!=="livree";});
+var eur=new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+function fd(d){return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2);}
+function fdf(d){return fd(d)+"/"+d.getFullYear();}
+function chipOf(cl){return cl==="planifie"?"a_demarrer":cl;}
+function pillTxt(sc){
+  if(sc.classe==="livree")return "Livrée"+(sc.retard>0?" · +"+sc.retard+" j":sc.retard<0?" · "+(-sc.retard)+" j d\u2019avance":"");
+  if(sc.classe==="attente_client")return "Attente client · "+sc.attenteJours+" j"+(sc.retard>0?" · +"+sc.retard+" j":"");
+  if(sc.classe==="attente_fournisseur")return "Attente fournisseur · "+sc.attenteJours+" j"+(sc.retard>0?" · +"+sc.retard+" j":"");
+  if(sc.classe==="retour_commercial")return "Retour commercial · "+sc.attenteJours+" j"+(sc.retard>0?" · +"+sc.retard+" j":"");
+  if(sc.classe==="en_retard")return "En retard · +"+sc.retard+" j";
+  if(sc.classe==="a_demarrer")return "À démarrer · +"+sc.demRetard+" j";
+  if(sc.classe==="planifie")return "Planifiée";
+  return "En cours";
+}
+function rebuild(){
+  cfg=DATA.config;cfg._ref=pDate(cfg.date_reference||iso(new Date()));
+  SCH={};DATA.affaires.forEach(function(a){a.lignes.forEach(function(l){SCH[l.id]=schedule(l,cfg);});});
+  updSave();render();
+}
+function visibleLignes(a){return a.lignes.filter(function(l){var sc=SCH[l.id];if(!sc)return false;
+  if(!F.cats[l.categorie])return false;
+  if(!F.etats[chipOf(sc.classe)])return false;
+  if(F.tech&&getTechs(l).indexOf(F.tech)<0)return false;
+  if(F.q){var t=(a.client+" "+a.libelle+" "+l.produit+" "+(a.commercial||"")+" "+(l.note||"")+" "+getTechs(l).join(" ")).toLowerCase();
+    if(t.indexOf(F.q)<0)return false;}
+  return true;});}
+function render(){
+  var vis=[];DATA.affaires.forEach(function(a){var ls=visibleLignes(a);if(ls.length)vis.push({a:a,ls:ls});});
+  renderKpis(vis);renderAlertes();renderChips();
+  var isG=view==="gantt";
+  document.getElementById("gwrap").style.display=isG?"":"none";
+  document.getElementById("vcharge").style.display=view==="charge"?"block":"none";
+  document.getElementById("vfact").style.display=view==="fact"?"block":"none";
+  document.getElementById("vconf").style.display=view==="conf"?"block":"none";
+  document.getElementById("leg").style.display=isG?"":"none";
+  document.querySelector(".zgrp").style.display=isG?"":"none";
+  document.getElementById("btoday").style.display=isG?"":"none";
+  document.getElementById("bfold").style.display=isG?"":"none";
+  if(view==="charge"){renderCharge(vis);return;}
+  if(view==="fact"){renderFact(vis);return;}
+  if(view==="conf"){renderConf();return;}
+  renderLegend();
+  var ppd=ZOOMS[zoom],ref=cfg._ref;
+  var wk=ppd>=10,wkbg='background-image:linear-gradient(90deg,transparent 0 '+(5*ppd)+'px,#F3F5FA '+(5*ppd)+'px '+(7*ppd)+'px);background-size:'+(7*ppd)+'px 100%';
+  var g=document.getElementById("gwrap");
+  if(!vis.length){g.innerHTML='<div class="empty">Aucune ligne ne correspond aux filtres. Élargissez la recherche ou réactivez des états.</div>';return;}
+  var mn=null,mx=null;
+  vis.forEach(function(v){v.ls.forEach(function(l){var sc=SCH[l.id];
+    if(!mn||sc.signature<mn)mn=sc.signature;
+    var e=maxD(sc.projection,sc.prevue);if(!mx||e>mx)mx=e;});});
+  mn=new Date(mn);mn.setDate(mn.getDate()-5);while(mn.getDay()!==1)mn.setDate(mn.getDate()-1);
+  mx=new Date(mx);mx.setDate(mx.getDate()+8);
+  var W=Math.max(600,calDiff(mn,mx)*ppd);
+  function x(d){return calDiff(mn,d)*ppd;}
+  var h='<div class="ghead"><div class="grow-row"><div class="lab">Affaire / ligne</div><div class="track" style="width:'+W+'px">';
+  h+='<div class="mrow">';
+  var c=new Date(mn);c.setDate(1);if(c<mn)c.setMonth(c.getMonth()+1);var cm=new Date(mn);
+  var MOIS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  while(cm<mx){var nx=new Date(cm.getFullYear(),cm.getMonth()+1,1,12);if(nx>mx)nx=mx;
+    h+='<div class="mcell" data-ds="'+iso(cm)+'" title="Cliquer : déroulé en vue jour" style="cursor:pointer;left:'+x(cm)+'px;width:'+(x(nx)-x(cm))+'px">'+MOIS[cm.getMonth()]+" "+cm.getFullYear()+'</div>';
+    cm=new Date(cm.getFullYear(),cm.getMonth()+1,1,12);}
+  h+='</div><div class="wrow"'+(wk?' style="'+wkbg+'"':'')+'>';
+  if(ppd>=24){var dj=new Date(mn);while(dj<mx){h+='<div class="wtick" style="left:'+x(dj)+'px;border-left-color:'+(dj.getDay()===1?'#D8DEEA':'#EEF1F7')+'">'+dj.getDate()+'</div>';dj=new Date(dj);dj.setDate(dj.getDate()+1);}}
+  else if(ppd>=4){var wd=new Date(mn);while(wd<mx){h+='<div class="wtick" style="left:'+x(wd)+'px">'+(ppd>=10?fd(wd):"")+'</div>';wd=new Date(wd);wd.setDate(wd.getDate()+7);}}
+  h+='<div class="tl" style="left:'+x(ref)+'px"></div></div></div></div></div>';
+  vis.forEach(function(v){
+    var a=v.a,fold=allFolded?collapsed[a.id]!==false:collapsed[a.id]===true;
+    var cats={},mrr=0,os=0,worst="livree",rank={en_retard:6,retour_commercial:5,attente_fournisseur:5,attente_client:5,a_demarrer:4,en_cours:3,planifie:2,livree:1};
+    var lo=null,hi=null;
+    v.ls.forEach(function(l){var sc=SCH[l.id];cats[l.categorie]=1;mrr+=l.mrr||0;os+=l.oneshot||0;
+      if(rank[sc.classe]>rank[worst])worst=sc.classe;
+      if(!lo||sc.lancement<lo)lo=sc.lancement;var e=maxD(sc.projection,sc.prevue);if(!hi||e>hi)hi=e;});
+    h+='<div class="grow-row r-aff h-aff'+(fold?'':' open')+'" data-aff="'+a.id+'"><div class="lab"><div class="t1"><span class="chev">▶</span>'+esc(a.client)+'</div>'+
+       '<div class="t2"><span>'+esc(a.libelle)+'</span>'+Object.keys(cats).sort().map(function(c2){return '<span class="cb" style="background:'+cfg.modeles[c2].couleur+'">'+c2+'</span>';}).join("")+
+       '<span>'+(os?eur.format(os):"")+(os&&mrr?" + ":"")+(mrr?eur.format(mrr)+"/mois":"")+'</span><span class="pill pl-'+worst+'">'+pillLabel(worst)+'</span></div></div>'+
+       '<div class="track" style="width:'+W+'px'+(wk?';'+wkbg:'')+'"><div class="abar" style="left:'+x(lo)+'px;width:'+Math.max(4,(x(hi)-x(lo)))+'px"></div><div class="tl" style="left:'+x(ref)+'px"></div></div></div>';
+    if(!fold)v.ls.forEach(function(l){h+=ligneRow(a,l,x,W,ref,wk?wkbg:"");});
+  });
+  g.innerHTML=h;
+  LAST={mn:mn,ppd:ppd};
+  if(pendScroll){g.scrollLeft=Math.max(0,calDiff(mn,pDate(pendScroll))*ppd-40);pendScroll=null;}
+}
+function pillLabel(cl){var m={livree:"Livrée",en_cours:"En cours",en_retard:"En retard",attente_client:"Attente client",attente_fournisseur:"Attente frn",retour_commercial:"Retour comm.",a_demarrer:"À démarrer",planifie:"Planifiée"};return m[cl]||cl;}
+function shortName(n){var p=String(n).split(" ");return p[0]+(p[1]?" "+p[1][0]+".":"");}
+function ligneRow(a,l,x,W,ref,wkbg){
+  var sc=SCH[l.id],mod=cfg.modeles[l.categorie],segs=segments(sc);
+  var b0=x(sc.steps[0].debut),b1=x(sc.steps[sc.steps.length-1].fin);
+  var sh='<div class="bar" style="left:'+b0+'px;width:'+Math.max(3,b1-b0)+'px">';
+  segs.forEach(function(s,i){var col=phCol(s.phase);
+    var cl2="seg"+(i===segs.length-1?" last":"")+(s.statut==="a_venir"?" sv":"")+((s.statut==="attente_client"||s.statut==="attente_fournisseur"||s.statut==="retour_commercial")?" sw-att":"");
+    var extra=s.statut==="attente_client"?"box-shadow:inset 0 0 0 2px #7C3AED;":s.statut==="attente_fournisseur"?"box-shadow:inset 0 0 0 2px #B7791F;":s.statut==="retour_commercial"?"box-shadow:inset 0 0 0 2px #DB2777;":"";
+    sh+='<div class="'+cl2+'" style="left:'+(x(s.debut)-b0)+'px;width:'+Math.max(2,x(s.fin)-x(s.debut))+'px;background-color:'+col+';'+extra+'"></div>';});
+  sh+='</div>';
+  if(sc.retard>0&&!sc.reelle)sh+='<div class="late" style="left:'+x(sc.prevue)+'px;width:'+Math.max(3,x(sc.projection)-x(sc.prevue))+'px"></div>';
+  sh+='<div class="dia'+(sc.reelle?"":(sc.retard>0?" bad":""))+'" title="Livraison prévue '+fdf(sc.prevue)+'" style="left:'+(x(sc.prevue)-5)+'px"></div>';
+  if(sc.reelle)sh+='<div class="dia done" title="Livrée le '+fdf(sc.reelle)+'" style="left:'+(x(sc.reelle)-5)+'px"></div>';
+  sh+='<div class="tl" style="left:'+x(ref)+'px"></div>';
+  return '<div class="grow-row r-lig h-lig" data-ligne="'+l.id+'" data-affid="'+a.id+'" tabindex="0"><div class="lab"><div class="t1"><span class="cb" style="background:'+mod.couleur+'">'+l.categorie+'</span>'+esc(l.produit)+'</div>'+
+    '<div class="t2">'+(l.type_vente&&l.type_vente!=="new"?'<span class="tv tv-'+l.type_vente+'" title="Remplace '+eur.format(l.mrr_precedent||0)+'/mois — impact net '+(((l.mrr||0)-(l.mrr_precedent||0))>=0?'+':'−')+eur.format(Math.abs((l.mrr||0)-(l.mrr_precedent||0)))+'/mois">'+({upgrade:"UPG",downgrade:"DWG",renouvellement:"REN"}[l.type_vente]||"CHG")+'</span>':'')+'<span>'+(l.oneshot?eur.format(l.oneshot):"")+(l.oneshot&&l.mrr?" + ":"")+(l.mrr?eur.format(l.mrr)+"/mois":"")+'</span>'+
+    '<span class="pill pl-'+sc.classe+'">'+esc(pillTxt(sc))+'</span>'+
+    (getTechs(l).length?'<span>· '+esc(getTechs(l).map(shortName).join(", "))+(getTechs(l).some(function(tn){return !techQualifie(tn,l.categorie,cfg);})?' <span title="Technicien affecté hors compétence '+l.categorie+'" style="color:#DC2626;cursor:help">⚠</span>':'')+'</span>':'')+
+    (l.prochaine_relance?'<span title="Prochaine relance" style="color:'+(pDate(l.prochaine_relance)<=ref?'#DC2626':'#5B6478')+'">🔔 '+fd(pDate(l.prochaine_relance))+'</span>':'')+
+    (sc.classe==="retour_commercial"?'<span style="color:#BE185D;font-weight:700">↩ '+esc(shortName(a.commercial||"Commercial"))+'</span>':'')+
+    (sc.classe!=="livree"?'<button class="nextstep" data-affid="'+a.id+'" data-ligne="'+l.id+'" title="Valider l’étape en cours et passer à la suivante (livrer si dernière étape)">✓ étape</button>':'')+
+    '</div></div>'+
+    '<div class="track" style="width:'+W+'px'+(wkbg?';'+wkbg:'')+'">'+sh+'</div></div>';
+}
+function phCol(p){var f=cfg.phases.find(function(z){return z.id===p;});return f?f.couleur:"#999";}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function renderKpis(vis){
+  var os=0,mrr=0,mrrP=0,late=0,lateSum=0,ac=0,af=0,d30=0,ref=cfg._ref,lim=new Date(ref);lim.setDate(lim.getDate()+30);
+  vis.forEach(function(v){v.ls.forEach(function(l){var sc=SCH[l.id];
+    if(sc.classe!=="livree"){os+=l.oneshot||0;mrr+=l.mrr||0;mrrP+=l.mrr_precedent||0;
+      if(sc.retard>0){late++;lateSum+=sc.retard;}
+      if(sc.projection<=lim)d30++;}
+    if(sc.classe==="attente_client")ac++;if(sc.classe==="attente_fournisseur")af++;});});
+  var allIt=[];DATA.affaires.forEach(function(a2){a2.lignes.forEach(function(l2){if(SCH[l2.id])allIt.push({a:a2,l:l2,sc:SCH[l2.id]});});});
+  var MF=computeFacturation(allIt,ref);
+  var nk=moisKey(new Date(ref.getFullYear(),ref.getMonth()+1,15,12));
+  var nmf=null;MF.forEach(function(m2){if(m2.key===nk)nmf=m2;});
+  if(!nmf)nmf={total:0,oneshot:0,mrrCum:0,label:MOIS_L[(ref.getMonth()+1)%12]};
+  document.getElementById("kpis").innerHTML=
+    kpi('<span style="color:#1E3A8A">'+eur.format(nmf.total)+'</span>',"Facturation "+nmf.label,eur.format(nmf.oneshot)+" one-shot · "+eur.format(nmf.mrrCum)+"/mois de MRR net")+
+    kpi(eur.format(os),"One-shot à livrer","carnet non livré")+
+    kpi(eur.format(mrr-mrrP)+"<span style='font:600 12px Mulish'>/mois</span>","MRR net en attente de production",eur.format(mrr)+" bruts − "+eur.format(mrrP)+" remplacés")+
+    kpi(late,"Lignes en retard",late?("retard moyen "+Math.round(lateSum/late)+" j ouvrés"):"aucun retard",late?"bad":"ok")+
+    kpi(ac+" / "+af,"Attente client / fournisseur","blocages externes en cours",(ac+af)?"":"ok")+
+    kpi(d30,"Livraisons sous 30 jours","prévues d\u2019ici le "+fdf(lim));
+}
+function kpi(v,l,s,cls){return '<div class="kpi"><div class="v '+(cls||"")+'">'+v+'</div><div class="l">'+l+'</div><div class="s">'+s+'</div></div>';}
+function renderChips(){
+  var counts={},ecounts={};
+  DATA.affaires.forEach(function(a){a.lignes.forEach(function(l){var sc=SCH[l.id];if(!sc)return;
+    counts[l.categorie]=(counts[l.categorie]||0)+1;var k=chipOf(sc.classe);ecounts[k]=(ecounts[k]||0)+1;});});
+  document.getElementById("catchips").innerHTML=Object.keys(cfg.modeles).sort().map(function(c){
+    var on=F.cats[c];return '<button class="chip'+(on?" on":"")+'" data-cat="'+c+'" style="'+(on?"background:"+cfg.modeles[c].couleur:"")+'">'+c+' <span class="n">'+(counts[c]||0)+'</span></button>';}).join(" ");
+  document.getElementById("etatchips").innerHTML=CHIP_ETATS.map(function(e){
+    var on=F.etats[e[0]];return '<button class="chip'+(on?" on":"")+'" data-etat="'+e[0]+'" style="'+(on?"background:"+e[2]:"")+'">'+e[1]+' <span class="n">'+(ecounts[e[0]]||0)+'</span></button>';}).join(" ");
+  var sel=document.getElementById("ftech");
+  var opts='<option value="">Tous les techniciens</option>'+(cfg.techniciens||[]).map(function(t){
+    return '<option'+(F.tech===t.nom?' selected':'')+'>'+esc(t.nom)+'</option>';}).join("");
+  if(sel.innerHTML!==opts)sel.innerHTML=opts;
+}
+function renderLegend(){
+  var h=cfg.phases.map(function(p){return '<span><span class="sw" style="background:'+p.couleur+'"></span>'+p.nom+'</span>';}).join("");
+  h+='<span><span class="dia"></span>Livraison prévue (engagement)</span><span><span class="lt"></span>Dépassement</span>';
+  h+='<span><span class="sw sw-att" style="background:#6E93E3;box-shadow:inset 0 0 0 2px #7C3AED"></span>Attente (hachures)</span>';
+  h+='<span><span class="sw sw-att" style="background:#6E93E3;box-shadow:inset 0 0 0 2px #DB2777"></span>↩ Retour commercial</span>';
+  h+='<span style="opacity:.6"><span class="sw sv" style="background:#3E63C9"></span>À venir</span>';
+  document.getElementById("leg").innerHTML=h;
+  document.getElementById("subttl").textContent="Ventes → livraison client · C1–C5 · données au "+fdf(cfg._ref);
+}
+function gv(id){return document.getElementById(id).value.trim();}
+function blankLigne(){return {id:"L-"+Date.now().toString(36)+Math.floor(Math.random()*90+10),categorie:"C4",produit:"",mrr:0,oneshot:0,date_signature:iso(cfg._ref),etat:"a_demarrer"};}
+function nextAffId(){var mx=0;DATA.affaires.forEach(function(a){var m2=/^AFF-\d{4}-0?(\d+)$/.exec(a.id);if(m2)mx=Math.max(mx,+m2[1]);});return "AFF-"+cfg._ref.getFullYear()+"-0"+(mx+1);}
+function openPanel(affId,ligId,mode){
+  var isNewAff=mode==="new-aff",isNewLig=mode==="new-ligne",a,l;
+  if(isNewAff){a={id:nextAffId(),client:"",libelle:"",commercial:"",lignes:[]};l=blankLigne();}
+  else{a=DATA.affaires.find(function(z){return z.id===affId;});if(!a)return;
+    if(isNewLig){l=blankLigne();}
+    else{l=a.lignes.find(function(z){return z.id===ligId;});if(!l)return;}}
+  var sc=(isNewAff||isNewLig)?null:SCH[l.id];
+  var ETATS=[["a_demarrer","À démarrer"],["en_cours","En cours"],["attente_client","Attente client"],["attente_fournisseur","Attente fournisseur"],["retour_commercial","Retour commercial"],["livree","Livrée"]];
+  var titre=isNewAff?"Nouvelle affaire":(isNewLig?"Nouvelle ligne — "+esc(a.client):esc(l.produit||"Ligne"));
+  var h='<header><div style="display:flex;align-items:center;gap:8px">'+
+    (sc?'<span class="cb" style="background:'+cfg.modeles[l.categorie].couleur+'">'+l.categorie+'</span>':'')+
+    '<h2 style="flex:1">'+titre+'</h2><button id="close" aria-label="Fermer">✕</button></div>'+
+    (sc?'<div class="sub">Prévu '+fdf(sc.prevue)+' · '+(sc.reelle?"livré ":"projection ")+'<b style="color:'+(sc.retard>0?"#DC2626":"#16A34A")+'">'+fdf(sc.reelle||sc.projection)+(sc.retard>0?" (+"+sc.retard+" j)":sc.retard<0?" ("+(-sc.retard)+" j d’avance)":"")+'</b> · <span class="pill pl-'+sc.classe+'">'+esc(pillTxt(sc))+'</span></div>':'<div class="sub">Renseignez puis « Enregistrer la ligne »</div>')+
+    '</header><div class="body">';
+  h+='<div class="fg"><div class="full"><label>Client</label><input id="f_client" value="'+esc(a.client)+'"></div>'+
+     '<div><label>Intitulé de l’affaire</label><input id="f_lib" value="'+esc(a.libelle)+'"></div>'+
+     '<div><label>Commercial</label><select id="f_com"><option value=""></option>'+(function(){var cs=(cfg.commerciaux||[]).filter(function(c3){return c3.actif!==false;}).map(function(c3){return c3.nom;});if(a.commercial&&cs.indexOf(a.commercial)<0)cs.push(a.commercial+"§h");return cs.map(function(nm){var h2=nm.indexOf("§h")>=0;var v2=h2?nm.slice(0,-2):nm;return '<option'+((a.commercial===v2)?' selected':'')+' value="'+esc(v2)+'">'+esc(v2)+(h2?" (historique)":"")+'</option>';}).join("");})()+'</select></div></div>';
+  h+='<hr style="border:0;border-top:1px solid #E3E7EF;margin:6px 0">';
+  h+='<div class="fg"><div class="full"><label>Produit / service</label><input id="f_prod" value="'+esc(l.produit)+'"></div>'+
+     '<div><label>Catégorie</label><select id="f_cat">'+Object.keys(cfg.modeles).sort().map(function(c2){return '<option'+(l.categorie===c2?' selected':'')+'>'+c2+'</option>';}).join("")+'</select></div>'+
+     '<div><label>État</label><select id="f_etat">'+ETATS.map(function(e2){return '<option value="'+e2[0]+'"'+(l.etat===e2[0]?' selected':'')+'>'+e2[1]+'</option>';}).join("")+'</select></div>'+
+     '<div><label>Étape courante</label><select id="f_etape"></select></div>'+
+     '<div><label>Début de l’étape</label><input type="date" id="f_deb" value="'+(l.date_debut_etape||"")+'"></div>'+
+     '<div><label>Signature</label><input type="date" id="f_sig" value="'+(l.date_signature||"")+'"></div>'+
+     '<div><label>Livraison prévue <span style="text-transform:none">(vide = calculée)</span></label><input type="date" id="f_prev" value="'+(l.date_livraison_prevue||"")+'"></div>'+
+     '<div><label>Livrée le <span style="text-transform:none">(si état Livrée)</span></label><input type="date" id="f_reel" value="'+(l.date_livraison_reelle||"")+'"></div>'+
+     '<div><label>One-shot (€)</label><input type="number" id="f_os" step="1" min="0" value="'+(l.oneshot||0)+'"></div>'+
+     '<div><label>MRR (€/mois)</label><input type="number" id="f_mrr" step="1" min="0" value="'+(l.mrr||0)+'"></div>'+
+     '<div><label>Charge totale (j-homme)</label><input type="number" id="f_ch" step="0.5" min="0" value="'+(typeof l.charge_jours==="number"?l.charge_jours:"")+'"></div>'+
+     '<div><label>Type de vente</label><select id="f_tv"><option value="">Nouveau (new business)</option>'+[["upgrade","Upgrade"],["downgrade","Downgrade"],["renouvellement","Renouvellement"]].map(function(o2){return '<option value="'+o2[0]+'"'+(l.type_vente===o2[0]?' selected':'')+'>'+o2[1]+'</option>';}).join("")+'</select></div>'+
+     '<div><label>MRR remplacé (€/mois)</label><input type="number" id="f_mp" step="1" min="0" value="'+(l.mrr_precedent!==undefined?l.mrr_precedent:"")+'"></div>'+
+     '<div><label>Prochaine relance</label><input type="date" id="f_rel" value="'+(l.prochaine_relance||"")+'"></div>'+
+     '<div><label>One-shot facturé le</label><input type="date" id="f_fac" value="'+(l.date_facturation_oneshot||"")+'"></div>'+
+     '<div class="full"><label>Note interne</label><input id="f_note" value="'+esc(l.note||"")+'"></div>'+
+     '<div class="full"><label>Technicien(s)</label><div class="tchk" id="f_techs">'+
+       (cfg.techniciens||[]).map(function(t){var on=getTechs(l).indexOf(t.nom)>=0;
+         return '<label data-tech="'+esc(t.nom)+'"><input type="checkbox" value="'+esc(t.nom)+'"'+(on?' checked':'')+'>'+esc(t.nom)+'</label>';}).join("")+
+     '</div></div></div>';
+  h+='<div class="btnrow"><button id="f_save" class="btn-p">Enregistrer la ligne</button>'+
+     (sc?'<button id="f_add">+ Ligne dans cette affaire</button><button id="f_del" class="btn-d">Supprimer</button>':'')+'</div>';
+  if(sc){
+    h+='<hr style="border:0;border-top:1px solid #E3E7EF;margin:12px 0"><div style="font:700 12px Mulish;color:#5B6478;margin-bottom:4px">ÉTAPES '+esc(cfg.modeles[l.categorie].nom.toUpperCase())+' ('+l.categorie+')</div>';
+    sc.steps.forEach(function(s){
+      var ic=s.statut==="fait"?"✓":(s.statut==="en_cours"?"▶":(s.statut==="a_venir"?"○":"⏳"));
+      var col=s.statut==="fait"?"#16A34A":s.statut==="en_cours"?"#1E3A8A":s.statut==="attente_client"?"#7C3AED":s.statut==="attente_fournisseur"?"#B7791F":"#94A3B8";
+      h+='<div class="stp'+(s.statut!=="fait"&&s.statut!=="a_venir"?" cur":"")+'">'+
+        '<span class="ic" style="color:'+col+'">'+ic+'</span><span class="nm"><span class="pd" style="background:'+phCol(s.phase)+'"></span>'+esc(s.nom)+'</span>'+
+        '<span class="dt">'+fd(s.debut)+' → '+fd(s.fin)+' · '+s.duree+' j</span></div>';});
+  }
+  h+='<p class="note">Durées standards et charges par étape : config.modeles du fichier JSON. Modifications appliquées au clic sur « Enregistrer la ligne », puis « Enregistrer » (barre du haut) pour écrire le fichier.</p></div>';
+  var p=document.getElementById("panel");p.innerHTML=h;p.classList.add("on");document.getElementById("ov").classList.add("on");
+  document.getElementById("close").onclick=closePanel;
+  function fillEtapes(){var mm=cfg.modeles[gv("f_cat")];
+    document.getElementById("f_etape").innerHTML=mm.etapes.map(function(e2){return '<option'+(l.etape_courante===e2.nom?' selected':'')+'>'+esc(e2.nom)+'</option>';}).join("");
+    document.getElementById("f_ch").placeholder="auto : "+mm.etapes.reduce(function(s2,e2){return s2+(e2.charge_jours||0);},0)+" j";
+    [].slice.call(document.querySelectorAll("#f_techs label")).forEach(function(lb){
+      var ok=techQualifie(lb.dataset.tech,gv("f_cat"),cfg);
+      lb.classList.toggle("hc",!ok);lb.title=ok?"":"Hors compétence "+gv("f_cat")+" — affectation possible mais signalée ⚠";});}
+  fillEtapes();document.getElementById("f_cat").onchange=fillEtapes;
+  document.getElementById("f_save").onclick=function(){
+    a.client=gv("f_client")||"Client";a.libelle=gv("f_lib");a.commercial=gv("f_com");
+    l.produit=gv("f_prod")||"Nouvelle ligne";l.categorie=gv("f_cat");
+    l.oneshot=parseFloat(gv("f_os"))||0;l.mrr=parseFloat(gv("f_mrr"))||0;
+    var ch=gv("f_ch");if(ch==="")delete l.charge_jours;else l.charge_jours=parseFloat(ch)||0;
+    l.date_signature=gv("f_sig")||iso(cfg._ref);
+    var pv=gv("f_prev");if(pv)l.date_livraison_prevue=pv;else delete l.date_livraison_prevue;
+    l.etat=gv("f_etat");
+    if(l.etat==="livree"){l.date_livraison_reelle=gv("f_reel")||iso(cfg._ref);delete l.etape_courante;delete l.date_debut_etape;}
+    else{delete l.date_livraison_reelle;
+      if(l.etat==="a_demarrer"){delete l.etape_courante;delete l.date_debut_etape;}
+      else{l.etape_courante=gv("f_etape");l.date_debut_etape=gv("f_deb")||iso(cfg._ref);}}
+    var tvf=gv("f_tv");if(tvf)l.type_vente=tvf;else delete l.type_vente;
+    var mpf=gv("f_mp");if(mpf!=="")l.mrr_precedent=parseFloat(mpf)||0;else delete l.mrr_precedent;
+    var rl2=gv("f_rel");if(rl2)l.prochaine_relance=rl2;else delete l.prochaine_relance;
+    var fc2=gv("f_fac");if(fc2)l.date_facturation_oneshot=fc2;else delete l.date_facturation_oneshot;
+    var nt2=gv("f_note");if(nt2)l.note=nt2;else delete l.note;
+    var ts=[].slice.call(document.querySelectorAll("#f_techs input:checked")).map(function(c2){return c2.value;});
+    delete l.technicien;delete l.techniciens;
+    if(ts.length===1)l.technicien=ts[0];else if(ts.length>1)l.techniciens=ts;
+    if(isNewAff){a.lignes.push(l);DATA.affaires.push(a);}
+    else if(isNewLig){a.lignes.push(l);}
+    markDirty();closePanel();rebuild();flash("Ligne enregistrée — pensez à « Enregistrer » le fichier");};
+  if(sc){
+    document.getElementById("f_add").onclick=function(){openPanel(a.id,null,"new-ligne");};
+    document.getElementById("f_del").onclick=function(){
+      if(!confirm("Supprimer cette ligne ?"))return;
+      a.lignes=a.lignes.filter(function(z){return z.id!==l.id;});
+      if(!a.lignes.length)DATA.affaires=DATA.affaires.filter(function(z){return z.id!==a.id;});
+      markDirty();closePanel();rebuild();flash("Ligne supprimée");};}
+}
+function closePanel(){document.getElementById("panel").classList.remove("on");document.getElementById("ov").classList.remove("on");}
+function fmtJ(v){return (Math.round(v*10)/10).toLocaleString("fr-FR");}
+function renderCharge(vis){
+  var items=[];vis.forEach(function(v){v.ls.forEach(function(l){items.push({a:v.a,l:l,sc:SCH[l.id]});});});
+  var R=computeCharge(items,cfg,cfg._ref,12),refM=mondayOf(cfg._ref);
+  var h='<div class="secttl">Charge de production par technicien <span style="font:400 12px Roboto;color:#5B6478">— jours-homme par semaine (étapes restantes des lignes non livrées, selon filtres)</span></div>';
+  h+='<table class="ch-t"><thead><tr><th>Technicien</th>';
+  R.weeks.forEach(function(w){var past=w<refM;
+    h+='<th class="'+(past?"cl-past":"")+'">S'+isoWeek(w)+'<br><span style="font-weight:400">'+fd(w)+'</span></th>';});
+  h+='<th>Σ 12 sem.</th></tr></thead><tbody>';
+  Object.keys(R.rows).forEach(function(nom){var r=R.rows[nom],tot=0;
+    var trec=(cfg.techniciens||[]).find(function(z){return z.nom===nom;});
+    var skb=trec?Object.keys(cfg.modeles).sort().map(function(c3){var on=(trec.categories||[]).indexOf(c3)>=0;
+      return '<span class="skb'+(on?'':' off')+'" data-skill="'+c3+'" data-tech="'+esc(nom)+'" title="Cliquer pour activer/désactiver la compétence '+c3+'"'+(on?' style="background:'+cfg.modeles[c3].couleur+'"':'')+'>'+c3+'</span>';}).join(""):"";
+    h+='<tr><td><b>'+esc(nom)+'</b><br><span style="color:#5B6478;font-size:11px">cap. '+(trec?'<input class="capin" type="number" step="0.5" min="0" data-tech="'+esc(nom)+'" value="'+r.cap+'">':fmtJ(r.cap))+' j/sem</span><br>'+skb+'</td>';
+    r.cells.forEach(function(c,ci){tot+=c.load;var past=R.weeks[ci]<refM;
+      var cls=c.load===0?"cl-off":(r.cap&&c.load>r.cap?"cl-hot":(r.cap&&c.load>r.cap*0.8?"cl-mid":"cl-ok"));
+      h+='<td class="'+cls+(past?" cl-past":"")+'" title="'+esc(c.items.join(String.fromCharCode(10)))+'">'+(c.load?fmtJ(c.load):"·")+'</td>';});
+    h+='<td><b>'+fmtJ(tot)+'</b></td></tr>';});
+  h+='</tbody></table><p class="note">Rouge : au-delà de la capacité hebdomadaire dédiée à la production · ambre : au-delà de 80 %. Survolez une cellule pour voir les dossiers concernés. La capacité (champ) et les compétences C1–C5 (badges) se modifient ici même ; une affectation hors compétence est signalée ⚠ sur le Gantt. Charges par étape et par ligne : charge_jours dans le JSON.</p>';
+  document.getElementById("vcharge").innerHTML=h;}
+function renderFact(vis){
+  var items=[];vis.forEach(function(v){v.ls.forEach(function(l){items.push({a:v.a,l:l,sc:SCH[l.id]});});});
+  var M=computeFacturation(items,cfg._ref);LASTF=M;
+  if(!M.length){document.getElementById("vfact").innerHTML='<p class="note">Aucune ligne visible.</p>';return;}
+  var mx=1;M.forEach(function(m){if(m.total>mx)mx=m.total;});
+  var h='<div class="secttl">Facturation par mois <span style="font:400 12px Roboto;color:#5B6478">— one-shot au mois de livraison, MRR à partir du mois suivant, net des facturations remplacées (upgrades, downgrades, changements d’offre)</span></div>';
+  h+='<div class="fx-bars">';
+  M.forEach(function(m){var hOS=Math.round(150*m.oneshot/mx),hMR=Math.round(150*m.mrrCum/mx);
+    h+='<div class="fx-col'+(m.futur?" fut":"")+'" data-fmois="'+m.key+'" title="Cliquer : détail du mois"><span class="fx-v">'+eur.format(m.total)+'</span>'+
+       '<div class="fx-stack"><div class="fx-mrr" style="height:'+hMR+'px"></div><div class="fx-os" style="height:'+hOS+'px"></div></div>'+
+       '<span class="fx-l">'+m.label+'</span></div>';});
+  h+='</div><div class="leg" style="padding:8px 2px 0"><span><span class="sw" style="background:#1E3A8A"></span>One-shot livré</span>'+
+     '<span><span class="sw" style="background:#0D9488"></span>MRR mensuel (cumul du carnet)</span>'+
+     '<span style="opacity:.65">Pointillés : mois prévisionnels (dates projetées)</span></div>';
+  h+='<table class="fx-t"><thead><tr><th>Mois</th><th>One-shot facturé</th><th>Δ MRR net du mois</th><th>MRR net cumulé</th><th>Impact total du mois</th></tr></thead><tbody>';
+  M.forEach(function(m){var dn=m.mrrNet||0;var dcell=dn===0?"—":('<span style="color:'+(dn>0?'#0B6B44':'#B42318')+'" title="+ '+eur.format(m.mrrNew)+' nouveaux − '+eur.format(m.mrrPrec)+' remplacés">'+(dn>0?'+ ':'− ')+eur.format(Math.abs(dn))+'</span>');h+='<tr class="cl" data-fmois="'+m.key+'"><td>'+m.label+(m.futur?' <span style="color:#94A3B8">(prév.)</span>':'')+'</td><td>'+eur.format(m.oneshot)+'</td><td>'+dcell+'</td><td>'+eur.format(m.mrrCum)+'</td><td><b>'+eur.format(m.total)+'</b></td></tr>';});
+  h+='</tbody></table><p class="note">Cliquez un mois (barre ou ligne) pour le détail. Δ net = nouveaux MRR démarrés − anciennes facturations remplacées : un upgrade ne compte que pour sa hausse, un downgrade pèse en négatif. Hors base récurrente existante. Activez le filtre « Livrées » pour inclure l’historique réalisé.</p>';
+  document.getElementById("vfact").innerHTML=h;}
+function openFactDetail(k){var m=(LASTF||[]).find(function(z){return z.key===k;});if(!m)return;
+  var h='<header><div style="display:flex;align-items:center;gap:8px"><h2 style="flex:1">Facturation — '+m.label+'</h2><button id="close" aria-label="Fermer">✕</button></div>'+
+    '<div class="sub">'+eur.format(m.oneshot)+' one-shot · '+eur.format(m.mrrCum)+'/mois de MRR · <b>total '+eur.format(m.total)+'</b>'+(m.futur?" (prévisionnel)":"")+'</div></header><div class="body">';
+  if(!m.lignes.length)h+='<p class="note">Aucun nouvel événement de facturation ce mois-ci — le MRR des mois précédents est reconduit.</p>';
+  m.lignes.forEach(function(x2){h+='<div class="kv"><span class="k">'+esc(x2.client)+' · '+esc(x2.produit)+'</span>'+
+    '<span><b>'+eur.format(x2.montant)+(x2.type==="mrr"?"/mois":"")+'</b> '+(x2.type==="mrr"?((x2.prec?'<span style="color:'+((x2.montant-x2.prec)>=0?'#0B6B44':'#B42318')+'">(remplace '+eur.format(x2.prec)+' → net '+((x2.montant-x2.prec)>=0?'+':'−')+eur.format(Math.abs(x2.montant-x2.prec))+')</span> ':'')+"démarre le "+(x2.reel?"":"~")+fd(x2.date)):(x2.fact?("facturé ✓ le "+fd(pDate(x2.fact))):("livraison "+(x2.reel?"":"~")+fd(x2.date)+' <span style="color:#B45309">· à facturer</span>')))+'</span></div>';});
+  h+='<p class="note">~ : date projetée (ligne non encore livrée).</p></div>';
+  var p=document.getElementById("panel");p.innerHTML=h;p.classList.add("on");document.getElementById("ov").classList.add("on");
+  document.getElementById("close").onclick=closePanel;}
+var ALERTS=null;
+var AL_DEFS=[["retard","en retard","🔴","#FCE7E7","#B42318"],["attente","attentes de plus de 10 j","⏳","#FAF0DC","#8A6116"],["retour","retours commerciaux","↩","#FCE7F3","#BE185D"],["relance","relances dues","🔔","#FDEBD8","#B45309"],["a_lancer","signées non lancées","▶","#FCE7E7","#B42318"],["facturer","livrées non facturées","🧾","#E1F0E8","#0B6B44"]];
+function computeAlertes(){var g={retard:[],attente:[],retour:[],relance:[],a_lancer:[],facturer:[]},ref=cfg._ref;
+  DATA.affaires.forEach(function(a2){a2.lignes.forEach(function(l2){var sc=SCH[l2.id];if(!sc)return;
+    if(sc.retard>0&&sc.classe!=="livree")g.retard.push({a:a2,l:l2,info:"+"+sc.retard+" j ouvrés"});
+    if((sc.classe==="attente_client"||sc.classe==="attente_fournisseur")&&sc.attenteJours>10)g.attente.push({a:a2,l:l2,info:sc.attenteJours+" j d’attente"});
+    if(sc.classe==="retour_commercial")g.retour.push({a:a2,l:l2,info:"depuis "+sc.attenteJours+" j · chez "+(a2.commercial||"le commercial")});
+    if(l2.prochaine_relance&&sc.classe!=="livree"&&pDate(l2.prochaine_relance)<=ref)g.relance.push({a:a2,l:l2,info:"relance du "+fd(pDate(l2.prochaine_relance))});
+    if(sc.classe==="a_demarrer"&&sc.demRetard>3)g.a_lancer.push({a:a2,l:l2,info:"signée depuis "+calDiff(sc.signature,ref)+" j"});
+    if(sc.classe==="livree"&&(l2.oneshot||0)>0&&!l2.date_facturation_oneshot)g.facturer.push({a:a2,l:l2,info:eur.format(l2.oneshot)+" · livré le "+fd(sc.reelle)});
+  });});return g;}
+function renderAlertes(){ALERTS=computeAlertes();var h="";
+  AL_DEFS.forEach(function(d2){var n=ALERTS[d2[0]].length;if(!n)return;
+    h+='<button class="alp" data-alerte="'+d2[0]+'" style="background:'+d2[3]+';color:'+d2[4]+'">'+d2[2]+' '+n+' '+d2[1]+'</button>';});
+  var bar=document.getElementById("albar");bar.innerHTML=h;bar.style.display=h?"":"none";}
+function openAlertPanel(gid){var d2=null;AL_DEFS.forEach(function(x2){if(x2[0]===gid)d2=x2;});
+  var list=(ALERTS&&ALERTS[gid])||[];
+  var h='<header><div style="display:flex;align-items:center;gap:8px"><h2 style="flex:1">'+d2[2]+' '+list.length+' '+d2[1]+'</h2><button id="close" aria-label="Fermer">✕</button></div>'+
+    '<div class="sub">Cliquez une ligne pour l’ouvrir et agir</div></header><div class="body">';
+  if(!list.length)h+='<p class="note">Rien à signaler.</p>';
+  list.forEach(function(it){h+='<div class="kv" style="cursor:pointer" data-open="'+it.a.id+'|'+it.l.id+'"><span class="k">'+esc(it.a.client)+' · '+esc(it.l.produit)+(it.l.note?'<br><span style="font-size:11px;color:#8A94A8">'+esc(it.l.note)+'</span>':'')+'</span><span>'+esc(it.info)+'</span></div>';});
+  h+='</div>';
+  var p=document.getElementById("panel");p.innerHTML=h;p.classList.add("on");document.getElementById("ov").classList.add("on");
+  document.getElementById("close").onclick=closePanel;}
+function renderConf(){
+  var h='<div class="secttl">Réglages</div>';
+  h+='<div class="cfg-sec"><div class="cfg-t">Équipe de production</div><table class="ch-t"><thead><tr><th>Nom</th><th>Capacité (j/sem)</th><th>Compétences</th><th></th></tr></thead><tbody>';
+  (cfg.techniciens||[]).forEach(function(t){
+    h+='<tr><td><input class="tin" data-old="'+esc(t.nom)+'" value="'+esc(t.nom)+'"></td>'+
+       '<td><input class="capin" type="number" step="0.5" min="0" data-tech="'+esc(t.nom)+'" value="'+t.jours_prod_par_semaine+'"></td>'+
+       '<td style="text-align:left">'+Object.keys(cfg.modeles).sort().map(function(c3){var on=(t.categories||[]).indexOf(c3)>=0;
+          return '<span class="skb'+(on?'':' off')+'" data-skill="'+c3+'" data-tech="'+esc(t.nom)+'" title="Activer/désactiver '+c3+'"'+(on?' style="background:'+cfg.modeles[c3].couleur+'"':'')+'>'+c3+'</span>';}).join("")+'</td>'+
+       '<td><button class="tdel btn-d" data-tech="'+esc(t.nom)+'" title="Retirer de l’équipe">✕</button></td></tr>';});
+  h+='</tbody></table><div class="btnrow"><button id="taddbtn">+ Ajouter un technicien</button></div>'+
+     '<p class="note">Renommer un technicien met à jour toutes ses affectations. Aucune compétence cochée = considéré polyvalent (aucun ⚠).</p></div>';
+  h+='<div class="cfg-sec"><div class="cfg-t">Commerciaux</div><table class="ch-t"><thead><tr><th>Nom</th><th>Actif</th><th></th></tr></thead><tbody>';
+  (cfg.commerciaux||[]).forEach(function(c3){
+    h+='<tr><td><input class="cin" data-old="'+esc(c3.nom)+'" value="'+esc(c3.nom)+'"></td>'+
+       '<td><input type="checkbox" class="cact" data-nom="'+esc(c3.nom)+'"'+(c3.actif!==false?' checked':'')+'></td>'+
+       '<td><button class="cdel btn-d" data-nom="'+esc(c3.nom)+'" title="Retirer de la liste">✕</button></td></tr>';});
+  h+='</tbody></table><div class="btnrow"><button id="caddbtn">+ Ajouter un commercial</button></div>'+
+     '<p class="note">Un commercial inactif reste visible sur ses affaires existantes mais n’est plus proposé. Les lignes en « Retour commercial » (↩ rose) sont chez le commercial de l’affaire.</p></div>';
+  var refIso=cfg.date_reference||"";
+  h+='<div class="cfg-sec"><div class="cfg-t">Paramètres généraux</div><div class="fg" style="max-width:560px">'+
+     '<div><label>Délai de prise en charge (j ouvrés)</label><input id="p_delai" type="number" min="0" step="1" value="'+(cfg.delai_prise_en_charge_jours_ouvres||2)+'"></div>'+
+     '<div><label>Date de référence (vide = aujourd’hui)</label><input id="p_ref" type="date" value="'+refIso+'"></div></div>'+
+     '<p class="note">La date de référence fige « aujourd’hui » — utile pour la démonstration. Effacez-la pour passer sur la vraie date du jour.</p></div>';
+  h+='<div class="cfg-sec"><div class="cfg-t">Modèles de production — durées et charges par étape</div>';
+  Object.keys(cfg.modeles).sort().forEach(function(c3){var m=cfg.modeles[c3];
+    var tot=m.etapes.reduce(function(s2,e2){return s2+e2.duree_jours_ouvres;},0);
+    var chg=m.etapes.reduce(function(s2,e2){return s2+(e2.charge_jours||0);},0);
+    h+='<details class="mdl"><summary><span class="cb" style="background:'+m.couleur+'">'+c3+'</span> '+esc(m.nom)+' — '+tot+' j ouvrés · '+fmtJ(chg)+' j-homme</summary>'+
+       '<table class="ch-t"><thead><tr><th>Étape</th><th>Durée (j)</th><th>Charge (j-h)</th></tr></thead><tbody>';
+    m.etapes.forEach(function(e2,i2){
+      h+='<tr><td style="text-align:left"><span class="pd" style="background:'+phCol(e2.phase)+'"></span>'+esc(e2.nom)+(e2.jalon?" ◆":"")+'</td>'+
+         '<td><input class="mdur" type="number" min="0" step="1" data-cat="'+c3+'" data-idx="'+i2+'" value="'+e2.duree_jours_ouvres+'"></td>'+
+         '<td><input class="mchg" type="number" min="0" step="0.25" data-cat="'+c3+'" data-idx="'+i2+'" value="'+(e2.charge_jours||0)+'"></td></tr>';});
+    h+='</tbody></table></details>';});
+  h+='<p class="note">Toute modification recale immédiatement les plannings, la charge et la facturation. Ajouter, supprimer ou renommer une étape : dans config.modeles du fichier JSON.</p></div>';
+  h+='<div class="cfg-sec"><div class="cfg-t">Import / export CSV des productions</div>'+
+     '<div class="btnrow"><button id="bcsv2" class="btn-p">Importer un CSV</button><button id="bcsvexp">Exporter le carnet en CSV</button><button id="bcsvmod">Télécharger le modèle CSV</button></div>'+
+     '<p class="note">Séparateur ; , ou tabulation (détecté) · dates jj/mm/aaaa ou aaaa-mm-jj · en-têtes reconnus : id, affaire, client, libelle, commercial, categorie, produit, mrr, oneshot, date_signature, etat, etape_courante, date_debut_etape, date_livraison_prevue, date_livraison_reelle, technicien, charge_jours. Sans doublon : mise à jour par id (cycle exporter → modifier dans Excel → réimporter), sinon par client + catégorie + produit. Aperçu et rapport avant application.</p></div>';
+  document.getElementById("vconf").innerHTML=h;
+  document.getElementById("bcsv2").onclick=function(){document.getElementById("csvfile").click();};
+  document.getElementById("bcsvexp").onclick=exportCSV;
+  document.getElementById("bcsvmod").onclick=modeleCSV;
+}
+/* événements */
+document.addEventListener("click",function(ev){
+  var t=ev.target;
+  var ns=t.closest?t.closest(".nextstep"):null;
+  if(ns){var aN=DATA.affaires.find(function(z){return z.id===ns.dataset.affid;});
+    if(aN){var lN=aN.lignes.find(function(z){return z.id===ns.dataset.ligne;});
+      if(lN){var msg=avanceEtape(lN,cfg);if(msg){markDirty();rebuild();
+        flash(msg==="LIVREE"?"Ligne livrée ✓ — elle part en facturation (voir l’onglet Facturation)":msg);}}}return;}
+  var alp2=t.closest?t.closest("[data-alerte]"):null;
+  if(alp2){openAlertPanel(alp2.dataset.alerte);return;}
+  var opn=t.closest?t.closest("[data-open]"):null;
+  if(opn){var pp=opn.dataset.open.split("|");openPanel(pp[0],pp[1]);return;}
+  if(t.id==="caddbtn"){cfg.commerciaux=cfg.commerciaux||[];
+    cfg.commerciaux.push({nom:"Nouveau commercial "+(cfg.commerciaux.length+1),actif:true});
+    markDirty();render();return;}
+  var cd=t.closest?t.closest(".cdel"):null;
+  if(cd){if(!confirm("Retirer "+cd.dataset.nom+" de la liste des commerciaux ? Ses affaires garderont son nom (historique)."))return;
+    cfg.commerciaux=(cfg.commerciaux||[]).filter(function(z){return z.nom!==cd.dataset.nom;});
+    markDirty();render();return;}
+  if(t.id==="taddbtn"){cfg.techniciens=cfg.techniciens||[];
+    cfg.techniciens.push({nom:"Nouveau technicien "+(cfg.techniciens.length+1),jours_prod_par_semaine:2,categories:[]});
+    markDirty();render();return;}
+  var td=t.closest?t.closest(".tdel"):null;
+  if(td){var nm=td.dataset.tech;
+    if(!confirm("Retirer "+nm+" de l’équipe ? Il sera aussi retiré des lignes affectées."))return;
+    cfg.techniciens=(cfg.techniciens||[]).filter(function(z){return z.nom!==nm;});
+    forEachLigne(function(l2){if(l2.technicien===nm)delete l2.technicien;
+      if(l2.techniciens){l2.techniciens=l2.techniciens.filter(function(x3){return x3!==nm;});if(!l2.techniciens.length)delete l2.techniciens;}});
+    if(F.tech===nm)F.tech="";markDirty();rebuild();return;}
+  var sk=t.closest?t.closest(".skb"):null;
+  if(sk){var rc=(cfg.techniciens||[]).find(function(z){return z.nom===sk.dataset.tech;});
+    if(rc){rc.categories=rc.categories||[];var ix=rc.categories.indexOf(sk.dataset.skill);
+      if(ix>=0)rc.categories.splice(ix,1);else rc.categories.push(sk.dataset.skill);
+      markDirty();render();}return;}
+  var tv=t.closest?t.closest("[data-view]"):null;
+  if(tv){view=tv.dataset.view;
+    document.querySelectorAll("[data-view]").forEach(function(b){b.classList.toggle("on",b===tv);});
+    render();return;}
+  var mc=t.closest?t.closest(".mcell"):null;
+  if(mc){zoom="jour";pendScroll=mc.dataset.ds;
+    document.querySelectorAll("[data-z]").forEach(function(b){b.classList.toggle("on",b.dataset.z==="jour");});
+    render();return;}
+  var fr=t.closest?t.closest("[data-fmois]"):null;
+  if(fr){openFactDetail(fr.dataset.fmois);return;}
+  var z=t.closest?t.closest("[data-z]"):null;
+  if(z){zoom=z.dataset.z;document.querySelectorAll("[data-z]").forEach(function(b){b.classList.toggle("on",b===z);});render();return;}
+  var cc=t.closest?t.closest("[data-cat]"):null;
+  if(cc){F.cats[cc.dataset.cat]=!F.cats[cc.dataset.cat];render();return;}
+  var ec=t.closest?t.closest("[data-etat]"):null;
+  if(ec){F.etats[ec.dataset.etat]=!F.etats[ec.dataset.etat];render();return;}
+  var lr=t.closest?t.closest(".r-lig"):null;
+  if(lr){openPanel(lr.dataset.affid,lr.dataset.ligne);return;}
+  var ar=t.closest?t.closest(".r-aff"):null;
+  if(ar){var id=ar.dataset.aff;collapsed[id]=!(collapsed[id]===true);if(allFolded)collapsed[id]=collapsed[id]===true?true:false;render();return;}
+  if(t.id==="ov")closePanel();
+});
+document.getElementById("q").addEventListener("input",function(){F.q=this.value.toLowerCase().trim();render();});
+document.getElementById("ftech").addEventListener("change",function(){F.tech=this.value;render();});
+document.getElementById("btoday").addEventListener("click",function(){
+  var g=document.getElementById("gwrap"),tl=g.querySelector(".ghead .tl");
+  if(tl)g.scrollLeft=Math.max(0,tl.offsetLeft-260);});
+document.getElementById("bfold").addEventListener("click",function(){
+  allFolded=!allFolded;collapsed={};
+  DATA.affaires.forEach(function(a){collapsed[a.id]=allFolded;});
+  this.textContent=allFolded?"Tout déplier":"Tout replier";render();});
+function loadData(o){
+  if(!o||!Array.isArray(o.affaires))throw new Error('Le fichier doit contenir un tableau "affaires".');
+  DATA={aide:o.aide,config:o.config&&o.config.modeles?o.config:DATA.config,affaires:o.affaires};
+  collapsed={};allFolded=false;dirty=false;rebuild();}
+function serialize(){var c2={};Object.keys(cfg).forEach(function(k){if(k!=="_ref")c2[k]=cfg[k];});
+  return JSON.stringify({aide:DATA.aide,config:c2,affaires:DATA.affaires},null,2);}
+function markDirty(){dirty=true;updSave();}
+function updSave(){var b=document.getElementById("bsave"),s=document.getElementById("saveStatus");if(!b)return;
+  b.textContent=dirty?"Enregistrer local ●":"Enregistrer local";b.classList.toggle("btn-p",dirty);
+  if(s){var last=null;try{last=localStorage.getItem("als_prod_lastsave");}catch(e){}
+    if(dirty){s.textContent="● Modifs non sauvegardées";s.className="save-status dirty";}
+    else if(last){s.textContent="✓ Sauvegardé "+new Date(last).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});s.className="save-status ok";}
+    else{s.textContent="Aucune sauvegarde";s.className="save-status none";}}}
+function flash(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;
+  document.body.appendChild(t);setTimeout(function(){t.remove();},2600);}
+function dl(content,name,type){var b=new Blob([content],{type:type});var u=URL.createObjectURL(b);
+  var a2=document.createElement("a");a2.href=u;a2.download=name;
+  document.body.appendChild(a2);a2.click();a2.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);}
+function download(){dl(serialize(),"donnees-carnet-alsatis.json","application/json");}
+function forEachLigne(f2){DATA.affaires.forEach(function(a2){a2.lignes.forEach(f2);});}
+function maxAffNum(){var mx=0;DATA.affaires.forEach(function(a2){var v2=parseInt(String(a2.id).split("-").pop(),10);if(v2>mx)mx=v2;});return mx;}
+function csvQ(v){v=String(v==null?"":v);if(v.indexOf(";")>=0||v.indexOf('"')>=0||v.indexOf(String.fromCharCode(10))>=0)return '"'+v.split('"').join('""')+'"';return v;}
+function frD(x2){if(!x2)return "";var p=String(x2).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:x2;}
+function frN(v){return v==null||v===""?"":String(v).split(".").join(",");}
+var CSV_HEAD=["id","affaire","client","libelle","commercial","categorie","produit","mrr","oneshot","date_signature","etat","etape_courante","date_debut_etape","date_livraison_prevue","date_livraison_reelle","technicien","charge_jours","prochaine_relance","note","date_facturation_oneshot","type_vente","mrr_precedent"];
+function exportCSV(){var out=[CSV_HEAD.join(";")];
+  DATA.affaires.forEach(function(a2){a2.lignes.forEach(function(l2){
+    out.push([l2.id,a2.id,a2.client,a2.libelle||"",a2.commercial||"",l2.categorie,l2.produit,frN(l2.mrr||0),frN(l2.oneshot||0),frD(l2.date_signature),l2.etat||"",l2.etape_courante||"",frD(l2.date_debut_etape),frD(l2.date_livraison_prevue),frD(l2.date_livraison_reelle),getTechs(l2).join(" | "),l2.charge_jours!==undefined?frN(l2.charge_jours):"",frD(l2.prochaine_relance),l2.note||"",frD(l2.date_facturation_oneshot),l2.type_vente||"",l2.mrr_precedent!==undefined?frN(l2.mrr_precedent):""].map(csvQ).join(";"));});});
+  dl(String.fromCharCode(65279)+out.join(String.fromCharCode(10)),"carnet-productions.csv","text/csv;charset=utf-8");
+  flash("CSV exporté : "+(out.length-1)+" lignes — modifiez-le dans Excel puis réimportez-le");}
+function modeleCSV(){var r1=["","","Menuiseries Roussel","FTTO + firewall","Sophie Petit","C4","FTTO 500M","390","1490","02/06/2026","en_cours","Configuration routeur & firewall","20/07/2026","28/08/2026","","Justine Durrieu","","28/07/2026","Relancer l’opérateur","","upgrade","620"];
+  var r2=["","","Boulangerie Exemple","Postes de travail","Hugo Laurent","C2","5 postes fixes","0","4200","15/06/2026","livree","","","","10/07/2026","Théo Marin","","","","15/07/2026","",""];
+  dl(String.fromCharCode(65279)+[CSV_HEAD.join(";"),r1.map(csvQ).join(";"),r2.map(csvQ).join(";")].join(String.fromCharCode(10)),"modele-import-carnet.csv","text/csv;charset=utf-8");}
+function doImportCSV(f){var r=new FileReader();
+  r.onload=function(){try{var rows=parseCSV(r.result);var plan=buildImportPlan(rows,DATA,cfg);openImportPanel(plan,rows.length-1);}
+  catch(e){alert("CSV illisible : "+e.message);}};
+  r.readAsText(f);}
+function openImportPanel(plan,total){
+  var can=plan.maj.length+plan.nouvellesLignes.length;
+  var h='<header><div style="display:flex;align-items:center;gap:8px"><h2 style="flex:1">Import CSV — aperçu</h2><button id="close" aria-label="Fermer">✕</button></div>'+
+    '<div class="sub">'+total+' ligne(s) lue(s) — rien n’est appliqué avant confirmation</div></header><div class="body">';
+  h+='<div class="kv"><span class="k">Nouvelles lignes</span><span><b>'+plan.nouvellesLignes.length+'</b> (dans '+plan.nouvellesAffaires.length+' affaire(s))</span></div>';
+  h+='<div class="kv"><span class="k">Mises à jour (dédoublonnées)</span><span><b>'+plan.maj.length+'</b></span></div>';
+  h+='<div class="kv"><span class="k">Doublons fusionnés dans le fichier</span><span>'+plan.doublons+'</span></div>';
+  h+='<div class="kv"><span class="k">Erreurs (ignorées)</span><span'+(plan.erreurs.length?' class="impk"':'')+'>'+plan.erreurs.length+'</span></div>';
+  h+='<div class="kv"><span class="k">Avertissements</span><span'+(plan.avert.length?' class="impw"':'')+'>'+plan.avert.length+'</span></div>';
+  plan.erreurs.slice(0,8).forEach(function(e2){h+='<div class="impk">Ligne '+e2.n+' : '+esc(e2.motif)+'</div>';});
+  plan.avert.slice(0,8).forEach(function(e2){h+='<div class="impw">Ligne '+e2.n+' : '+esc(e2.motif)+'</div>';});
+  if(plan.maj.length){h+='<hr style="border:0;border-top:1px solid #E3E7EF;margin:10px 0"><div style="font:700 11px Mulish;color:#5B6478">EXEMPLES DE MISES À JOUR</div>';
+    plan.maj.slice(0,6).forEach(function(it){var ks=Object.keys(it.ch).filter(function(k8){return k8!=="_techs";}).join(", ")+(it.ch._techs?", technicien":"");
+      h+='<div class="kv"><span class="k">'+esc(it.cible.a.client)+' · '+esc(it.cible.l.produit)+'</span><span>'+esc(ks)+'</span></div>';});}
+  h+='<div class="btnrow"><button id="imp_ok" class="btn-p"'+(can?'':' disabled')+'>Appliquer ('+can+')</button><button id="imp_no">Annuler</button></div>';
+  h+='<p class="note">Clé de mise à jour : id de ligne (colonne id de l’export CSV), sinon client + catégorie + produit. Les lignes en double dans le fichier sont fusionnées (la dernière valeur gagne).</p></div>';
+  var p=document.getElementById("panel");p.innerHTML=h;p.classList.add("on");document.getElementById("ov").classList.add("on");
+  document.getElementById("close").onclick=closePanel;document.getElementById("imp_no").onclick=closePanel;
+  document.getElementById("imp_ok").onclick=function(){if(!can)return;
+    var base=maxAffNum()+1,y=(cfg._ref||new Date()).getFullYear(),k9=0;
+    applyImportPlan(plan,DATA,cfg,function(){return "AFF-"+y+"-0"+(base++);},function(){k9++;return "L-"+Date.now().toString(36)+k9;});
+    markDirty();closePanel();rebuild();
+    flash("Import appliqué : "+plan.nouvellesLignes.length+" nouvelle(s), "+plan.maj.length+" mise(s) à jour"+(plan.doublons?", "+plan.doublons+" doublon(s) fusionné(s)":""));};}
+document.getElementById("file").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{loadData(JSON.parse(r.result));fileHandle=null;flash("Fichier chargé");}
+  catch(e){alert("JSON invalide : "+e.message);}};
+  r.readAsText(f);this.value="";});
+document.getElementById("bopen").addEventListener("click",function(){
+  if(window.showOpenFilePicker){
+    window.showOpenFilePicker({types:[{description:"Données carnet (JSON)",accept:{"application/json":[".json"]}}]})
+    .then(function(hs){fileHandle=hs[0];return fileHandle.getFile();})
+    .then(function(f){fileLastMod=f.lastModified;return f.text();})
+    .then(function(tx){loadData(JSON.parse(tx));flash("Fichier ouvert — « Enregistrer » réécrira ce fichier");})
+    .catch(function(e){if(e&&e.name==="AbortError")return;document.getElementById("file").click();});
+  }else document.getElementById("file").click();});
+document.getElementById("bsave").addEventListener("click",function(){
+  if(fileHandle&&fileHandle.createWritable){
+    fileHandle.getFile().then(function(f0){
+      if(fileLastMod&&f0.lastModified!==fileLastMod&&!confirm("Attention : le fichier a été modifié sur le disque depuis votre ouverture (autre utilisateur ?). Écraser quand même ? Annuler pour ne rien écrire."))throw {name:"AbortError"};
+      return fileHandle.createWritable();})
+    .then(function(w){return w.write(serialize()).then(function(){return w.close();});})
+    .then(function(){return fileHandle.getFile();})
+    .then(function(f1){fileLastMod=f1.lastModified;dirty=false;updSave();flash("Enregistré dans le fichier ✓");})
+    .catch(function(e){if(e&&e.name==="AbortError"){flash("Enregistrement annulé — rien n’a été écrit");return;}
+      download();dirty=false;updSave();flash("Écriture directe refusée — copie téléchargée");});
+  }else{download();dirty=false;updSave();
+    flash("Copie téléchargée — utilisez « Ouvrir… » (Chrome/Edge) pour enregistrer directement dans le fichier");}});
+document.getElementById("bexport").addEventListener("click",function(){download();flash("Export JSON téléchargé");});
+document.getElementById("bcsv").addEventListener("click",function(){document.getElementById("csvfile").click();});
+document.getElementById("csvfile").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;doImportCSV(f);this.value="";});
+document.getElementById("baff").addEventListener("click",function(){openPanel(null,null,"new-aff");});
+document.addEventListener("change",function(ev){var t=ev.target;
+  if(t.classList&&t.classList.contains("cin")){var oC=t.dataset.old,nC=t.value.trim();
+    if(nC&&nC!==oC){var rc0=(cfg.commerciaux||[]).find(function(z){return z.nom===oC;});
+      if(rc0){rc0.nom=nC;DATA.affaires.forEach(function(a2){if(a2.commercial===oC)a2.commercial=nC;});
+        markDirty();rebuild();}}return;}
+  if(t.classList&&t.classList.contains("cact")){
+    var rc1=(cfg.commerciaux||[]).find(function(z){return z.nom===t.dataset.nom;});
+    if(rc1){rc1.actif=t.checked;markDirty();}return;}
+  if(t.classList&&t.classList.contains("tin")){var oldN=t.dataset.old,newN=t.value.trim();
+    if(newN&&newN!==oldN){var rc2=(cfg.techniciens||[]).find(function(z){return z.nom===oldN;});
+      if(rc2){rc2.nom=newN;forEachLigne(function(l2){if(l2.technicien===oldN)l2.technicien=newN;
+        if(l2.techniciens){var j2=l2.techniciens.indexOf(oldN);if(j2>=0)l2.techniciens[j2]=newN;}});
+        if(F.tech===oldN)F.tech=newN;markDirty();rebuild();}}return;}
+  if(t.classList&&(t.classList.contains("mdur")||t.classList.contains("mchg"))){
+    var e3=cfg.modeles[t.dataset.cat].etapes[+t.dataset.idx];
+    if(t.classList.contains("mdur"))e3.duree_jours_ouvres=Math.max(0,parseInt(t.value,10)||0);
+    else e3.charge_jours=Math.max(0,parseFloat(t.value)||0);
+    markDirty();rebuild();return;}
+  if(t.id==="p_delai"){cfg.delai_prise_en_charge_jours_ouvres=Math.max(0,parseInt(t.value,10)||0);markDirty();rebuild();return;}
+  if(t.id==="p_ref"){if(t.value)cfg.date_reference=t.value;else delete cfg.date_reference;markDirty();rebuild();return;}
+  if(t.classList&&t.classList.contains("capin")){
+    var rec=(cfg.techniciens||[]).find(function(z){return z.nom===t.dataset.tech;});
+    if(rec){rec.jours_prod_par_semaine=parseFloat(t.value)||0;markDirty();render();}}});
+window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
+rebuild();
+})();
+
+
+/* ══════════════════════════════════
+   GOOGLE DRIVE SYNC — PRODUCTION
+══════════════════════════════════ */
+const GDPROD={
+  CLIENT_ID:'433068590462-1jrk2s46e7kpgc79hi0leaefqkbvqaf9.apps.googleusercontent.com',
+  SCOPE:'https://www.googleapis.com/auth/drive.file',
+  FILE_NAME:'alsatis_carnet_production.json',
+  token:null,fileId:null,_gapiReady:false,_gsiReady:false,_tokenClient:null
+};
+(function loadGoogleLibsProd(){
+  const s1=document.createElement('script');s1.src='https://accounts.google.com/gsi/client';s1.async=true;s1.defer=true;
+  s1.onload=()=>{GDPROD._gsiReady=true;gdProdCheckReady();};document.head.appendChild(s1);
+  const s2=document.createElement('script');s2.src='https://apis.google.com/js/api.js';s2.async=true;s2.defer=true;
+  s2.onload=()=>{gapi.load('client',async()=>{await gapi.client.init({});GDPROD._gapiReady=true;gdProdCheckReady();});};document.head.appendChild(s2);
+})();
+function gdProdCheckReady(){
+  if(!GDPROD._gsiReady||!GDPROD._gapiReady)return;
+  try{const saved=JSON.parse(sessionStorage.getItem('als_gd_token')||'null');
+    if(saved&&saved.expires_at>Date.now()+30000){GDPROD.token=saved;gapi.client.setToken({access_token:saved.access_token});GDPROD.fileId=sessionStorage.getItem('als_prod_gd_fid')||null;gdProdSetConnected(true);gdProdAutoLoad();}}
+  catch(e){}
+  GDPROD._tokenClient=google.accounts.oauth2.initTokenClient({client_id:GDPROD.CLIENT_ID,scope:GDPROD.SCOPE,callback:async(resp)=>{
+    if(resp.error){flash('Connexion Drive annulée');return;}
+    const tok={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};GDPROD.token=tok;gapi.client.setToken({access_token:tok.access_token});
+    sessionStorage.setItem('als_gd_token',JSON.stringify(tok));gdProdSetConnected(true);flash('Drive connecté ✓');await gdProdAutoLoad();
+  }});
+}
+function driveAuth(){if(!GDPROD._tokenClient){flash('Services Google en cours de chargement — réessayez');return;}GDPROD._tokenClient.requestAccessToken({prompt:'consent'});}
+function gdProdSetConnected(ok){document.getElementById('btnDriveConnect').style.display=ok?'none':'';document.getElementById('btnDriveSave').style.display=ok?'':'none';document.getElementById('btnDriveLoad').style.display=ok?'':'none';}
+async function gdProdGetFileId(){
+  if(GDPROD.fileId)return GDPROD.fileId;
+  const res=await gapi.client.request({path:'https://www.googleapis.com/drive/v3/files',params:{q:`name='${GDPROD.FILE_NAME}' and trashed=false`,spaces:'drive',fields:'files(id,name,modifiedTime)'}});
+  const files=res.result.files||[];if(files.length){GDPROD.fileId=files[0].id;sessionStorage.setItem('als_prod_gd_fid',GDPROD.fileId);return GDPROD.fileId;}return null;
+}
+async function driveSave(){
+  if(!GDPROD.token){flash("Connectez Drive d'abord");return;}const btn=document.getElementById('btnDriveSave'),orig=btn.textContent;btn.textContent='Sauvegarde…';btn.disabled=true;
+  try{const payload=serialize(),fid=await gdProdGetFileId();
+    if(fid){const r=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+GDPROD.token.access_token,'Content-Type':'application/json'},body:payload});if(!r.ok)throw new Error('HTTP '+r.status);}
+    else{const form=new FormData();form.append('metadata',new Blob([JSON.stringify({name:GDPROD.FILE_NAME,mimeType:'application/json'})],{type:'application/json'}));form.append('file',new Blob([payload],{type:'application/json'}));
+      const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+GDPROD.token.access_token},body:form});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();GDPROD.fileId=j.id;sessionStorage.setItem('als_prod_gd_fid',j.id);}
+    dirty=false;const now=new Date().toISOString();localStorage.setItem('als_prod_lastsave',now);sessionStorage.setItem('als_prod_gd_lastsave',now);updSave();flash('Sauvegardé sur Google Drive ✓');
+  }catch(err){console.error(err);flash('Erreur Drive — '+err.message);}btn.textContent=orig;btn.disabled=false;
+}
+async function driveLoad(){
+  if(!GDPROD.token){flash("Connectez Drive d'abord");return;}const btn=document.getElementById('btnDriveLoad'),orig=btn.textContent;btn.textContent='Chargement…';btn.disabled=true;
+  try{const fid=await gdProdGetFileId();if(!fid){flash('Aucune sauvegarde Production trouvée');return;}
+    const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{headers:{Authorization:'Bearer '+GDPROD.token.access_token}});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();
+    if(!d||!Array.isArray(d.affaires))throw new Error('format invalide');
+    if(confirm('Charger la sauvegarde Production depuis Drive ?\nLes modifications locales non sauvegardées seront perdues.')){loadData(d);dirty=false;localStorage.setItem('als_prod_lastsave',new Date().toISOString());updSave();flash('Données Drive chargées ✓');}
+  }catch(err){console.error(err);flash('Erreur Drive — '+err.message);}finally{btn.textContent=orig;btn.disabled=false;}
+}
+async function gdProdAutoLoad(){
+  try{const fid=await gdProdGetFileId();if(!fid)return;const res=await gapi.client.request({path:`https://www.googleapis.com/drive/v3/files/${fid}`,params:{fields:'modifiedTime'}});const driveDate=new Date(res.result.modifiedTime);
+    const local=sessionStorage.getItem('als_prod_gd_lastsave')||localStorage.getItem('als_prod_lastsave');if(local&&new Date(local)>=driveDate)return;
+    if(confirm('Une sauvegarde Production Drive plus récente est disponible ('+driveDate.toLocaleString('fr-FR')+').\nLa charger ?'))await driveLoad();
+  }catch(e){console.warn('gdProdAutoLoad',e);}
+}
+updSave();
+</script>
+</body>
+</html>
