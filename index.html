@@ -21,6 +21,7 @@
     --c1:var(--rose);
     --c2:var(--blue);
     --c3:#c6c2ff;
+    --c4:#8ee7cf;
     --radius:16px;
     --maxw:1180px;
     --serif:'Fraunces',serif;
@@ -84,6 +85,7 @@
   .grid .card:nth-child(1){animation:rise .8s cubic-bezier(.2,.7,.2,1) .42s both}
   .grid .card:nth-child(2){animation:rise .8s cubic-bezier(.2,.7,.2,1) .50s both}
   .grid .card:nth-child(3){animation:rise .8s cubic-bezier(.2,.7,.2,1) .58s both}
+  .grid .card:nth-child(4){animation:rise .8s cubic-bezier(.2,.7,.2,1) .66s both}
 
   /* ── HEADER ── */
   header{padding-top:42px}
@@ -159,7 +161,7 @@
 
   /* ── GRID ── */
   main{flex:1;display:flex;align-items:center}
-  .grid{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:46px 0}
+  .grid{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:22px;padding:46px 0}
 
   .card{
     --accent:var(--c1);
@@ -312,6 +314,19 @@
           <li>Récurrent · À facturer</li>
           <li>Renouvellements · Détail</li>
           <li>Charge équipe · Retards</li>
+        </ul>
+        <span class="open">Ouvrir
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+      <a class="card reveal" href="carnet-production.html" style="--accent:var(--c4)">
+        <div class="card-top"><span class="idx">04</span></div>
+        <h2>Carnet de production</h2>
+        <ul class="contents">
+          <li>Gantt des affaires signées</li>
+          <li>Étapes de production C1–C5</li>
+          <li>Charge des techniciens</li>
+          <li>Livraison · Retards · Facturation</li>
         </ul>
         <span class="open">Ouvrir
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
