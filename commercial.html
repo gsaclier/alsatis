@@ -300,6 +300,58 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--navy)}
 .mrr-ancien-row{display:none}
 .mrr-ancien-row.visible{display:flex}
 
+/* ══ PROJECTION / ATTERRISSAGE ══ */
+.sub-nav{display:inline-flex;border:1px solid var(--bdr);border-radius:9px;overflow:hidden;margin-bottom:16px;background:var(--white);box-shadow:var(--sh);flex-wrap:wrap}
+.sub-nav button{padding:9px 18px;font-size:.78rem;font-weight:600;background:var(--white);color:var(--muted);border:none;border-right:1px solid var(--bdr);cursor:pointer;font-family:var(--font)}
+.sub-nav button:last-child{border-right:none}
+.sub-nav button.on{background:var(--navy);color:#fff}
+.sub-panel{display:none}
+.sub-panel.on{display:block}
+.proj-inp{border:1.5px solid var(--bdr);border-radius:6px;padding:6px 9px;font-size:.78rem;font-family:var(--font);color:var(--text);background:var(--white);width:100%}
+tr.proj-fut td{background:rgba(37,99,235,.04)}
+tr.proj-real td{color:var(--subtle)}
+.reco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.reco{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:15px 16px;border-left:4px solid var(--blue)}
+.reco h4{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px}
+.reco p{font-size:.75rem;color:var(--muted);line-height:1.55}
+.reco .reco-val{font-size:1.2rem;font-weight:800;color:var(--blue);margin:3px 0 5px;letter-spacing:-.02em}
+.reco.warn{border-left-color:var(--red)}.reco.warn .reco-val{color:var(--red)}
+.reco.ok{border-left-color:var(--green)}.reco.ok .reco-val{color:var(--green)}
+.reco.act{border-left-color:var(--orange)}.reco.act .reco-val{color:var(--orange)}
+.reco.neu{border-left-color:var(--purple)}.reco.neu .reco-val{color:var(--purple)}
+.proj-legend{font-size:.68rem;color:var(--subtle);margin-top:8px;line-height:1.6}
+.hyp-box{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:18px;border-left:4px solid var(--navy)}
+.hyp-box h4{font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--navy);margin-bottom:7px}
+.hyp-box p{font-size:.74rem;color:var(--muted);line-height:1.6}
+
+/* ══ v2 : delta, transformation, export comité ══ */
+.dlt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.dlt{background:var(--bg2);border-radius:8px;padding:11px 13px}
+.dlt-lbl{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);margin-bottom:5px}
+.dlt-val{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.dlt-val.up{color:var(--green)}.dlt-val.dn{color:var(--red)}.dlt-val.eq{color:var(--subtle)}
+.dlt-sub{font-size:.66rem;color:var(--subtle);margin-top:2px}
+.synth{background:linear-gradient(180deg,#fff,var(--bg2));border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;margin-bottom:18px;border-left:4px solid var(--navy)}
+.synth h3{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin-bottom:11px}
+.synth ol{margin-left:18px}
+.synth li{font-size:.82rem;color:var(--text);line-height:1.65;padding:3px 0}
+.synth li strong{color:var(--navy)}
+.proj-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.win-empty{padding:14px 18px;font-size:.76rem;color:var(--subtle);line-height:1.6}
+@media print{
+  body.print-proj .hdr,body.print-proj .nav,body.print-proj .toast,body.print-proj .sub-nav,
+  body.print-proj .sim-ctrl,body.print-proj .proj-actions,body.print-proj .hyp-box{display:none!important}
+  body.print-proj .tab-panel{display:none!important}
+  body.print-proj #tab-simu{display:block!important}
+  body.print-proj #tab-simu .sub-panel{display:none!important}
+  body.print-proj #sub-proj{display:block!important}
+  body.print-proj .kpi,body.print-proj .card,body.print-proj .tbl-card,body.print-proj .reco,
+  body.print-proj .an-card,body.print-proj .synth{box-shadow:none;border:1px solid #e2e8f0;break-inside:avoid;page-break-inside:avoid}
+  body.print-proj .synth{background:#fff}
+  body.print-proj .sec{margin-top:10px}
+  @page{size:A4 landscape;margin:9mm}
+}
+
 </style>
 </head>
 <body>
@@ -725,6 +777,14 @@ const DATA = {
 
 <!-- SIMULATION -->
 <div id="tab-simu" class="tab-panel">
+  <div class="sub-nav">
+    <button class="on" onclick="showSimSub('pipe',this)">Pipe vs objectif</button>
+    <button onclick="showSimSub('proj',this)">Projection → décembre</button>
+    <button onclick="showSimSub('comm',this)">Par commercial</button>
+  </div>
+
+  <!-- ═══ SOUS-ONGLET 1 : PIPE VS OBJECTIF (existant) ═══ -->
+  <div id="sub-pipe" class="sub-panel on">
   <div class="sec">
     <div class="sim-ctrl">
       <div class="sim-ctrl-blk">
@@ -757,6 +817,176 @@ const DATA = {
       </div>
     </div>
     <div class="an-grid" id="simInsights" style="margin-top:18px"></div>
+  </div>
+  </div>
+
+  <!-- ═══ SOUS-ONGLET 2 : PROJECTION JUSQU'À DÉCEMBRE ═══ -->
+  <div id="sub-proj" class="sub-panel">
+  <div class="sec">
+    <div class="proj-actions">
+      <button class="sbtn sbtn-slate" onclick="exportProjPDF()">⎙ Export comité (PDF)</button>
+      <button class="sbtn sbtn-blue" onclick="snapProjection()">📌 Figer le point de référence</button>
+      <span style="font-size:.7rem;color:var(--subtle)" id="projSnapInfo">—</span>
+    </div>
+
+    <div class="synth" id="projSynth"></div>
+
+    <div class="sim-ctrl">
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Scénario pipe</div>
+        <div class="sim-seg" id="simSeg2">
+          <button data-f="0.7" onclick="setSimScen(0.7,this)">Prudent</button>
+          <button data-f="1" class="on" onclick="setSimScen(1,this)">Réaliste</button>
+          <button data-f="1.3" onclick="setSimScen(1.3,this)">Optimiste</button>
+        </div>
+        <div class="sim-ctrl-hint" id="simScenHint2">Probabilités du pipe telles que saisies.</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Pondération des affaires</div>
+        <div class="sim-seg" id="projWeightSeg">
+          <button data-w="proba" class="on" onclick="setProjWeight('proba',this)">Probabilités saisies</button>
+          <button data-w="hist" onclick="setProjWeight('hist',this)">Taux réel constaté</button>
+        </div>
+        <div class="sim-ctrl-hint" id="projWeightHint">Utilise la probabilité renseignée sur chaque affaire.</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Production non encore identifiée</div>
+        <div class="sim-seg" id="projModeSeg">
+          <button data-m="runrate" class="on" onclick="setProjMode('runrate',this)">Run-rate 3 mois</button>
+          <button data-m="mix" onclick="setProjMode('mix',this)">Moyenne</button>
+          <button data-m="objectif" onclick="setProjMode('objectif',this)">Objectif</button>
+        </div>
+        <div class="sim-ctrl-hint" id="projModeHint">Base mensuelle = moyenne du MRR New des 3 derniers mois réalisés, par commercial.</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Curseur d'ambition&nbsp;: <strong id="projAmbLbl">100 %</strong></div>
+        <input type="range" min="0" max="200" step="5" value="100" id="projAmb" class="sim-range" oninput="setProjAmb(this.value)">
+        <div class="sim-ctrl-hint">Coefficient appliqué à la base non identifiée (effet recrutement, montée en compétence, plan d'action…).</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Churn à venir</div>
+        <div class="sim-seg" id="projChurnSeg">
+          <button data-c="connu" onclick="setProjChurn('connu',this)">Connu seul</button>
+          <button data-c="realiste" class="on" onclick="setProjChurn('realiste',this)">Connu + run-rate</button>
+        </div>
+        <div class="sim-ctrl-hint" id="projChurnHint">Retient, chaque mois, le plus élevé entre le churn déjà notifié et le rythme moyen constaté.</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Projeter jusqu'à</div>
+        <select id="projEndSel" class="proj-inp" onchange="setProjEnd(this.value)"></select>
+        <div class="sim-ctrl-hint">Horizon de l'atterrissage. Décembre par défaut&nbsp;; réduisez-le pour un point d'étape (fin de semestre, fin de trimestre…).</div>
+      </div>
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Dernier mois réalisé</div>
+        <select id="projLastSel" class="proj-inp" onchange="setProjLast(this.value)"></select>
+        <div class="sim-ctrl-lbl" style="margin-top:10px">MRR installé au 01/01/2026 (optionnel)</div>
+        <input type="text" inputmode="decimal" id="projBaseInp" class="proj-inp" value="0" onchange="setProjBase(this.value)" placeholder="ex. 185000">
+        <div class="sim-ctrl-hint">Laisser 0 si non connu&nbsp;: le dashboard affiche alors la <em>variation</em> du MRR base et non son niveau.</div>
+      </div>
+    </div>
+
+    <div class="hyp-box">
+      <h4>Comment lire cette projection</h4>
+      <p id="projHypTxt">—</p>
+    </div>
+
+    <div class="kpi-grid" id="projKpi" style="margin-bottom:18px"></div>
+
+    <div class="g2" style="margin-bottom:18px">
+      <div class="card"><div class="card-title">MRR New mensuel — réalisé puis projeté, churn et MRR base (€)</div><div class="chart-wrap"><canvas id="projMoisChart"></canvas></div>
+        <div class="proj-legend">Barres bleu foncé&nbsp;: pipe pondéré identifié · bleu clair&nbsp;: production non encore identifiée (hypothèse) · gris&nbsp;: réalisé · rouge (négatif)&nbsp;: churn · ligne violette&nbsp;: MRR base cumulé.</div>
+      </div>
+      <div class="card"><div class="card-title">Trajectoire cumulée MRR New vs objectif cumulé (€)</div><div class="chart-wrap"><canvas id="projCumulChart"></canvas></div>
+        <div class="proj-legend">Permet de voir à quel mois la trajectoire recroise (ou non) l'objectif annuel.</div>
+      </div>
+    </div>
+
+    <div class="tbl-card" style="margin-bottom:18px">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Écart depuis le point de référence — lecture comité</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="projSnapSel" class="proj-inp" style="width:auto;min-width:180px" onchange="setProjSnap(this.value)"></select>
+          <button class="sbtn sbtn-red" onclick="delProjSnap()" title="Supprimer ce point de référence">✕</button>
+        </div>
+      </div>
+      <div id="projDelta" style="padding:15px 18px"></div>
+    </div>
+
+    <div class="tbl-card" style="margin-bottom:18px">
+      <div class="tbl-hdr"><span class="tbl-title">Projection mensuelle équipe · <span id="projPeriodeLbl">—</span></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Mois</th><th>Aff.</th><th>Pipe pondéré</th><th>Non identifié</th><th>MRR New</th><th>Churn</th><th>MRR net</th><th>Cumul New 2026</th><th>MRR base</th><th>Non récurrent</th></tr></thead>
+          <tbody id="projTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sec-title">Leviers de croissance — lecture DG</div>
+    <div class="reco-grid" id="projReco"></div>
+
+    <div class="an-grid" id="projInsights" style="margin-top:18px"></div>
+  </div>
+  </div>
+
+  <!-- ═══ SOUS-ONGLET 3 : PAR COMMERCIAL ═══ -->
+  <div id="sub-comm" class="sub-panel">
+  <div class="sec">
+    <div class="kpi-grid" id="projCommKpi" style="margin-bottom:18px"></div>
+
+    <div class="tbl-card" style="margin-bottom:18px">
+      <div class="tbl-hdr"><span class="tbl-title">Atterrissage annuel par commercial · <span id="projCommPeriode">—</span></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Commercial</th><th>Réalisé</th><th>Pipe pondéré</th><th>Non identifié</th><th>Atterrissage</th><th>Objectif période</th><th>Atteinte</th><th>Gap</th><th>Couv. pipe</th><th>Prod./mois requise</th><th>NR atterrissage</th></tr></thead>
+          <tbody id="projCommTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tbl-card" style="margin-bottom:18px">
+      <div class="tbl-hdr"><span class="tbl-title">Taux de transformation réel · issu de l'historique du pipe</span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Commercial</th><th>Clôturées</th><th>Gagnées</th><th>Perdues</th><th>Taux (nb)</th><th>MRR gagné</th><th>MRR perdu</th><th>Taux (valeur)</th><th>Motif de perte n°1</th></tr></thead>
+          <tbody id="projWinTbl"></tbody>
+        </table>
+      </div>
+      <div class="win-empty" id="projWinNote"></div>
+    </div>
+
+    <div class="g2" style="margin-bottom:18px">
+      <div class="card"><div class="card-title">Atterrissage MRR New par commercial vs objectif annuel (€)</div><div class="chart-wrap"><canvas id="projCommChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Production mensuelle&nbsp;: run-rate constaté vs objectif (€)</div><div class="chart-wrap"><canvas id="projRunChart"></canvas></div></div>
+    </div>
+
+    <div class="sim-ctrl">
+      <div class="sim-ctrl-blk">
+        <div class="sim-ctrl-lbl">Zoom commercial</div>
+        <select id="projCommSel" class="proj-inp" onchange="setProjComm(this.value)"></select>
+        <div class="sim-ctrl-hint">Détail mois par mois et plan d'action individuel.</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="projZoomKpi" style="margin-bottom:18px"></div>
+
+    <div class="g2" style="margin-bottom:18px">
+      <div class="card full"><div class="card-title">Détail mensuel — <span id="projZoomNom">—</span> (€)</div><div class="chart-wrap"><canvas id="projZoomChart"></canvas></div></div>
+    </div>
+
+    <div class="tbl-card" style="margin-bottom:18px">
+      <div class="tbl-hdr"><span class="tbl-title">Mois par mois — <span id="projZoomNom2">—</span></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Mois</th><th>Statut</th><th>Aff.</th><th>Pipe pondéré</th><th>Non identifié</th><th>MRR New</th><th>Objectif</th><th>Écart</th><th>Non récurrent</th></tr></thead>
+          <tbody id="projZoomTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sec-title">Plan d'action individuel</div>
+    <div class="reco-grid" id="projZoomReco"></div>
+  </div>
   </div>
 </div>
 
@@ -970,7 +1200,7 @@ let _booted=false,_dirty=false;
 function saveState(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){} if(_booted){_dirty=true;updateSaveStatus();}}
 function relTime(iso){const t=new Date(iso),now=new Date();const mn=Math.round((now-t)/60000);if(mn<1)return "à l'instant";if(mn<60)return 'il y a '+mn+' min';const hh=Math.round(mn/60);if(hh<24)return 'il y a '+hh+' h';return 'le '+t.toLocaleDateString('fr-FR');}
 function updateSaveStatus(){const el=document.getElementById('saveStatus');if(!el)return;let last=null;try{last=localStorage.getItem('als_lastsave');}catch(e){}if(_dirty){el.textContent='● Modifs non sauvegardées';el.className='save-status dirty';}else if(last){el.textContent='✓ Sauvegardé '+relTime(last);el.className='save-status ok';}else{el.textContent='Aucune sauvegarde';el.className='save-status none';}}
-function saveCloud(){const payload={version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe,pipeHistory};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const d=new Date();const pad=n=>String(n).padStart(2,'0');const name='alsatis_cockpit_'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+'h'+pad(d.getMinutes())+'.json';const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(a.href);}catch(e){}},4000);_dirty=false;try{localStorage.setItem('als_lastsave',new Date().toISOString());}catch(e){}updateSaveStatus();toast('💾 Sauvegarde déposée : '+name);}
+function saveCloud(){const payload={version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe,pipeHistory,projSnaps};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const d=new Date();const pad=n=>String(n).padStart(2,'0');const name='alsatis_cockpit_'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+'h'+pad(d.getMinutes())+'.json';const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(a.href);}catch(e){}},4000);_dirty=false;try{localStorage.setItem('als_lastsave',new Date().toISOString());}catch(e){}updateSaveStatus();toast('💾 Sauvegarde déposée : '+name);}
 window.addEventListener('beforeunload',function(e){if(_dirty){e.preventDefault();e.returnValue='';}});
 setInterval(updateSaveStatus,60000);
 
@@ -987,11 +1217,23 @@ if(!equipe || _eqVer!==BUILD_VER){
     objMrrNew: c.objMensuel,
     objOneShot: 0,
     objRenew: 0,
-    objRenewActif: false
+    objRenewActif: false,
+    objDebut: /sept/i.test(c.note||'') ? 8 : 0
   }));
   saveState('als_equipe', equipe);
   saveState('als_equipe_ver', BUILD_VER);
 }
+/* Migration douce : mois de demarrage de l'objectif (0 = janvier) */
+(function(){
+  let _m=false;
+  equipe.forEach(e=>{
+    if(e.objDebut===undefined){
+      const d=DATA.commerciaux.find(c=>c.nom===e.nom);
+      e.objDebut=(d&&/sept/i.test(d.note||''))?8:0; _m=true;
+    }
+  });
+  if(_m){try{localStorage.setItem('als_equipe',JSON.stringify(equipe));}catch(e){}}
+})();
 
 /* ── Résultats ── */
 let resultats = loadState('als_resultats', null);
@@ -1073,14 +1315,17 @@ function computeAll(){
     eq.renew   = moisKeys.reduce((a,m)=>a+(r[m].r  ||0),0);
     eq.oneShot = moisKeys.reduce((a,m)=>a+(r[m].os ||0),0);
     eq.total   = eq.mrrNew + eq.renew + eq.oneShot;
-    const moisActifs = moisKeys.filter(m=>r[m]&&(r[m].mrr>0||r[m].r>0||r[m].os>0)).length;
+    const _deb = eq.objDebut||0;
+    const _L = (typeof projLast==='function') ? projLast() : 11;
+    const _objOn = _deb<=_L;   /* l'objectif a-t-il deja demarre ? */
+    const moisActifs = MOIS_LIST.filter((m,i)=>i>=_deb&&r[m]&&(r[m].mrr>0||r[m].r>0||r[m].os>0)).length;
     const nbM = Math.max(moisActifs,1);
     // Atteinte MRR New
-    eq.attMrrNew = eq.objMrrNew>0 ? parseFloat(((eq.mrrNew/(eq.objMrrNew*nbM))*100).toFixed(1)) : null;
+    eq.attMrrNew = (eq.objMrrNew>0&&_objOn) ? parseFloat(((eq.mrrNew/(eq.objMrrNew*nbM))*100).toFixed(1)) : null;
     // Atteinte Non récurrent
-    eq.attOneShot = eq.objOneShot>0 ? parseFloat(((eq.oneShot/(eq.objOneShot*nbM))*100).toFixed(1)) : null;
+    eq.attOneShot = (eq.objOneShot>0&&_objOn) ? parseFloat(((eq.oneShot/(eq.objOneShot*nbM))*100).toFixed(1)) : null;
     // Atteinte Renew (seulement si objectivé)
-    eq.attRenew = (eq.objRenewActif && eq.objRenew>0) ? parseFloat(((eq.renew/(eq.objRenew*nbM))*100).toFixed(1)) : null;
+    eq.attRenew = (eq.objRenewActif && eq.objRenew>0 && _objOn) ? parseFloat(((eq.renew/(eq.objRenew*nbM))*100).toFixed(1)) : null;
     // Catégories depuis DATA (inchangées)
     const dc = DATA.commerciaux.find(c=>c.nom===eq.nom);
     eq.cats = dc ? dc.cats : {Cloud:0,Communication:0,Computer:0,Connectivite:0,Cyber:0};
@@ -1378,6 +1623,11 @@ function renderParams(){
       </div>
       <div class="param-row"><label>Obj. MRR New</label>
         <input type="number" min="0" step="100" value="${eq.objMrrNew}" onchange="updateEq(${i},'objMrrNew',+this.value)"> €/mois
+      </div>
+      <div class="param-row"><label>Objectif à partir de</label>
+        <select onchange="updateEq(${i},'objDebut',+this.value)">
+          ${MOIS_LIST.map((m,k)=>`<option value="${k}" ${((eq.objDebut||0)===k)?'selected':''}>${m} 2026</option>`).join('')}
+        </select>
       </div>
       <div class="param-row"><label>Obj. Non récurrent</label>
         <input type="number" min="0" step="100" value="${eq.objOneShot}" onchange="updateEq(${i},'objOneShot',+this.value)"> €/mois
@@ -1788,7 +2038,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeC
    EXPORT / IMPORT GLOBAL
 ══════════════════════════════════ */
 function exportAll(){
-  const payload={version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe};
+  const payload={version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe,pipeHistory,projSnaps};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='alsatis_backup_'+new Date().toISOString().slice(0,10)+'.json';
@@ -1802,7 +2052,7 @@ function importAll(e){
       const d=JSON.parse(ev.target.result);
       if(!d.version||!d.equipe){toast('⚠️ Format invalide');return;}
       if(!confirm('Importer cette sauvegarde ? Les données actuelles seront remplacées.')) return;
-      equipe=d.equipe;resultats=d.resultats;churnData=d.churnData;churnFutur=d.churnFutur;churnComments=d.churnComments||{};pipe=d.pipe||[];pipeHistory=d.pipeHistory||[];
+      equipe=d.equipe;resultats=d.resultats;churnData=d.churnData;churnFutur=d.churnFutur;churnComments=d.churnComments||{};pipe=d.pipe||[];pipeHistory=d.pipeHistory||[];projSnaps=d.projSnaps||[];saveState('als_proj_snaps',projSnaps);
       saveState('als_equipe',equipe);saveState('als_resultats',resultats);
       saveState('als_churn',churnData);saveState('als_churnfutur',churnFutur);
       saveState('als_churn_comments',churnComments);saveState('als_pipe',pipe);saveState('als_pipe_history',pipeHistory);
@@ -1885,10 +2135,12 @@ function simData(){
 }
 function setSimScen(f,btn){
   simScenario=f;
-  document.querySelectorAll('#simSeg button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  E('simScenHint').textContent=f===1?'Probabilités du pipe telles que saisies.':f<1?'Probabilités minorées de 30 % (prudent).':'Probabilités majorées de 30 %, plafond 100 % (optimiste).';
+  document.querySelectorAll('#simSeg button,#simSeg2 button').forEach(b=>b.classList.toggle('on',parseFloat(b.dataset.f)===f));
+  const _h=f===1?'Probabilités du pipe telles que saisies.':f<1?'Probabilités minorées de 30 % (prudent).':'Probabilités majorées de 30 %, plafond 100 % (optimiste).';
+  if(E('simScenHint'))E('simScenHint').textContent=_h;
+  if(E('simScenHint2'))E('simScenHint2').textContent=_h;
   renderSimu();buildSimCharts();
+  if(typeof renderProjection==='function'){renderProjection();buildProjCharts();}
 }
 function setSimHor(v){
   simHorizon=parseInt(v)||1;
@@ -1980,6 +2232,7 @@ function buildCharts(){
   charts.cChurn=new Chart(E('cChurn'),{type:'bar',data:{labels:DATA.churnMens.map(m=>m.m),datasets:[{data:DATA.churnMens.map(m=>m.v),backgroundColor:'rgba(220,38,38,.13)',borderColor:'#dc2626',borderWidth:2,borderRadius:5}]},options:{...CO,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Churn : '+fmt(c.parsed.y,2)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{beginAtZero:true,max:5000,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
   charts.cChurnF=new Chart(E('cChurnF'),{type:'bar',data:{labels:churnFutur.map(m=>m.m),datasets:[{data:churnFutur.map(m=>m.v),backgroundColor:'rgba(234,88,12,.13)',borderColor:'#ea580c',borderWidth:2,borderRadius:5}]},options:{...CO,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Churn : '+fmt(c.parsed.y,2)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{beginAtZero:true,max:5000,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
   buildSimCharts();
+  if(typeof buildProjCharts==='function')buildProjCharts();
 }
 
 /* ══════════════════════════════════
@@ -2018,6 +2271,7 @@ function renderAll(){
   computeAll();renderHeader();renderKPI();renderChurnKPI();
   renderObjGrid();renderTblEquipe();renderTblChurn();
   renderChurnFuturGrid();renderHistorique();renderSimu();renderSaisie();
+  if(typeof renderProjection==='function')renderProjection();
   renderMensuelDAF();renderPipeHisto();renderSignatures();
   setTimeout(updateVC,50);
 }
@@ -2151,7 +2405,7 @@ async function driveSave(){
   const btn=document.getElementById('btnDriveSave');
   const orig=btn.textContent;btn.textContent='Sauvegarde…';btn.disabled=true;
   try{
-    const payload=JSON.stringify({version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe,pipeHistory},null,2);
+    const payload=JSON.stringify({version:1,date:new Date().toISOString(),equipe,resultats,churnData,churnFutur,churnComments,pipe,pipeHistory,projSnaps},null,2);
     const fid=await gdGetFileId();
     if(fid){
       /* Mise à jour du fichier existant */
@@ -2199,7 +2453,7 @@ async function driveLoad(){
     const d=await r.json();
     if(!d.version||!d.equipe){toast('⚠️ Format invalide');btn.textContent='Charger Drive';btn.disabled=false;return;}
     if(!confirm('Charger la sauvegarde Drive du '+new Date(d.date).toLocaleString('fr-FR')+' ?\nLes données non sauvegardées seront perdues.')) {btn.textContent='Charger Drive';btn.disabled=false;return;}
-    equipe=d.equipe;resultats=d.resultats;churnData=d.churnData;churnFutur=d.churnFutur;churnComments=d.churnComments||{};pipe=d.pipe||[];pipeHistory=d.pipeHistory||[];
+    equipe=d.equipe;resultats=d.resultats;churnData=d.churnData;churnFutur=d.churnFutur;churnComments=d.churnComments||{};pipe=d.pipe||[];pipeHistory=d.pipeHistory||[];projSnaps=d.projSnaps||[];saveState('als_proj_snaps',projSnaps);
     saveState('als_equipe',equipe);saveState('als_resultats',resultats);
     saveState('als_churn',churnData);saveState('als_churnfutur',churnFutur);
     saveState('als_churn_comments',churnComments);saveState('als_pipe',pipe);saveState('als_pipe_history',pipeHistory);
@@ -2233,6 +2487,732 @@ async function gdAutoLoad(){
     }
   }catch(e){console.warn('gdAutoLoad',e);}
 }
+
+
+/* ══════════════════════════════════
+   PROJECTION D'ATTERRISSAGE — VUE DG
+   Projette le new business mois par mois jusqu'à décembre
+══════════════════════════════════ */
+const MOIS_FULL={'Janvier':0,'Janv':0,'Février':1,'Fevrier':1,'Févr':1,'Mars':2,'Avril':3,'Avr':3,'Mai':4,'Juin':5,'Juillet':6,'Juil':6,'Août':7,'Aout':7,'Septembre':8,'Sept':8,'Octobre':9,'Oct':9,'Novembre':10,'Nov':10,'Décembre':11,'Decembre':11,'Déc':11};
+const RAMP=[0,0.5,1];              /* montée en charge du non-identifié : M+0, M+1, puis plein régime */
+const PIPE_COVER_TARGET=3;         /* règle de couverture de pipe visée */
+
+let projMode='runrate', projAmb=1, projChurnMode='realiste', projLastReal=null, projBaseMRR=0, projCommSel='', projEndIdx=11, projWeight='proba', projSnapSel='';
+const WIN_MIN=5;                    /* nb mini d'affaires clôturées pour exploiter un taux réel */
+let projSnaps=loadState('als_proj_snaps',[]);
+(function loadProjCfg(){
+  try{const c=JSON.parse(localStorage.getItem('als_proj_cfg')||'{}');
+    if(c.mode)projMode=c.mode; if(typeof c.amb==='number')projAmb=c.amb;
+    if(c.churn)projChurnMode=c.churn; if(c.last!==undefined)projLastReal=c.last;
+    if(typeof c.base==='number')projBaseMRR=c.base; if(typeof c.end==='number')projEndIdx=c.end; if(c.weight)projWeight=c.weight;
+  }catch(e){}
+})();
+function saveProjCfg(){try{localStorage.setItem('als_proj_cfg',JSON.stringify({mode:projMode,amb:projAmb,churn:projChurnMode,last:projLastReal,base:projBaseMRR,end:projEndIdx,weight:projWeight}));}catch(e){}}
+
+/* ── Sous-onglets ── */
+function showSimSub(id,btn){
+  document.querySelectorAll('#tab-simu .sub-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('#tab-simu .sub-nav button').forEach(b=>b.classList.remove('on'));
+  E('sub-'+id).classList.add('on'); btn.classList.add('on');
+  if(id==='proj'||id==='comm'){renderProjection();buildProjCharts();}
+  else{buildSimCharts();}
+}
+
+/* ── Helpers ── */
+function actMonth(nom,i){const d=(resultats[nom]||{})[MOIS_LIST[i]]||{};return{mrr:d.mrr||0,r:d.r||0,os:d.os||0};}
+function lastRealIdxAuto(){
+  let last=-1;
+  MOIS_LIST.forEach((m,i)=>{
+    const t=getActifs().reduce((a,eq)=>{const d=(resultats[eq.nom]||{})[m]||{};return a+(d.mrr||0)+(d.r||0)+(d.os||0);},0);
+    if(t>0)last=i;
+  });
+  return last;
+}
+function projLast(){const v=(projLastReal===null||projLastReal===undefined)?lastRealIdxAuto():projLastReal;return Math.max(-1,Math.min(11,v));}
+function projStart(){return projLast()+1;}
+function projEnd(){const S=projStart();const e=Math.min(11,Math.max(0,projEndIdx||11));return S>11?11:Math.max(S,e);}
+function projNbMois(){return Math.max(0,projEnd()-projStart()+1);}
+function runRate(nom,key,n=3){
+  const L=projLast(); if(L<0)return 0;
+  const from=Math.max(0,L-n+1); let s=0,c=0;
+  for(let i=from;i<=L;i++){s+=actMonth(nom,i)[key];c++;}
+  return c?s/c:0;
+}
+function churnRunRate(n=3){
+  const L=projLast(); if(L<0)return 0;
+  const g={}; churnData.forEach(d=>{g[d.m]=(g[d.m]||0)+(d.v||0);});
+  /* on ne moyenne que sur les mois où des résiliations ont été saisies :
+     un mois clôturé côté ventes mais pas encore côté churn diluerait le rythme */
+  const vals=[];
+  for(let i=L;i>=0&&vals.length<n;i--){const v=g[MOIS_LIST[i]]||0;if(v>0)vals.push(v);}
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+}
+function churnConnuMois(i){let v=0;churnFutur.forEach(d=>{if(MOIS_FULL[d.m]===i)v+=(d.v||0);});return v;}
+function dealMoisIdx(d,S,EI){
+  if(d.closing&&/^\d{4}-\d{2}/.test(d.closing)){
+    const y=parseInt(d.closing.slice(0,4),10), m=parseInt(d.closing.slice(5,7),10)-1;
+    if(y<2026)return S;
+    if(y>2026)return 99;
+    if(m>EI)return 99;
+    return m<S?S:m;
+  }
+  return S;
+}
+function ticketMoyenMRR(){
+  const v=pipe.filter(d=>(d.mrr||0)>0).map(d=>d.mrr);
+  const h=(typeof pipeHistory!=='undefined'?pipeHistory:[]).filter(d=>d.issue==='gagné'&&(d.mrr||0)>0).map(d=>d.mrr);
+  const all=[...v,...h].sort((a,b)=>a-b);
+  if(!all.length)return 0;
+  const n=all.length;
+  return n%2?all[(n-1)/2]:(all[n/2-1]+all[n/2])/2;
+}
+
+/* ── Taux de transformation réel (historique du pipe) ── */
+function winStats(){
+  const H=(typeof pipeHistory!=='undefined'&&Array.isArray(pipeHistory))?pipeHistory:[];
+  const byComm={}, team={won:0,lost:0,wonMrr:0,lostMrr:0,wonOs:0,motifs:{}};
+  H.forEach(h=>{
+    const c=h.comm||'—';
+    if(!byComm[c])byComm[c]={won:0,lost:0,wonMrr:0,lostMrr:0,wonOs:0,motifs:{}};
+    const b=byComm[c], g=(h.issue==='gagné');
+    if(g){b.won++;team.won++;b.wonMrr+=h.mrr||0;team.wonMrr+=h.mrr||0;b.wonOs+=h.os||0;team.wonOs+=h.os||0;}
+    else{b.lost++;team.lost++;b.lostMrr+=h.mrr||0;team.lostMrr+=h.mrr||0;
+      const m=((h.motif||'').trim())||'Non précisé';
+      b.motifs[m]=(b.motifs[m]||0)+1; team.motifs[m]=(team.motifs[m]||0)+1;}
+  });
+  const fin=o=>{o.n=o.won+o.lost;o.rateN=o.n>0?o.won/o.n:null;
+    const tv=o.wonMrr+o.lostMrr;o.rateV=tv>0?o.wonMrr/tv:o.rateN;
+    const ms=Object.entries(o.motifs).sort((a,b)=>b[1]-a[1]);o.topMotif=ms.length?ms[0][0]+' ('+ms[0][1]+')':'—';return o;};
+  Object.values(byComm).forEach(fin); fin(team);
+  return {byComm,team};
+}
+function dealWeight(d){
+  if(projWeight==='hist'){
+    const w=winStats(), c=w.byComm[d.comm];
+    let r=null;
+    if(c&&c.n>=WIN_MIN)r=c.rateV; else if(w.team.n>=WIN_MIN)r=w.team.rateV;
+    if(r!==null&&r!==undefined)return Math.max(0,Math.min(1,r*simScenario));
+  }
+  return Math.max(0,Math.min(1,((d.proba||0)/100)*simScenario));
+}
+
+/* ── Moteur de projection ── */
+function projData(){
+  const S=projStart(), L=projLast(), EI=projEnd(), NB=projNbMois(), actifs=getActifs();
+  const crr=churnRunRate();
+  const perComm={};
+  actifs.forEach(eq=>{
+    const last=eq.nom.split(' ').pop();
+    const rrM=runRate(eq.nom,'mrr'), rrO=runRate(eq.nom,'os');
+    const objM=eq.objMrrNew||0;
+    let baseM = projMode==='runrate'?rrM : projMode==='objectif'?objM : (rrM+objM)/2;
+    baseM*=projAmb;
+    const baseO=rrO*projAmb;
+    let realM=0,realO=0;
+    for(let i=0;i<=L;i++){const a=actMonth(eq.nom,i);realM+=a.mrr;realO+=a.os;}
+    perComm[last]={nom:eq.nom,last,niveau:eq.niveau,objM,objDeb:eq.objDebut||0,rrM,rrO,baseM,baseO,mois:{},
+      realM,realO,pipeM:0,pipeO:0,unidM:0,unidO:0,pipeBrutM:0,pipeBrutO:0,nbDeals:0,retard:0};
+  });
+  /* ventilation du pipe par mois de closing */
+  const buckets={},hors=[];let retardTot=0;
+  pipe.forEach(d=>{
+    const c=d.comm||'—'; if(!perComm[c])return;
+    const p=dealWeight(d);
+    const brut=dealMoisIdx(d,S,EI);
+    if(d.closing&&/^\d{4}-\d{2}/.test(d.closing)){
+      const y=parseInt(d.closing.slice(0,4),10),m=parseInt(d.closing.slice(5,7),10)-1;
+      if(y<2026||(y===2026&&m<S)){perComm[c].retard++;retardTot++;}
+    }
+    if(brut>EI){hors.push(d);return;}
+    if(!buckets[c])buckets[c]={};
+    if(!buckets[c][brut])buckets[c][brut]={m:0,o:0,mB:0,oB:0,n:0};
+    const b=buckets[c][brut];
+    b.m+=(d.mrr||0)*p; b.o+=(d.os||0)*p; b.mB+=(d.mrr||0); b.oB+=(d.os||0); b.n++;
+  });
+  /* mois projetés */
+  const months=[];
+  for(let i=S;i<=EI;i++){
+    const k=i-S, r=RAMP[Math.min(k,RAMP.length-1)];
+    let pM=0,pO=0,uM=0,uO=0,pBM=0,pBO=0,nb=0;
+    Object.values(perComm).forEach(c=>{
+      const cell=((buckets[c.last]||{})[i])||{m:0,o:0,mB:0,oB:0,n:0};
+      const u=c.baseM*r, uo=c.baseO*r;
+      c.mois[i]={pipeM:cell.m,pipeO:cell.o,unidM:u,unidO:uo,newM:cell.m+u,newO:cell.o+uo,nb:cell.n,fut:true};
+      c.pipeM+=cell.m;c.pipeO+=cell.o;c.unidM+=u;c.unidO+=uo;
+      c.pipeBrutM+=cell.mB;c.pipeBrutO+=cell.oB;c.nbDeals+=cell.n;
+      pM+=cell.m;pO+=cell.o;uM+=u;uO+=uo;pBM+=cell.mB;pBO+=cell.oB;nb+=cell.n;
+    });
+    const cc=churnConnuMois(i);
+    const ch=projChurnMode==='connu'?cc:Math.max(cc,crr);
+    months.push({i,lbl:MOIS_LIST[i],fut:true,nb,pipeM:pM,unidM:uM,newM:pM+uM,pipeO:pO,unidO:uO,newO:pO+uO,
+      pipeBrutM:pBM,pipeBrutO:pBO,churn:ch,churnConnu:cc,net:(pM+uM)-ch});
+  }
+  /* mois réalisés */
+  const gC={};churnData.forEach(d=>{gC[d.m]=(gC[d.m]||0)+(d.v||0);});
+  const real=[];
+  for(let i=0;i<=L;i++){
+    let nM=0,nO=0;
+    Object.values(perComm).forEach(c=>{const a=actMonth(c.nom,i);nM+=a.mrr;nO+=a.os;c.mois[i]={pipeM:0,pipeO:0,unidM:0,unidO:0,newM:a.mrr,newO:a.os,nb:0,fut:false};});
+    const ch=gC[MOIS_LIST[i]]||0;
+    real.push({i,lbl:MOIS_LIST[i],fut:false,nb:0,pipeM:0,unidM:0,newM:nM,pipeO:0,unidO:0,newO:nO,
+      pipeBrutM:0,pipeBrutO:0,churn:ch,churnConnu:ch,net:nM-ch});
+  }
+  const all=[...real,...months];
+  let cum=0,base=projBaseMRR;
+  all.forEach(m=>{cum+=m.newM;base+=m.newM-m.churn;m.cumNew=cum;m.base=base;});
+  /* agrégats par commercial */
+  Object.values(perComm).forEach(c=>{
+    c.atterM=c.realM+c.pipeM+c.unidM;
+    c.atterO=c.realO+c.pipeO+c.unidO;
+    c.nbObjTot=Math.max(0,EI-c.objDeb+1);
+    c.nbObjRest=Math.max(0,EI-Math.max(c.objDeb,S)+1);
+    c.objAn=c.objM*c.nbObjTot;
+    c.objRest=c.objM*c.nbObjRest;
+    c.att=c.objAn>0?c.atterM/c.objAn*100:null;
+    c.gap=c.objAn>0?c.atterM-c.objAn:0;
+    c.cover=c.objRest>0?c.pipeBrutM/c.objRest:null;
+    c.prodReq=c.nbObjRest>0?Math.max(0,(c.objAn-c.realM))/c.nbObjRest:0;
+  });
+  const T={
+    realM:real.reduce((a,m)=>a+m.newM,0), realO:real.reduce((a,m)=>a+m.newO,0),
+    realChurn:real.reduce((a,m)=>a+m.churn,0),
+    projM:months.reduce((a,m)=>a+m.newM,0), projO:months.reduce((a,m)=>a+m.newO,0),
+    pipeM:months.reduce((a,m)=>a+m.pipeM,0), unidM:months.reduce((a,m)=>a+m.unidM,0),
+    pipeBrutM:months.reduce((a,m)=>a+m.pipeBrutM,0),
+    projChurn:months.reduce((a,m)=>a+m.churn,0),
+    projChurnConnu:months.reduce((a,m)=>a+m.churnConnu,0)
+  };
+  T.totM=T.realM+T.projM; T.totO=T.realO+T.projO;
+  T.objAn=Object.values(perComm).reduce((a,c)=>a+c.objAn,0);
+  T.objRest=Object.values(perComm).reduce((a,c)=>a+c.objRest,0);
+  T.objMensFin=Object.values(perComm).reduce((a,c)=>a+(c.objDeb<=EI?c.objM:0),0);
+  T.att=T.objAn>0?T.totM/T.objAn*100:null;
+  T.gap=T.totM-T.objAn;
+  T.baseFin=all.length?all[all.length-1].base:projBaseMRR;
+  T.netProj=T.projM-T.projChurn;
+  T.cover=T.objRest>0?T.pipeBrutM/T.objRest:null;
+  return {S,L,EI,NB,real,months,all,perComm:Object.values(perComm),hors,crr,T,retardTot};
+}
+
+/* ── Contrôles ── */
+function setProjMode(m,btn){
+  projMode=m;
+  document.querySelectorAll('#projModeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  E('projModeHint').textContent = m==='runrate'
+    ? 'Base mensuelle = moyenne du MRR New des 3 derniers mois réalisés, par commercial.'
+    : m==='objectif'
+    ? 'Base mensuelle = objectif MRR New de chaque commercial (hypothèse volontariste).'
+    : 'Base mensuelle = moyenne entre le run-rate 3 mois et l\'objectif de chaque commercial.';
+  saveProjCfg();renderProjection();buildProjCharts();
+}
+function setProjAmb(v){projAmb=(parseInt(v,10)||0)/100;E('projAmbLbl').textContent=v+' %';saveProjCfg();renderProjection();buildProjCharts();}
+function setProjChurn(c,btn){
+  projChurnMode=c;
+  document.querySelectorAll('#projChurnSeg button').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
+  E('projChurnHint').textContent = c==='connu'
+    ? 'Ne retient que les résiliations déjà notifiées — vision optimiste, le churn non encore annoncé est ignoré.'
+    : 'Retient, chaque mois, le plus élevé entre le churn déjà notifié et le rythme moyen constaté.';
+  saveProjCfg();renderProjection();buildProjCharts();
+}
+function setProjWeight(w,btn){
+  projWeight=w;
+  document.querySelectorAll('#projWeightSeg button').forEach(b=>b.classList.toggle('on',b.dataset.w===w));
+  saveProjCfg();renderProjection();buildProjCharts();
+}
+function setProjSnap(v){projSnapSel=v;renderProjection();}
+function snapProjection(){
+  const D=projData(), d=new Date();
+  const s={id:Date.now(),date:d.toISOString(),
+    lbl:d.toLocaleDateString('fr-FR')+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    hyp:{mode:projMode,amb:projAmb,scen:simScenario,churn:projChurnMode,end:projEndIdx,last:projLast(),weight:projWeight},
+    T:{realM:D.T.realM,projM:D.T.projM,totM:D.T.totM,pipeM:D.T.pipeM,unidM:D.T.unidM,
+       pipeBrutM:D.T.pipeBrutM,objAn:D.T.objAn,att:D.T.att,projChurn:D.T.projChurn,totO:D.T.totO,baseFin:D.T.baseFin},
+    comm:D.perComm.map(c=>({last:c.last,realM:c.realM,pipeM:c.pipeM,atterM:c.atterM,att:c.att,nbDeals:c.nbDeals,pipeBrutM:c.pipeBrutM}))};
+  projSnaps.push(s);
+  if(projSnaps.length>12)projSnaps=projSnaps.slice(-12);
+  saveState('als_proj_snaps',projSnaps);
+  projSnapSel=String(s.id);
+  renderProjection();toast('📌 Point de référence figé — '+s.lbl);
+}
+function delProjSnap(){
+  const i=projSnaps.findIndex(x=>String(x.id)===String(projSnapSel));
+  if(i<0){toast('⚠️ Aucun point de référence sélectionné');return;}
+  if(!confirm('Supprimer le point de référence du '+projSnaps[i].lbl+' ?'))return;
+  projSnaps.splice(i,1);saveState('als_proj_snaps',projSnaps);
+  projSnapSel=projSnaps.length?String(projSnaps[projSnaps.length-1].id):'';
+  renderProjection();toast('🗑️ Point de référence supprimé');
+}
+function exportProjPDF(){
+  const btns=document.querySelectorAll('#tab-simu .sub-nav button');
+  if(btns[1]&&!E('sub-proj').classList.contains('on'))showSimSub('proj',btns[1]);
+  document.body.classList.add('print-proj');
+  setTimeout(()=>{try{window.print();}catch(e){}
+    setTimeout(()=>document.body.classList.remove('print-proj'),800);},300);
+}
+function setProjEnd(v){projEndIdx=parseInt(v,10);saveProjCfg();renderProjection();buildProjCharts();}
+function setProjLast(v){projLastReal=(v===''?null:parseInt(v,10));saveProjCfg();renderProjection();buildProjCharts();}
+function setProjBase(v){projBaseMRR=parseNum(v);saveProjCfg();renderProjection();buildProjCharts();}
+function setProjComm(v){projCommSel=v;renderProjZoom();buildProjZoomChart();}
+
+/* ── Rendu principal ── */
+function renderProjection(){
+  if(!E('projKpi'))return;
+  const D=projData(), T=D.T, S=D.S;
+  /* sélecteurs */
+  const sel=E('projLastSel');
+  if(sel){
+    const cur=projLastReal===null?'':String(projLastReal);
+    sel.innerHTML='<option value="">Auto — '+(D.L>=0?MOIS_LIST[D.L]:'aucun')+'</option>'+
+      MOIS_LIST.map((m,i)=>`<option value="${i}"${cur===String(i)?' selected':''}>${m}</option>`).join('');
+    sel.value=cur;
+  }
+  if(E('projBaseInp')&&document.activeElement!==E('projBaseInp'))E('projBaseInp').value=projBaseMRR;
+  if(E('projAmb'))E('projAmb').value=Math.round(projAmb*100);
+  if(E('projAmbLbl'))E('projAmbLbl').textContent=Math.round(projAmb*100)+' %';
+  document.querySelectorAll('#projModeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===projMode));
+  document.querySelectorAll('#projChurnSeg button').forEach(b=>b.classList.toggle('on',b.dataset.c===projChurnMode));
+  document.querySelectorAll('#projWeightSeg button').forEach(b=>b.classList.toggle('on',b.dataset.w===projWeight));
+  const _w=winStats();
+  if(E('projWeightHint'))E('projWeightHint').textContent = projWeight==='proba'
+    ? 'Utilise la probabilité renseignée sur chaque affaire.'
+    : (_w.team.n>=WIN_MIN
+        ? 'Remplace les probabilités par le taux de transformation constaté (' + (_w.team.rateV*100).toFixed(0) + ' % en valeur sur ' + _w.team.n + ' affaires clôturées). Taux individuel dès ' + WIN_MIN + ' affaires clôturées.'
+        : 'Historique insuffisant (' + _w.team.n + ' affaire(s) clôturée(s) sur ' + WIN_MIN + ' requises) — retour automatique aux probabilités saisies.');
+
+  const EI=D.EI;
+  const perLbl = S>11?'année close':MOIS_LIST[S]+' → '+MOIS_LIST[EI]+' ('+projNbMois()+' mois)';
+  const finLbl = 'fin '+MOIS_LIST[EI];
+  const selE=E('projEndSel');
+  if(selE){selE.innerHTML=MOIS_LIST.map((m,i)=>i<S?'':`<option value="${i}"${i===EI?' selected':''}>${m} 2026</option>`).join('');selE.value=String(EI);}
+  if(E('projPeriodeLbl'))E('projPeriodeLbl').textContent=perLbl;
+  if(E('projCommPeriode'))E('projCommPeriode').textContent=perLbl;
+  const baseLbl=projBaseMRR>0?'MRR base à '+finLbl:'Variation MRR base 2026';
+  E('projHypTxt').innerHTML=
+    `Le <strong>MRR New de chaque mois à venir</strong> = <strong>pipe pondéré</strong> (affaires réelles, ventilées par date de closing, probabilité × scénario) `+
+    `+ <strong>production non encore identifiée</strong> (affaires qui ne sont pas encore au pipe). `+
+    `Cette seconde brique monte en charge progressivement&nbsp;: 0&nbsp;% le mois en cours (tout ce qui signera est déjà connu), 50&nbsp;% le mois suivant, 100&nbsp;% ensuite. `+
+    `Base retenue&nbsp;: <strong>${projMode==='runrate'?'run-rate 3 mois':projMode==='objectif'?'objectif mensuel':'moyenne run-rate / objectif'}</strong> × ${Math.round(projAmb*100)}&nbsp;%. `+
+    `Le MRR étant récurrent, le <strong>MRR base</strong> cumule chaque mois le new signé moins le churn — c'est lui qui pilote l'ARR de sortie.`;
+
+  /* KPI DG */
+  const attCls=T.att===null?'':T.att>=100?'green':T.att>=80?'orange':'red';
+  E('projKpi').innerHTML=
+    `<div class="kpi kblue"><div class="kpi-lbl">MRR New projeté</div><div class="kpi-val blue">${fmt(T.projM,0)}</div><div class="kpi-sub">${perLbl}</div></div>`+
+    `<div class="kpi kgreen"><div class="kpi-lbl">MRR New atterrissage ${finLbl}</div><div class="kpi-val green">${fmt(T.totM,0)}</div><div class="kpi-sub">${fmt(T.realM,0)} réalisé + ${fmt(T.projM,0)} projeté</div></div>`+
+    `<div class="kpi knavy"><div class="kpi-lbl">Objectif cumulé à ${finLbl}</div><div class="kpi-val">${fmt(T.objAn,0)}</div><div class="kpi-sub">${fmt(T.objRest,0)} restant à produire</div></div>`+
+    `<div class="kpi k${attCls==='green'?'green':attCls==='orange'?'orange':'red'}"><div class="kpi-lbl">Atteinte projetée</div><div class="kpi-val ${attCls}">${T.att===null?'—':T.att.toFixed(0)+' %'}</div><div class="kpi-sub">${T.gap>=0?'avance de ':'gap de '}${fmt(Math.abs(T.gap),0)}</div></div>`+
+    `<div class="kpi kred"><div class="kpi-lbl">Churn projeté</div><div class="kpi-val red">${fmt(T.projChurn,0)}</div><div class="kpi-sub">dont ${fmt(T.projChurnConnu,0)} déjà notifié</div></div>`+
+    `<div class="kpi kpurple"><div class="kpi-lbl">MRR net projeté</div><div class="kpi-val purple">${fmt(T.netProj,0)}</div><div class="kpi-sub">New − churn sur la période</div></div>`+
+    `<div class="kpi knavy"><div class="kpi-lbl">${baseLbl}</div><div class="kpi-val">${fmt(T.baseFin,0)}</div><div class="kpi-sub">${projBaseMRR>0?'ARR sortie ≈ '+fmt(T.baseFin*12,0):'saisir le MRR installé pour l\'ARR'}</div></div>`+
+    `<div class="kpi korange"><div class="kpi-lbl">Non récurrent à ${finLbl}</div><div class="kpi-val orange">${fmt(T.totO,0)}</div><div class="kpi-sub">${fmt(T.projO,0)} projeté sur la période</div></div>`;
+
+  /* Table mensuelle */
+  let h='';
+  D.all.forEach(m=>{
+    const cls=m.fut?'proj-fut':'proj-real';
+    h+=`<tr class="${cls}"><td style="font-weight:${m.fut?700:500}">${m.lbl}${m.fut?'':' <span class="bdg na">réalisé</span>'}</td>`+
+      `<td style="text-align:center">${m.fut&&m.nb?m.nb:'—'}</td>`+
+      `<td>${m.pipeM>0?fmt(m.pipeM,0):'—'}</td>`+
+      `<td>${m.unidM>0?fmt(m.unidM,0):'—'}</td>`+
+      `<td style="font-weight:700">${fmt(m.newM,0)}</td>`+
+      `<td style="color:var(--red)">${m.churn>0?'−'+fmt(m.churn,0):'—'}</td>`+
+      `<td style="font-weight:600;color:${m.net>=0?'var(--green)':'var(--red)'}">${fmt(m.net,0)}</td>`+
+      `<td>${fmt(m.cumNew,0)}</td>`+
+      `<td style="font-weight:600">${fmt(m.base,0)}</td>`+
+      `<td>${m.newO>0?fmt(m.newO,0):'—'}</td></tr>`;
+  });
+  h+=`<tr class="tr-tot"><td>TOTAL à ${finLbl}</td><td style="text-align:center">${D.months.reduce((a,m)=>a+m.nb,0)}</td>`+
+     `<td>${fmt(T.pipeM,0)}</td><td>${fmt(T.unidM,0)}</td><td>${fmt(T.totM,0)}</td>`+
+     `<td style="color:var(--red)">−${fmt(T.realChurn+T.projChurn,0)}</td>`+
+     `<td>${fmt(T.totM-(T.realChurn+T.projChurn),0)}</td><td>${fmt(T.totM,0)}</td><td>${fmt(T.baseFin,0)}</td><td>${fmt(T.totO,0)}</td></tr>`;
+  E('projTbl').innerHTML=h;
+
+  renderProjSynthese(D);
+  renderProjDelta(D);
+  renderProjReco(D);
+  renderProjInsights(D);
+  renderProjComm(D);
+  renderProjWin(D);
+}
+
+/* ── Leviers de croissance (cartes DG) ── */
+function renderProjReco(D){
+  const T=D.T,g=E('projReco');if(!g)return;
+  const nb=projNbMois();
+  const resteAProduire=Math.max(0,T.objAn-T.realM);
+  const prodReq=nb>0?resteAProduire/nb:0;
+  const runEquipe=D.perComm.reduce((a,c)=>a+c.rrM,0);
+  const mult=runEquipe>0?prodReq/runEquipe:null;
+  const cover=T.cover;
+  const tk=ticketMoyenMRR();
+  const dealsReq=tk>0?prodReq/tk:null;
+  const prodMoyCom=D.perComm.length?runEquipe/D.perComm.length:0;
+  const besoinEtp=(prodMoyCom>0&&prodReq>runEquipe)?(prodReq-runEquipe)/prodMoyCom:0;
+  const ratioChurn=T.projM>0?T.projChurn/T.projM*100:null;
+  const moisSansPipe=D.months.filter(m=>m.pipeM<=0&&m.pipeO<=0).map(m=>m.lbl);
+  const ranked=[...D.perComm].sort((a,b)=>b.atterM-a.atterM);
+  const conc=T.totM>0&&ranked.length?ranked[0].atterM/T.totM*100:0;
+  const cards=[];
+
+  cards.push({c:prodReq<=runEquipe?'ok':'act',t:'Production mensuelle requise',
+    v:fmt(prodReq,0)+' / mois',
+    p:`Pour tenir l'objectif cumulé à fin ${MOIS_LIST[D.EI]}, l'équipe doit produire ${fmt(prodReq,0)} de MRR New chaque mois sur les ${nb} mois restants. Run-rate actuel&nbsp;: <strong>${fmt(runEquipe,0)}</strong> / mois${mult!==null?` — soit un facteur <strong>×${mult.toFixed(1)}</strong> à trouver`:''}.`});
+
+  cards.push({c:cover===null?'neu':cover>=PIPE_COVER_TARGET?'ok':cover>=1.5?'act':'warn',
+    t:'Couverture de pipe',
+    v:cover===null?'—':'×'+cover.toFixed(1),
+    p:`Pipe brut restant (${fmt(T.pipeBrutM,0)} de MRR) rapporté à l'objectif de la période (${fmt(T.objRest,0)}). La règle de gestion usuelle est <strong>×${PIPE_COVER_TARGET}</strong> pour sécuriser un objectif. ${cover!==null&&cover<PIPE_COVER_TARGET?`Il manque environ <strong>${fmt(Math.max(0,T.objRest*PIPE_COVER_TARGET-T.pipeBrutM),0)}</strong> de MRR à mettre au pipe.`:'Couverture satisfaisante.'}`});
+
+  if(dealsReq!==null&&tk>0)cards.push({c:'neu',t:'Volume d\'affaires à générer',
+    v:Math.ceil(dealsReq)+' affaires / mois',
+    p:`Au ticket moyen constaté de <strong>${fmt(tk,0)}</strong> de MRR par affaire, il faut signer ~${Math.ceil(dealsReq)} affaires par mois, soit ~${Math.ceil(dealsReq/Math.max(1,D.perComm.length))} par commercial. À taux de transformation de 30&nbsp;%, cela suppose ~${Math.ceil(dealsReq/0.3)} opportunités créées chaque mois.`});
+
+  if(besoinEtp>0.15)cards.push({c:'act',t:'Besoin de capacité',
+    v:'+'+besoinEtp.toFixed(1)+' ETP',
+    p:`À productivité constante (${fmt(prodMoyCom,0)} de MRR/mois par commercial), l'écart entre le rythme requis et le rythme actuel équivaut à <strong>${besoinEtp.toFixed(1)} commercial(aux) supplémentaire(s)</strong>. Alternative sans recrutement&nbsp;: augmenter la productivité moyenne de ${((prodReq/runEquipe-1)*100).toFixed(0)}&nbsp;%.`});
+  else cards.push({c:'ok',t:'Besoin de capacité',v:'Effectif suffisant',
+    p:`Le rythme requis (${fmt(prodReq,0)}/mois) est atteignable avec l'effectif actuel si le run-rate se maintient. L'enjeu est la <strong>régularité</strong> plus que la capacité.`});
+
+  cards.push({c:ratioChurn===null?'neu':ratioChurn>=50?'warn':ratioChurn>=30?'act':'ok',
+    t:'Érosion du récurrent',
+    v:ratioChurn===null?'—':ratioChurn.toFixed(0)+' %',
+    p:`Le churn projeté représente ${ratioChurn===null?'—':ratioChurn.toFixed(0)+' %'} du new business projeté. ${T.projChurnConnu<T.projChurn?`Attention&nbsp;: seules <strong>${fmt(T.projChurnConnu,0)}</strong> de résiliations sont déjà notifiées contre <strong>${fmt(D.crr,0)}/mois</strong> de rythme constaté — le churn futur est probablement sous-déclaré.`:'Le churn notifié couvre le rythme constaté.'} Chaque euro de churn évité vaut un euro de new business, pour un coût commercial bien moindre.`});
+
+  if(D.retardTot>0)cards.push({c:'warn',t:'Pipe en retard',v:D.retardTot+' affaire(s)',
+    p:`${D.retardTot} affaire(s) ont une date de closing déjà dépassée et sont automatiquement replacées sur ${MOIS_LIST[D.S]||'le mois courant'}. Un pipe qui glisse est le premier signal d'un atterrissage manqué&nbsp;: à requalifier ou à sortir en revue hebdo.`});
+
+  if(moisSansPipe.length)cards.push({c:'act',t:'Trou de pipe',v:moisSansPipe.length+' mois',
+    p:`Aucune affaire identifiée sur&nbsp;: <strong>${moisSansPipe.join(', ')}</strong>. La projection sur ces mois repose entièrement sur l'hypothèse de production non identifiée. Fixer un objectif de <em>création</em> de pipe (et pas seulement de signature) sur ces mois.`});
+
+  if(conc>0)cards.push({c:conc>=45?'warn':conc>=35?'act':'ok',t:'Concentration du risque',
+    v:conc.toFixed(0)+' %',
+    p:`${ranked[0].last} porte ${conc.toFixed(0)}&nbsp;% de l'atterrissage MRR de l'équipe. ${conc>=40?'Dépendance forte&nbsp;: un aléa sur une seule personne fait basculer l\'année.':'Répartition acceptable.'} Suivre en parallèle le nombre de commerciaux au-dessus de 100&nbsp;% d'atteinte.`});
+
+  if(D.hors.length)cards.push({c:'neu',t:'Au-delà de l\'horizon',v:D.hors.length+' affaire(s)',
+    p:`${D.hors.length} affaire(s) du pipe ont un closing postérieur à décembre&nbsp;2026 et ne sont pas comptées dans l'atterrissage. Elles constituent le socle de démarrage 2027.`});
+
+  g.innerHTML=cards.map(c=>`<div class="reco ${c.c}"><h4>${c.t}</h4><div class="reco-val">${c.v}</div><p>${c.p}</p></div>`).join('');
+}
+
+/* ── Lecture synthétique ── */
+function renderProjInsights(D){
+  const g=E('projInsights');if(!g)return;g.innerHTML='';
+  const T=D.T;
+  const pos=[],ale=[],pri=[],inf=[];
+  const ok=D.perComm.filter(c=>c.att!==null&&c.att>=100);
+  const ko=D.perComm.filter(c=>c.att!==null&&c.att<80);
+  if(ok.length)pos.push(`Atterrissage ≥ objectif à fin ${MOIS_LIST[D.EI]} : ${ok.map(c=>c.last+' ('+c.att.toFixed(0)+' %)').join(' · ')}.`);
+  pos.push(`MRR New projeté ${MOIS_LIST[D.S]||''}→${MOIS_LIST[D.EI]||''} : ${fmt(T.projM,0)}, dont ${fmt(T.pipeM,0)} déjà identifiés au pipe (${T.projM>0?(T.pipeM/T.projM*100).toFixed(0):0} %).`);
+  if(T.netProj>0)pos.push(`MRR net positif sur la période : +${fmt(T.netProj,0)} de récurrent gagné net de churn.`);
+  if(ko.length)ale.push(`Sous 80 % de l'objectif de période : ${ko.map(c=>c.last+' ('+c.att.toFixed(0)+' %, gap '+fmt(c.gap,0)+')').join(' · ')}.`);
+  if(T.gap<0)ale.push(`Gap équipe sur l'objectif : ${fmt(Math.abs(T.gap),0)} de MRR New à trouver d'ici ${MOIS_LIST[D.EI].toLowerCase()}.`);
+  if(T.projChurn>T.projChurnConnu)ale.push(`Churn futur probablement sous-déclaré : ${fmt(T.projChurnConnu,0)} notifiés vs ${fmt(D.crr*projNbMois(),0)} au rythme constaté.`);
+  const sansPipe=D.perComm.filter(c=>c.nbDeals===0);
+  if(sansPipe.length)ale.push(`Aucune affaire au pipe sur la période : ${sansPipe.map(c=>c.last).join(', ')}.`);
+  const faibleCouv=D.perComm.filter(c=>c.cover!==null&&c.cover<PIPE_COVER_TARGET&&c.objM>0);
+  if(faibleCouv.length)pri.push(`Charger le pipe de ${faibleCouv.map(c=>c.last+' (×'+c.cover.toFixed(1)+')').join(' · ')} pour atteindre la couverture ×${PIPE_COVER_TARGET}.`);
+  pri.push(`Sécuriser en priorité les affaires en Signature / Négociation sur ${MOIS_LIST[D.S]||''} et ${MOIS_LIST[D.S+1]||''} : c'est la partie de la projection réellement pilotable.`);
+  if(T.projChurn>0)pri.push(`Lancer un plan de rétention : ${fmt(T.projChurn,0)} de churn projeté équivaut à ${T.projM>0?(T.projChurn/T.projM*100).toFixed(0):0} % de l'effort de conquête.`);
+  inf.push(`Scénario pipe : ${simScenario===1?'Réaliste':simScenario<1?'Prudent (proba × 0,7)':'Optimiste (proba × 1,3)'} · base non identifiée : ${projMode==='runrate'?'run-rate 3 mois':projMode==='objectif'?'objectif':'moyenne'} × ${Math.round(projAmb*100)} %.`);
+  inf.push(`Dernier mois réalisé : ${D.L>=0?MOIS_LIST[D.L]:'—'} · ${projNbMois()} mois projetés jusqu'à ${MOIS_LIST[D.EI]}.`);
+  inf.push(`MRR = récurrent mensuel · non récurrent = one-shot — volontairement non additionnés.`);
+  const blocks=[{type:'pos',icon:'✅',lbl:'Points positifs',items:pos},{type:'ale',icon:'⚠️',lbl:'Alertes',items:ale},{type:'pri',icon:'🎯',lbl:'Priorités',items:pri},{type:'inf',icon:'📊',lbl:'Hypothèses',items:inf}];
+  blocks.forEach(b=>{if(b.items.length)g.innerHTML+=`<div class="an-card ${b.type}"><div class="an-hdr"><span>${b.icon}</span><span class="an-lbl">${b.lbl}</span></div><ul class="an-ul">${b.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`;});
+}
+
+/* ── Vue par commercial ── */
+function renderProjComm(D){
+  const tb=E('projCommTbl');if(!tb)return;
+  const T=D.T;
+  const finLbl='fin '+MOIS_LIST[D.EI];
+  const nbOk=D.perComm.filter(c=>c.att!==null&&c.att>=100).length;
+  const nbObj=D.perComm.filter(c=>c.objM>0).length;
+  const nbCouv=D.perComm.filter(c=>c.cover!==null&&c.cover>=PIPE_COVER_TARGET).length;
+  const runEq=D.perComm.reduce((a,c)=>a+c.rrM,0);
+  E('projCommKpi').innerHTML=
+    `<div class="kpi kgreen"><div class="kpi-lbl">Objectif ${finLbl} atteint</div><div class="kpi-val green">${nbOk}/${nbObj}</div><div class="kpi-sub">commerciaux ≥ 100 % en projection</div></div>`+
+    `<div class="kpi kblue"><div class="kpi-lbl">Couverture pipe ×${PIPE_COVER_TARGET}</div><div class="kpi-val blue">${nbCouv}/${nbObj}</div><div class="kpi-sub">pipe brut ≥ 3× objectif restant</div></div>`+
+    `<div class="kpi knavy"><div class="kpi-lbl">Run-rate moyen / commercial</div><div class="kpi-val">${fmt(D.perComm.length?runEq/D.perComm.length:0,0)}</div><div class="kpi-sub">MRR New par mois, 3 derniers mois</div></div>`+
+    `<div class="kpi korange"><div class="kpi-lbl">Écart au meilleur</div><div class="kpi-val orange">${(()=>{const s=[...D.perComm].sort((a,b)=>b.rrM-a.rrM);return s.length>1&&s[s.length-1].rrM>0?'×'+(s[0].rrM/s[s.length-1].rrM).toFixed(1):'—';})()}</div><div class="kpi-sub">run-rate max / min</div></div>`;
+
+  let h='';
+  D.perComm.forEach(c=>{
+    const attCls=c.att===null?'na':c.att>=100?'ov':c.att>=80?'ne':'lo';
+    const covCls=c.cover===null?'na':c.cover>=PIPE_COVER_TARGET?'ov':c.cover>=1.5?'ne':'lo';
+    h+=`<tr><td style="font-weight:600">${c.last}</td>`+
+      `<td>${fmt(c.realM,0)}</td>`+
+      `<td>${c.pipeM>0?fmt(c.pipeM,0):'—'}</td>`+
+      `<td>${c.unidM>0?fmt(c.unidM,0):'—'}</td>`+
+      `<td style="font-weight:700">${fmt(c.atterM,0)}</td>`+
+      `<td>${c.objAn>0?fmt(c.objAn,0):'—'}</td>`+
+      `<td><span class="bdg ${attCls}">${c.att===null?'—':c.att.toFixed(0)+' %'}</span></td>`+
+      `<td style="font-weight:600;color:${c.gap>=0?'var(--green)':'var(--red)'}">${c.objAn>0?fmt(c.gap,0):'—'}</td>`+
+      `<td><span class="bdg ${covCls}">${c.cover===null?'—':'×'+c.cover.toFixed(1)}</span></td>`+
+      `<td>${fmt(c.prodReq,0)}<div style="font-size:.65rem;color:var(--subtle)">run-rate ${fmt(c.rrM,0)}</div></td>`+
+      `<td>${fmt(c.atterO,0)}</td></tr>`;
+  });
+  h+=`<tr class="tr-tot"><td>TOTAL</td><td>${fmt(T.realM,0)}</td><td>${fmt(T.pipeM,0)}</td><td>${fmt(T.unidM,0)}</td><td>${fmt(T.totM,0)}</td><td>${fmt(T.objAn,0)}</td><td>${T.att===null?'—':T.att.toFixed(0)+' %'}</td><td>${fmt(T.gap,0)}</td><td>${T.cover===null?'—':'×'+T.cover.toFixed(1)}</td><td>${fmt(projNbMois()>0?Math.max(0,T.objAn-T.realM)/projNbMois():0,0)}</td><td>${fmt(T.totO,0)}</td></tr>`;
+  tb.innerHTML=h;
+
+  const sel=E('projCommSel');
+  if(sel){
+    const cur=projCommSel||(D.perComm[0]?D.perComm[0].last:'');
+    projCommSel=cur;
+    sel.innerHTML=D.perComm.map(c=>`<option value="${c.last}"${c.last===cur?' selected':''}>${c.nom}</option>`).join('');
+    sel.value=cur;
+  }
+  renderProjZoom(D);
+}
+
+function renderProjZoom(D){
+  D=D||projData();
+  const c=D.perComm.find(x=>x.last===projCommSel)||D.perComm[0];
+  if(!c||!E('projZoomTbl'))return;
+  ['projZoomNom','projZoomNom2'].forEach(id=>{if(E(id))E(id).textContent=c.nom;});
+  const attCls=c.att===null?'':c.att>=100?'green':c.att>=80?'orange':'red';
+  E('projZoomKpi').innerHTML=
+    `<div class="kpi kgreen"><div class="kpi-lbl">Atterrissage MRR New</div><div class="kpi-val green">${fmt(c.atterM,0)}</div><div class="kpi-sub">${fmt(c.realM,0)} réalisé + ${fmt(c.pipeM+c.unidM,0)} projeté</div></div>`+
+    `<div class="kpi k${attCls==='green'?'green':attCls==='orange'?'orange':'red'}"><div class="kpi-lbl">Atteinte objectif annuel</div><div class="kpi-val ${attCls}">${c.att===null?'—':c.att.toFixed(0)+' %'}</div><div class="kpi-sub">objectif ${fmt(c.objAn,0)}</div></div>`+
+    `<div class="kpi kblue"><div class="kpi-lbl">Run-rate mensuel</div><div class="kpi-val blue">${fmt(c.rrM,0)}</div><div class="kpi-sub">objectif ${fmt(c.objM,0)} / mois</div></div>`+
+    `<div class="kpi korange"><div class="kpi-lbl">Production requise</div><div class="kpi-val orange">${fmt(c.prodReq,0)}</div><div class="kpi-sub">par mois jusqu'à décembre</div></div>`+
+    `<div class="kpi knavy"><div class="kpi-lbl">Couverture pipe</div><div class="kpi-val">${c.cover===null?'—':'×'+c.cover.toFixed(1)}</div><div class="kpi-sub">${c.nbDeals} affaire(s) · ${fmt(c.pipeBrutM,0)} brut</div></div>`+
+    `<div class="kpi kpurple"><div class="kpi-lbl">Non récurrent atterrissage</div><div class="kpi-val purple">${fmt(c.atterO,0)}</div><div class="kpi-sub">${fmt(c.realO,0)} réalisé</div></div>`;
+
+  let h='';
+  for(let i=0;i<12;i++){
+    const m=c.mois[i];
+    if(!m){h+=`<tr style="color:var(--subtle)"><td>${MOIS_LIST[i]}</td><td colspan="8" style="color:var(--subtle)">hors périmètre</td></tr>`;continue;}
+    const ecart=m.newM-c.objM;
+    h+=`<tr class="${m.fut?'proj-fut':'proj-real'}"><td style="font-weight:${m.fut?700:500}">${MOIS_LIST[i]}</td>`+
+      `<td><span class="bdg ${m.fut?'ne':'na'}">${m.fut?'projeté':'réalisé'}</span></td>`+
+      `<td style="text-align:center">${m.nb||'—'}</td>`+
+      `<td>${m.pipeM>0?fmt(m.pipeM,0):'—'}</td>`+
+      `<td>${m.unidM>0?fmt(m.unidM,0):'—'}</td>`+
+      `<td style="font-weight:700">${fmt(m.newM,0)}</td>`+
+      `<td>${c.objM>0?fmt(c.objM,0):'—'}</td>`+
+      `<td style="font-weight:600;color:${ecart>=0?'var(--green)':'var(--red)'}">${c.objM>0?fmt(ecart,0):'—'}</td>`+
+      `<td>${m.newO>0?fmt(m.newO,0):'—'}</td></tr>`;
+  }
+  E('projZoomTbl').innerHTML=h;
+
+  /* Plan d'action individuel */
+  const g=E('projZoomReco');if(!g)return;
+  const nb=projNbMois();
+  const manque=Math.max(0,c.objAn-c.atterM);
+  const tk=ticketMoyenMRR();
+  const cards=[];
+  cards.push({c:c.att===null?'neu':c.att>=100?'ok':c.att>=80?'act':'warn',t:'Position sur la période',
+    v:c.att===null?'—':c.att.toFixed(0)+' %',
+    p:c.att===null?'Pas d\'objectif MRR New défini pour ce commercial.':c.att>=100
+      ?`Objectif de période couvert en projection (${fmt(c.atterM,0)} vs ${fmt(c.objAn,0)}). Enjeu&nbsp;: sécuriser le pipe et éviter le relâchement de fin d'année.`
+      :`Il manque <strong>${fmt(manque,0)}</strong> de MRR New pour tenir l'objectif de période, soit <strong>${fmt(nb>0?manque/nb:0,0)}</strong> par mois sur les ${nb} mois restants.`});
+  cards.push({c:c.rrM>=c.objM?'ok':'act',t:'Rythme de production',
+    v:fmt(c.rrM,0)+' / mois',
+    p:`Run-rate des 3 derniers mois vs objectif de ${fmt(c.objM,0)}/mois. ${c.rrM>=c.objM?'Rythme conforme, à maintenir.':`Écart de <strong>${fmt(c.objM-c.rrM,0)}</strong>/mois — soit ${c.objM>0?((1-c.rrM/c.objM)*100).toFixed(0):0} % sous l'objectif.`}`});
+  cards.push({c:c.cover===null?'neu':c.cover>=PIPE_COVER_TARGET?'ok':c.cover>=1.5?'act':'warn',t:'Pipe à charger',
+    v:c.cover===null?'—':'×'+c.cover.toFixed(1),
+    p:c.nbDeals===0?`Aucune affaire au pipe sur la période. Priorité absolue&nbsp;: reconstituer un portefeuille d'opportunités avant toute discussion de closing.`
+      :`${c.nbDeals} affaire(s) pour ${fmt(c.pipeBrutM,0)} de MRR brut. ${c.cover!==null&&c.cover<PIPE_COVER_TARGET?`Pour une couverture ×${PIPE_COVER_TARGET}, il faut ajouter <strong>${fmt(Math.max(0,c.objRest*PIPE_COVER_TARGET-c.pipeBrutM),0)}</strong> de MRR au pipe${tk>0?`, soit ~${Math.ceil(Math.max(0,c.objRest*PIPE_COVER_TARGET-c.pipeBrutM)/tk)} affaires`:''}.`:'Couverture conforme.'}`});
+  if(c.retard>0)cards.push({c:'warn',t:'Affaires en retard',v:c.retard,
+    p:`${c.retard} affaire(s) au closing dépassé. À requalifier ou à clôturer en revue de pipe&nbsp;: elles faussent la lecture de l'atterrissage.`});
+  if(c.atterO>0)cards.push({c:'neu',t:'Mix récurrent / one-shot',
+    v:c.atterM>0?'×'+(c.atterO/c.atterM).toFixed(1):'—',
+    p:`${fmt(c.atterO,0)} de non récurrent projeté pour ${fmt(c.atterM,0)} de MRR. ${c.atterO>c.atterM*20?'Profil très orienté projet/one-shot&nbsp;: forte contribution au CA immédiat mais peu de construction de récurrent.':'Mix équilibré entre volume immédiat et construction du récurrent.'}`});
+  g.innerHTML=cards.map(x=>`<div class="reco ${x.c}"><h4>${x.t}</h4><div class="reco-val">${x.v}</div><p>${x.p}</p></div>`).join('');
+}
+
+/* ── Graphiques projection ── */
+function buildProjCharts(){
+  ['projMoisChart','projCumulChart','projCommChart','projRunChart'].forEach(k=>{if(charts[k]){try{charts[k].destroy();}catch(e){}delete charts[k];}});
+  if(!E('projMoisChart'))return;
+  const D=projData();
+  const labels=MOIS_LIST;
+  const byIdx=i=>D.all.find(m=>m.i===i)||null;
+  const dReal=labels.map((l,i)=>{const m=byIdx(i);return m&&!m.fut?Math.round(m.newM):null;});
+  const dPipe=labels.map((l,i)=>{const m=byIdx(i);return m&&m.fut?Math.round(m.pipeM):null;});
+  const dUnid=labels.map((l,i)=>{const m=byIdx(i);return m&&m.fut?Math.round(m.unidM):null;});
+  const dChurn=labels.map((l,i)=>{const m=byIdx(i);return m?-Math.round(m.churn):null;});
+  const dBase=labels.map((l,i)=>{const m=byIdx(i);return m?Math.round(m.base):null;});
+
+  charts.projMoisChart=new Chart(E('projMoisChart'),{type:'bar',data:{labels,datasets:[
+    {label:'Réalisé',data:dReal,backgroundColor:'rgba(100,116,139,.55)',stack:'n',borderRadius:4},
+    {label:'Pipe pondéré',data:dPipe,backgroundColor:'#2563eb',stack:'n',borderRadius:4},
+    {label:'Non identifié',data:dUnid,backgroundColor:'rgba(37,99,235,.30)',stack:'n',borderRadius:4},
+    {label:'Churn',data:dChurn,backgroundColor:'rgba(220,38,38,.55)',stack:'n',borderRadius:4},
+    {type:'line',label:'MRR base',data:dBase,borderColor:'#7c3aed',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3,yAxisID:'y1'}
+  ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:11,padding:8}},
+    tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+fmt(Math.abs(c.parsed.y),0)}}},
+    scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},
+      y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}},
+      y1:{position:'right',grid:{display:false},ticks:{callback:v=>fmt(v),font:{size:10},color:'#7c3aed'}}}}});
+
+  /* Trajectoire cumulée */
+  const cumReal=labels.map((l,i)=>{const m=byIdx(i);return m&&!m.fut?Math.round(m.cumNew):null;});
+  const cumProj=labels.map((l,i)=>{const m=byIdx(i);if(!m)return null;if(m.fut)return Math.round(m.cumNew);return i===D.L?Math.round(m.cumNew):null;});
+  const cumObj=labels.map((l,i)=>i<=D.EI
+    ? Math.round(D.perComm.reduce((a,c)=>a+c.objM*Math.max(0,i-c.objDeb+1),0))
+    : null);
+  charts.projCumulChart=new Chart(E('projCumulChart'),{type:'line',data:{labels,datasets:[
+    {label:'Cumul réalisé',data:cumReal,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.10)',borderWidth:3,pointRadius:4,tension:.25,fill:true},
+    {label:'Cumul projeté',data:cumProj,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',borderWidth:3,borderDash:[6,4],pointRadius:4,tension:.25,fill:true},
+    {label:'Objectif cumulé',data:cumObj,borderColor:'rgba(15,23,42,.45)',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0}
+  ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:11,padding:8}},
+    tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.parsed.y===null?null:' '+c.dataset.label+' : '+fmt(c.parsed.y,0)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
+
+  if(E('projCommChart')){
+    const cl=D.perComm.map(c=>c.last);
+    charts.projCommChart=new Chart(E('projCommChart'),{type:'bar',data:{labels:cl,datasets:[
+      {label:'Réalisé',data:D.perComm.map(c=>Math.round(c.realM)),backgroundColor:'rgba(22,163,74,.75)',stack:'a',borderRadius:4},
+      {label:'Pipe pondéré',data:D.perComm.map(c=>Math.round(c.pipeM)),backgroundColor:'#2563eb',stack:'a',borderRadius:4},
+      {label:'Non identifié',data:D.perComm.map(c=>Math.round(c.unidM)),backgroundColor:'rgba(37,99,235,.28)',stack:'a',borderRadius:4},
+      {label:'Objectif période',data:D.perComm.map(c=>Math.round(c.objAn)),backgroundColor:'rgba(15,23,42,.10)',borderColor:'rgba(15,23,42,.4)',borderWidth:1,stack:'b',borderRadius:4}
+    ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:11,padding:8}},
+      tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+fmt(c.parsed.y,0)}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
+  }
+  if(E('projRunChart')){
+    const cl=D.perComm.map(c=>c.last);
+    charts.projRunChart=new Chart(E('projRunChart'),{type:'bar',data:{labels:cl,datasets:[
+      {label:'Run-rate 3 mois',data:D.perComm.map(c=>Math.round(c.rrM)),backgroundColor:D.perComm.map(c=>c.rrM>=c.objM?'#16a34a':c.rrM>=c.objM*0.5?'#ea580c':'#dc2626'),borderRadius:5},
+      {label:'Objectif mensuel',data:D.perComm.map(c=>Math.round(c.objM)),backgroundColor:'rgba(15,23,42,.12)',borderColor:'rgba(15,23,42,.35)',borderWidth:1,borderRadius:5},
+      {label:'Production requise',data:D.perComm.map(c=>Math.round(c.prodReq)),backgroundColor:'rgba(124,58,237,.30)',borderColor:'#7c3aed',borderWidth:1,borderRadius:5}
+    ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:11,padding:8}},
+      tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+fmt(c.parsed.y,0)}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
+  }
+  buildProjZoomChart(D);
+}
+
+function buildProjZoomChart(D){
+  if(charts.projZoomChart){try{charts.projZoomChart.destroy();}catch(e){}delete charts.projZoomChart;}
+  if(!E('projZoomChart'))return;
+  D=D||projData();
+  const c=D.perComm.find(x=>x.last===projCommSel)||D.perComm[0];
+  if(!c)return;
+  const labels=MOIS_LIST;
+  const dReal=labels.map((l,i)=>{const m=c.mois[i];return m&&!m.fut?Math.round(m.newM):null;});
+  const dPipe=labels.map((l,i)=>{const m=c.mois[i];return m&&m.fut?Math.round(m.pipeM):null;});
+  const dUnid=labels.map((l,i)=>{const m=c.mois[i];return m&&m.fut?Math.round(m.unidM):null;});
+  const dObj=labels.map(()=>Math.round(c.objM));
+  charts.projZoomChart=new Chart(E('projZoomChart'),{type:'bar',data:{labels,datasets:[
+    {label:'Réalisé',data:dReal,backgroundColor:'rgba(100,116,139,.55)',stack:'n',borderRadius:4},
+    {label:'Pipe pondéré',data:dPipe,backgroundColor:'#2563eb',stack:'n',borderRadius:4},
+    {label:'Non identifié',data:dUnid,backgroundColor:'rgba(37,99,235,.28)',stack:'n',borderRadius:4},
+    {type:'line',label:'Objectif mensuel',data:dObj,borderColor:'rgba(15,23,42,.5)',backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],pointRadius:0}
+  ]},options:{...CO,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:11,padding:8}},
+    tooltip:{callbacks:{label:c2=>' '+c2.dataset.label+' : '+fmt(c2.parsed.y,0)}}},
+    scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
+}
+
+/* ── Synthèse comité (5 points, imprimable) ── */
+function renderProjSynthese(D){
+  const g=E('projSynth');if(!g)return;
+  const T=D.T, fin='fin '+MOIS_LIST[D.EI], NB=projNbMois();
+  const reste=Math.max(0,T.objAn-T.realM);
+  const prodReq=NB>0?reste/NB:0;
+  const runEq=D.perComm.reduce((a,c)=>a+c.rrM,0);
+  const ko=D.perComm.filter(c=>c.att!==null&&c.att<80).map(c=>c.last);
+  const li=[];
+  li.push(`<strong>Atterrissage MRR New à ${fin} : ${fmt(T.totM,0)}</strong> pour un objectif de ${fmt(T.objAn,0)}, soit ${T.att===null?'—':T.att.toFixed(0)+' %'}${T.gap<0?` — <strong>${fmt(Math.abs(T.gap),0)}</strong> manquants`:' — objectif couvert'}.`);
+  li.push(`Sur les ${NB} mois restants, il faut produire <strong>${fmt(prodReq,0)} de MRR New par mois</strong> contre ${fmt(runEq,0)} au rythme actuel${runEq>0&&prodReq>runEq?` (facteur ×${(prodReq/runEq).toFixed(1)})`:''}.`);
+  li.push(`Le pipe couvre l'objectif de la période à <strong>${T.cover===null?'—':'×'+T.cover.toFixed(1)}</strong> (référence ×${PIPE_COVER_TARGET})${T.cover!==null&&T.cover<PIPE_COVER_TARGET?` : <strong>${fmt(Math.max(0,T.objRest*PIPE_COVER_TARGET-T.pipeBrutM),0)}</strong> de MRR à créer au pipe`:''}. Seuls ${T.projM>0?(T.pipeM/T.projM*100).toFixed(0):0} % du MRR projeté reposent sur des affaires identifiées.`);
+  li.push(`Churn attendu sur la période : <strong>${fmt(T.projChurn,0)}</strong>${T.projChurn>T.projChurnConnu?` dont seulement ${fmt(T.projChurnConnu,0)} déjà notifiés — le reste est une extrapolation du rythme constaté (${fmt(D.crr,0)}/mois)`:''}. MRR net projeté : <strong>${fmt(T.netProj,0)}</strong>.`);
+  li.push(ko.length?`Commerciaux sous 80 % de leur objectif de période : <strong>${ko.join(', ')}</strong>. Non récurrent projeté à ${fin} : ${fmt(T.totO,0)}.`
+                  :`Aucun commercial sous 80 % de son objectif de période. Non récurrent projeté à ${fin} : ${fmt(T.totO,0)}.`);
+  g.innerHTML=`<h3>Synthèse comité — ${new Date().toLocaleDateString('fr-FR')}</h3><ol>${li.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+}
+
+/* ── Écart depuis le point de référence ── */
+function renderProjDelta(D){
+  const box=E('projDelta');if(!box)return;
+  const sel=E('projSnapSel');
+  if(sel){
+    if(!projSnaps.length){sel.innerHTML='<option value="">Aucun point de référence</option>';projSnapSel='';}
+    else{
+      if(!projSnaps.some(x=>String(x.id)===String(projSnapSel)))projSnapSel=String(projSnaps[projSnaps.length-1].id);
+      sel.innerHTML=[...projSnaps].reverse().map(x=>`<option value="${x.id}"${String(x.id)===String(projSnapSel)?' selected':''}>${x.lbl}</option>`).join('');
+      sel.value=String(projSnapSel);
+    }
+  }
+  if(E('projSnapInfo'))E('projSnapInfo').textContent=projSnaps.length?projSnaps.length+' point(s) de référence enregistré(s)':'Figez un point avant le comité pour suivre les écarts semaine après semaine';
+  const s=projSnaps.find(x=>String(x.id)===String(projSnapSel));
+  if(!s){
+    box.innerHTML=`<div class="win-empty" style="padding:0">Aucun point de référence. Cliquez sur <strong>📌 Figer le point de référence</strong> pour photographier la projection d'aujourd'hui&nbsp;: au prochain comité, ce bloc affichera automatiquement ce qui a bougé (réalisé rentré, pipe créé ou perdu, atterrissage révisé), commercial par commercial.</div>`;
+    return;
+  }
+  const T=D.T,P=s.T;
+  const d=(cur,old)=>({v:cur-old,cls:Math.abs(cur-old)<1?'eq':(cur-old)>0?'up':'dn'});
+  const dChurn=(cur,old)=>({v:cur-old,cls:Math.abs(cur-old)<1?'eq':(cur-old)>0?'dn':'up'});
+  const arrow=x=>Math.abs(x.v)<1?'=':x.v>0?'▲':'▼';
+  const cards=[
+    ['Atterrissage MRR New',d(T.totM,P.totM),T.totM],
+    ['Réalisé rentré',d(T.realM,P.realM),T.realM],
+    ['Pipe pondéré',d(T.pipeM,P.pipeM),T.pipeM],
+    ['Pipe brut',d(T.pipeBrutM,P.pipeBrutM),T.pipeBrutM],
+    ['Churn projeté',dChurn(T.projChurn,P.projChurn),T.projChurn],
+    ['Non récurrent',d(T.totO,P.totO),T.totO]
+  ];
+  let h=`<div class="dlt-grid">`+cards.map(([lbl,x,cur])=>
+    `<div class="dlt"><div class="dlt-lbl">${lbl}</div><div class="dlt-val ${x.cls}">${arrow(x)} ${x.cls==='eq'?'stable':(x.v>0?'+':'−')+fmt(Math.abs(x.v),0).replace('-','')}</div><div class="dlt-sub">aujourd'hui ${fmt(cur,0)}</div></div>`).join('')+`</div>`;
+  const dAtt=(T.att===null||P.att===null)?null:T.att-P.att;
+  h+=`<div style="font-size:.75rem;color:var(--muted);margin-bottom:12px">Référence du <strong>${s.lbl}</strong> · hypothèses figées : ${s.hyp.mode==='runrate'?'run-rate':s.hyp.mode==='objectif'?'objectif':'moyenne'} × ${Math.round((s.hyp.amb||1)*100)} %, scénario ${s.hyp.scen===1?'réaliste':s.hyp.scen<1?'prudent':'optimiste'}, horizon ${MOIS_LIST[s.hyp.end]||'Déc'}. `+
+    (dAtt===null?'':`Atteinte projetée : <strong style="color:${dAtt>=0?'var(--green)':'var(--red)'}">${dAtt>=0?'+':''}${dAtt.toFixed(1)} pt</strong> (${P.att.toFixed(0)} % → ${T.att.toFixed(0)} %).`)+
+    ((()=>{
+      const k=o=>JSON.stringify({mode:o.mode,amb:o.amb,scen:o.scen,churn:o.churn,end:o.end,weight:o.weight||'proba'});
+      return k(s.hyp)!==k({mode:projMode,amb:projAmb,scen:simScenario,churn:projChurnMode,end:projEndIdx,weight:projWeight})
+        ? ' <span style="color:var(--orange);font-weight:600">⚠️ Hypothèses actuelles différentes de la référence — l’écart mêle effet réel et effet hypothèse.</span>' : '';
+    })())+
+    (s.hyp.last!==projLast()?` <span style="color:var(--blue);font-weight:600">${projLast()-s.hyp.last} mois de réalisé rentré depuis (référence arrêtée à ${MOIS_LIST[s.hyp.last]||'—'}) : la révision de l’atterrissage est normale.</span>`:'')+`</div>`;
+  h+=`<div class="tbl-scroll"><table><thead><tr><th>Commercial</th><th>Atterrissage</th><th>Δ atterrissage</th><th>Δ réalisé</th><th>Δ pipe pondéré</th><th>Δ affaires</th><th>Δ atteinte</th></tr></thead><tbody>`;
+  D.perComm.forEach(c=>{
+    const o=(s.comm||[]).find(x=>x.last===c.last);
+    const f=(cur,old)=>{if(!o)return '<span style="color:var(--subtle)">nouveau</span>';const v=cur-(old||0);
+      const col=Math.abs(v)<1?'var(--subtle)':v>0?'var(--green)':'var(--red)';
+      return `<span style="color:${col};font-weight:600">${Math.abs(v)<1?'=':(v>0?'+':'−')+fmt(Math.abs(v),0)}</span>`;};
+    const fn=(cur,old)=>{if(!o)return '—';const v=cur-(old||0);
+      const col=v===0?'var(--subtle)':v>0?'var(--green)':'var(--red)';
+      return `<span style="color:${col};font-weight:600">${v===0?'=':(v>0?'+':'')+v}</span>`;};
+    const da=(!o||c.att===null||o.att===null||o.att===undefined)?'—':(()=>{const v=c.att-o.att;
+      return `<span style="color:${Math.abs(v)<.5?'var(--subtle)':v>0?'var(--green)':'var(--red)'};font-weight:600">${v>=0?'+':''}${v.toFixed(1)} pt</span>`;})();
+    h+=`<tr><td style="font-weight:600">${c.last}</td><td>${fmt(c.atterM,0)}</td><td>${f(c.atterM,o&&o.atterM)}</td><td>${f(c.realM,o&&o.realM)}</td><td>${f(c.pipeM,o&&o.pipeM)}</td><td>${fn(c.nbDeals,o&&o.nbDeals)}</td><td>${da}</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  box.innerHTML=h;
+}
+
+/* ── Taux de transformation par commercial ── */
+function renderProjWin(D){
+  const tb=E('projWinTbl');if(!tb)return;
+  const W=winStats();
+  const rows=D.perComm.map(c=>({last:c.last,nom:c.nom,s:W.byComm[c.last]||null}));
+  let h='';
+  rows.forEach(r=>{
+    if(!r.s||r.s.n===0){
+      h+=`<tr><td style="font-weight:600">${r.last}</td><td colspan="8" style="color:var(--subtle)">aucune affaire clôturée dans l'historique</td></tr>`;return;}
+    const s=r.s;
+    const cN=s.rateN===null?'na':s.rateN>=.5?'ov':s.rateN>=.3?'ne':'lo';
+    const cV=s.rateV===null?'na':s.rateV>=.5?'ov':s.rateV>=.3?'ne':'lo';
+    h+=`<tr><td style="font-weight:600">${r.last}</td>`+
+      `<td style="text-align:center">${s.n}${s.n<WIN_MIN?' <span class="bdg na">peu fiable</span>':''}</td>`+
+      `<td style="text-align:center;color:var(--green);font-weight:600">${s.won}</td>`+
+      `<td style="text-align:center;color:var(--red);font-weight:600">${s.lost}</td>`+
+      `<td><span class="bdg ${cN}">${s.rateN===null?'—':(s.rateN*100).toFixed(0)+' %'}</span></td>`+
+      `<td>${fmt(s.wonMrr,0)}</td><td>${fmt(s.lostMrr,0)}</td>`+
+      `<td><span class="bdg ${cV}">${s.rateV===null?'—':(s.rateV*100).toFixed(0)+' %'}</span></td>`+
+      `<td style="font-size:.72rem;color:var(--muted)">${s.topMotif}</td></tr>`;
+  });
+  const T=W.team;
+  if(T.n>0)h+=`<tr class="tr-tot"><td>ÉQUIPE</td><td style="text-align:center">${T.n}</td><td style="text-align:center">${T.won}</td><td style="text-align:center">${T.lost}</td>`+
+    `<td>${T.rateN===null?'—':(T.rateN*100).toFixed(0)+' %'}</td><td>${fmt(T.wonMrr,0)}</td><td>${fmt(T.lostMrr,0)}</td>`+
+    `<td>${T.rateV===null?'—':(T.rateV*100).toFixed(0)+' %'}</td><td>${T.topMotif}</td></tr>`;
+  tb.innerHTML=h;
+  const declaree=pipe.length?pipe.reduce((a,d)=>a+(d.proba||0),0)/pipe.length:0;
+  E('projWinNote').innerHTML = T.n===0
+    ? `L'historique est vide : ce tableau se remplit automatiquement dès que vous clôturez des affaires (bouton <strong>Gagné / Perdu</strong> dans l'onglet Pipeline). À partir de <strong>${WIN_MIN} affaires clôturées</strong>, la projection peut basculer sur le taux réel via le sélecteur « Pondération des affaires ».`
+    : `Probabilité moyenne déclarée au pipe : <strong>${declaree.toFixed(0)} %</strong> · taux réellement constaté en valeur : <strong>${T.rateV===null?'—':(T.rateV*100).toFixed(0)+' %'}</strong>${T.rateV!==null&&declaree>0?` — écart de <strong style="color:${declaree/100>T.rateV?'var(--red)':'var(--green)'}">${((declaree/100-T.rateV)*100).toFixed(0)} pt</strong>${declaree/100>T.rateV?' : le pipe est optimiste, la projection sur probabilités déclarées surestime l’atterrissage.':' : le pipe est prudent.'}`:''} Le taux individuel n'est utilisé qu'à partir de ${WIN_MIN} affaires clôturées, sinon le taux équipe prend le relais.`;
+}
+
 
 initSaisie();
 initPipeFilters();
