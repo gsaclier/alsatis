@@ -241,6 +241,26 @@
     .card{transition:none}
     #canvas{display:none}
   }
+
+/* Executive refresh */
+:root{--ink:#091a30;--ink-2:#123a60;--maxw:1240px}
+body{background:radial-gradient(ellipse at 52% 5%,#174b77 0%,#0c2440 45%,#08172b 85%)}
+.aurora .a1{opacity:.85}.aurora .a2{opacity:.23}.aurora .a3{opacity:.18}
+#canvas{opacity:.42}header{padding-top:30px}.topline{margin-top:22px}.signal{margin-top:24px}
+.clock .time{color:var(--rose)}.lede{max-width:65ch}.wordmark{color:var(--rose)}
+main{align-items:flex-start}.grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;padding:28px 0 16px}
+.grid .card{grid-column:span 2;min-height:245px;padding:22px;background:linear-gradient(145deg,rgba(32,85,130,.48),rgba(13,37,63,.82));border-color:color-mix(in srgb,var(--accent) 24%,transparent)}
+.grid .card:nth-child(n+4){grid-column:span 3;min-height:225px}.card h2{font-size:24px;margin:15px 0 12px}.contents{gap:6px}.contents li{font-size:13px}.open{padding-top:17px}.card .idx{font-size:36px;opacity:.55}
+.module-icon{width:42px;height:42px;display:grid;place-items:center;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);border-radius:12px}.module-icon svg{width:24px;height:24px}
+.module-strip{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font:11px var(--mono);padding:12px 15px;margin-bottom:24px;border:1px solid var(--line);border-radius:10px;background:#13538a22}.module-strip i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8ee7cf;margin-right:7px}
+.quick,.signature{display:none;position:fixed;z-index:4;top:50%;transform:translateY(-50%)}
+.quick{left:22px;flex-direction:column;align-items:center;gap:12px;padding:12px 8px;border:1px solid #5fa3df35;border-radius:16px;background:#102b47d9;backdrop-filter:blur(14px)}.rail-brand{font:500 13px var(--mono);color:var(--rose);padding:8px 0;border-bottom:1px solid var(--line)}
+.quick a,.quick button{position:relative;width:42px;height:42px;display:grid;place-items:center;color:var(--accent,var(--rose));background:transparent;border:1px solid transparent;border-radius:10px;cursor:pointer;text-decoration:none}.quick svg{width:22px;height:22px}.quick a span{position:absolute;right:3px;bottom:1px;font:9px var(--mono);opacity:.65}.quick a:hover,.quick button:hover,.quick a:focus-visible,.quick button:focus-visible{background:#FFD9F11a;border-color:var(--rose);outline:none}
+.signature{right:18px;align-items:center;gap:6px;pointer-events:none}.signature svg{width:56px;height:390px;opacity:.65}.signature span{writing-mode:vertical-rl;font:10px var(--mono);letter-spacing:.24em;color:var(--muted)}.pulse{animation:railpulse 3s ease-in-out infinite}@keyframes railpulse{50%{opacity:.2}}
+@media(min-width:1450px){.quick,.signature{display:flex}}
+@media(max-width:1050px){.grid .card{grid-column:span 3}.grid .card:last-child{grid-column:span 6}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.grid .card,.grid .card:nth-child(n+4){grid-column:1;min-height:0}.wrap{padding:0 18px}.module-strip span:last-child{display:none}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none}.grid .card:nth-child(n){animation:none;transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -260,7 +280,7 @@
       <div class="brand">
         <span class="eyebrow reveal r2"><span class="dot"></span>Direction Commerciale</span>
         <h1 class="reveal r3">Cockpit <em>CODIR</em></h1>
-        <p class="lede reveal r4">Point d'entrée unique vers les tableaux de bord de pilotage : avant-ventes, performance commerciale, productions et recouvrement.</p>
+        <p class="lede reveal r4">Centre de pilotage stratégique, commercial, opérationnel et financier.</p>
       </div>
       <div class="meta reveal r5">
         <span class="live"><span class="dot"></span>En direct</span>
@@ -279,11 +299,12 @@
   </div>
 </header>
 
+<aside class="quick" aria-label="Navigation rapide"><span class="rail-brand">AS</span><a href="av.html" style="--accent:var(--c1)" title="Avant-ventes (1)" aria-label="Avant-ventes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M9 3h6v4H9zM8 12h8M8 16h6"/></svg><span>1</span></a><a href="commercial.html" style="--accent:var(--c2)" title="Dashboard commercial (2)" aria-label="Dashboard commercial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l5-5 4 3 5-7"/></svg><span>2</span></a><a href="prod.html" style="--accent:var(--c3)" title="Productions (3)" aria-label="Productions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>3</span></a><a href="carnet-production.html" style="--accent:var(--c4)" title="Carnet de production (4)" aria-label="Carnet de production"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h5M12 17h5"/></svg><span>4</span></a><a href="recovery.html" style="--accent:var(--c5)" title="Balance âgée (5)" aria-label="Balance âgée"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M15 14h6M16 16h.01"/></svg><span>5</span></a><button id="fullscreen" title="Plein écran" aria-label="Activer le plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3H3v6M15 3h6v6M3 15v6h6M21 15v6h-6"/></svg></button></aside><aside class="signature" aria-hidden="true"><svg viewBox="0 0 80 520" fill="none"><path d="M40 0v80l-20 20v100l20 20v80l20 20v100l-20 20v80" stroke="#5fa3df"/><path d="M60 0v140l-20 20v90M20 520V390l20-20v-60" stroke="#FFD9F1" opacity=".55"/><circle cx="40" cy="80" r="3" fill="#FFD9F1"/><circle cx="40" cy="300" r="3" fill="#FFD9F1"/><circle cx="60" cy="420" r="3" fill="#5fa3df"/><circle class="pulse" cx="40" cy="220" r="5" fill="#FFD9F1"/></svg><span>ALSATIS · EXECUTIVE SYSTEM</span></aside>
 <main>
   <div class="wrap">
     <div class="grid">
       <a class="card reveal" href="av.html" style="--accent:var(--c1)">
-        <div class="card-top"><span class="idx">01</span></div>
+        <div class="card-top"><span class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M9 3h6v4H9zM8 12h8M8 16h6"/></svg></span><span class="idx">01</span></div>
         <h2>Avant-ventes</h2>
         <ul class="contents">
           <li>Vue globale</li>
@@ -296,7 +317,7 @@
         </span>
       </a>
       <a class="card reveal" href="commercial.html" style="--accent:var(--c2)">
-        <div class="card-top"><span class="idx">02</span></div>
+        <div class="card-top"><span class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l5-5 4 3 5-7"/></svg></span><span class="idx">02</span></div>
         <h2>Dashboard commercial</h2>
         <ul class="contents">
           <li>Vue globale</li>
@@ -309,7 +330,7 @@
         </span>
       </a>
       <a class="card reveal" href="prod.html" style="--accent:var(--c3)">
-        <div class="card-top"><span class="idx">03</span></div>
+        <div class="card-top"><span class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/></svg></span><span class="idx">03</span></div>
         <h2>Productions</h2>
         <ul class="contents">
           <li>Vue globale</li>
@@ -322,7 +343,7 @@
         </span>
       </a>
       <a class="card reveal" href="carnet-production.html" style="--accent:var(--c4)">
-        <div class="card-top"><span class="idx">04</span></div>
+        <div class="card-top"><span class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h5M12 17h5"/></svg></span><span class="idx">04</span></div>
         <h2>Carnet de production</h2>
         <ul class="contents">
           <li>Gantt des affaires signées</li>
@@ -335,7 +356,7 @@
         </span>
       </a>
       <a class="card reveal" href="recovery.html" style="--accent:var(--c5)">
-        <div class="card-top"><span class="idx">05</span></div>
+        <div class="card-top"><span class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M15 14h6M16 16h.01"/></svg></span><span class="idx">05</span></div>
         <h2>Balance âgée</h2>
         <ul class="contents">
           <li>Vue globale · Encours clients</li>
@@ -348,6 +369,7 @@
         </span>
       </a>
     </div>
+    <div class="module-strip"><span><i></i> 5 modules de pilotage</span><span>Raccourcis 1–5 · F : plein écran</span></div>
   </div>
 </main>
 
@@ -432,6 +454,11 @@ function draw(){
   requestAnimationFrame(draw);
 }
 draw();
+
+const fullButton=document.getElementById('fullscreen');
+async function toggleFull(){try{if(document.fullscreenElement){await document.exitFullscreen()}else if(document.documentElement.requestFullscreen){await document.documentElement.requestFullscreen()}else{alert('Utilisez le mode plein écran de votre navigateur.')}}catch(e){alert('Utilisez le mode plein écran de votre navigateur.')}}
+fullButton.addEventListener('click',toggleFull);
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.repeat||e.target.closest('input,textarea,select,[contenteditable]'))return;if(/^[1-5]$/.test(e.key)){location.href=document.querySelectorAll('.grid .card')[Number(e.key)-1].getAttribute('href')}else if(e.key.toLowerCase()==='f'){toggleFull()}});
 </script>
 </body>
 </html>
